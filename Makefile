@@ -1,5 +1,5 @@
 P=cube
-OBJECTS=chunk.o memory.o debug.o value.o
+OBJECTS=chunk.o memory.o debug.o value.o error.o
 CFLAGS=-g -Wall -Werror -O3 -std=gnu11 -I include
 LDLIBS=
 CC=gcc
