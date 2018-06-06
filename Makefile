@@ -1,8 +1,11 @@
 P=cube
 OBJECTS=chunk.o memory.o debug.o value.o
-CFLAGS=-g -Wall -Werror -O3 -std=gnu11
+CFLAGS=-g -Wall -Werror -O3 -std=gnu11 -I include
 LDLIBS=
 CC=gcc
+
+vpath %.c src
+vpath %.h include
 
 $(P): $(OBJECTS)
 
