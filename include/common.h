@@ -5,4 +5,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "error.h"
+
 #endif // COMMON_H
