@@ -29,7 +29,7 @@ Array ArrayNew(int length, int size)
 static void ArrayInit(Array array, int length, int size, void *data)
 {
   assert(array);
-  assert(data && length > 0 || length == 0 && data == NULL);
+  assert((data && length > 0) || (length == 0 && data == NULL));
   assert(size > 0);
 
   array->length = length;

@@ -16,7 +16,7 @@ void writeValueArray(ValueArray *array, Value value)
     int oldCapacity = array->capacity;
     array->capacity = GROW_CAPACITY(oldCapacity);
     if(array->values)
-      array->values = RESIZE(array->values, sizeof(Value) * array->capacity);
+      RESIZE(array->values, sizeof(Value) * array->capacity);
     else
       array->values = ALLOC(sizeof(Value) * array->capacity);
   }

@@ -19,12 +19,12 @@ void writeChunk(Chunk *chunk, uint8_t byte, int line)
     int oldCapacity = chunk->capacity;
     chunk->capacity = GROW_CAPACITY(oldCapacity);
     if(chunk->code)
-      chunk->code   = RESIZE(chunk->code, sizeof(uint8_t) * chunk->capacity);
+      RESIZE(chunk->code, sizeof(uint8_t) * chunk->capacity);
     else
       chunk->code   = ALLOC(sizeof(uint8_t) * chunk->capacity);
 
     if(chunk->lines)
-      chunk->lines  = RESIZE(chunk->lines, sizeof(int) * chunk->capacity);
+      RESIZE(chunk->lines, sizeof(int) * chunk->capacity);
     else
       chunk->lines  = ALLOC(sizeof(int) * chunk->capacity);
   }
