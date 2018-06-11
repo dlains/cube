@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "common.h"
 #include "vm.h"
+#include "compiler.h"
 #include "debug.h"
 
 VM vm;
@@ -47,10 +48,9 @@ static void printStack()
   printf("\n");
 }
 
-InterpretResult interpret(Chunk *chunk)
+InterpretResult interpret(const char *source)
 {
-  vm.chunk = chunk;
-  vm.ip = vm.chunk->code;
+  compile(source);
   return run();
 }
 
