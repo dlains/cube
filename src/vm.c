@@ -6,9 +6,10 @@
 
 VM vm;
 
-static InterpretResult run();
+// Comment out the run function for the time being. Not currently being used.
+// static InterpretResult run();
 static void resetStack();
-static void printStack();
+// static void printStack();
 
 void VMInit()
 {
@@ -36,6 +37,7 @@ static void resetStack()
   vm.stackTop = vm.stack;
 }
 
+/*
 static void printStack()
 {
   printf("          ");
@@ -47,13 +49,16 @@ static void printStack()
   }
   printf("\n");
 }
+*/
 
 InterpretResult interpret(const char *source)
 {
   compile(source);
-  return run();
+  // return run();
+  return INTERPRET_OK;
 }
 
+/*
 static InterpretResult run()
 {
 #define READ_BYTE() (*vm.ip++)
@@ -118,4 +123,4 @@ static InterpretResult run()
 #undef READ_CONSTANT
 #undef BINARY_OP
 }
-
+*/
