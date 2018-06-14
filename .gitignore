@@ -51,5 +51,12 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# Ignore the output in build.
+build/artifacts
+build/gcov
+build/logs
+build/temp
+build/test
+
 # The executable
 cube
