@@ -1,5 +1,7 @@
 #include "common.h"
+#include "keywords.h"
 #include "scanner.h"
+#include "memory.h"
 
 typedef struct
 {
@@ -210,124 +212,21 @@ static Token identifier()
 
 static TokenType identifierType()
 {
-  switch(scanner.start[0])
-  {
-    case 'b':
-      if(scanner.current - scanner.start > 1)
-      {
-        switch(scanner.start[1])
-        {
-          case 'e':
-            return checkKeyword(2, 3, "gin", TOKEN_BEGIN);
-          case 'r':
-            return checkKeyword(2, 3, "eak", TOKEN_BREAK);
-        }
-      }
-      break;
-    case 'c':
-      if(scanner.current - scanner.start > 1)
-      {
-        switch(scanner.start[1])
-        {
-          case 'a':
-            return checkKeyword(2, 2, "se", TOKEN_CASE);
-          case 'l':
-            return checkKeyword(2, 3, "ass", TOKEN_CLASS);
-        }
-      }
-      break;
-    case 'd':
-      if(scanner.current - scanner.start > 1)
-      {
-        switch(scanner.start[1])
-        {
-          case 'e':
-            return checkKeyword(2, 1, "f", TOKEN_DEF);
-          case 'o':
-            return checkKeyword(2, 0, "", TOKEN_DO);
-        }
-      }
-      break;
-    case 'e':
-      if(scanner.current - scanner.start > 1)
-      {
-        switch(scanner.start[1])
-        {
-          case 'l':
-            return checkKeyword(2, 2, "se", TOKEN_ELSE);
-          case 'n':
-            return checkKeyword(2, 1, "d", TOKEN_END);
-        }
-      }
-      break;
-    case 'f':
-      return checkKeyword(1, 4, "alse", TOKEN_FALSE);
-      break;
-    case 'i':
-      if(scanner.current - scanner.start > 1)
-      {
-        switch(scanner.start[1])
-        {
-          case 'f':
-            return checkKeyword(2, 0, "", TOKEN_IF);
-          case 'm':
-            return checkKeyword(2, 4, "port", TOKEN_IMPORT);
-        }
-      }
-      break;
-    case 'n':
-      if(scanner.current - scanner.start > 1)
-      {
-        switch(scanner.start[1])
-        {
-          case 'e':
-            return checkKeyword(2, 2, "xt", TOKEN_NEXT);
-          case 'i':
-            return checkKeyword(2, 1, "l", TOKEN_NIL);
-        }
-      }
-      break;
-    case 'r':
-      return checkKeyword(1, 5, "eturn", TOKEN_RETURN);
-    case 's':
-      if(scanner.current - scanner.start > 1)
-      {
-        switch(scanner.start[1])
-        {
-          case 'u':
-            return checkKeyword(2, 3, "per", TOKEN_SUPER);
-          case 'w':
-            return checkKeyword(2, 4, "itch", TOKEN_SWITCH);
-        }
-      }
-      break;
-    case 't':
-      if(scanner.current - scanner.start > 1)
-      {
-        switch(scanner.start[1])
-        {
-          case 'h':
-            return checkKeyword(2, 2, "is", TOKEN_THIS);
-          case 'r':
-            return checkKeyword(2, 2, "ue", TOKEN_TRUE);
-        }
-      }
-      break;
-    case 'u':
-      return checkKeyword(1, 5, "nless", TOKEN_UNLESS);
-    case 'w':
-      return checkKeyword(1, 4, "hile", TOKEN_WHILE);
-  }
+  char *identifier = create_identifier();
+  if(is_keyword(identifier))
+    return keyword_type(identifier);
 
   return TOKEN_IDENTIFIER;
 }
 
-static TokenType checkKeyword(int start, int length, const char *rest, TokenType type)
+static char *create_identifier()
 {
-  if(scanner.current - scanner.start == start + length && memcmp(scanner.start + start, rest, length) == 0)
-    return type;
-
-  return TOKEN_IDENTIFIER;
+  // TODO: There is a memory leak here at the moment. The identifier memory
+  // never gets freed. I think it will fix itself when I convert the scanner
+  // to store the actual token lexeme instead of the indice into the source buffer.
+  char *identifier = CALLOC(1, scanner.current - scanner.start + 1);
+  memcpy(identifier, scanner.start, scanner.current - scanner.start);
+  return identifier;
 }
 
 static bool isAlpha(char c)

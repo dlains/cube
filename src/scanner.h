@@ -98,6 +98,6 @@ static Token identifier();
 static bool isAlpha(char c);
 static bool isDigit(char c);
 static TokenType identifierType();
-static TokenType checkKeyword(int start, int length, const char *rest, TokenType type);
+static char *create_identifier();
 
 #endif // SCANNER_H

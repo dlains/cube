@@ -9,6 +9,9 @@
 // Return true if 'word' is one of the known keywords, false otherwise.
 bool is_keyword(const char *word);
 
+// Get the keyword token type for the passed in word.
+int keyword_type(const char *word);
+
 // Calculate a hash value for the word.
 static int hash(const char *word);
 

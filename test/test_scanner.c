@@ -1,4 +1,7 @@
 #include "unity.h"
+#include "keywords.h"
+#include "memory.h"
+#include "error.h"
 #include "scanner.h"
 
 int nextTokenTypeFor(const char *source)
@@ -146,4 +149,56 @@ void test_recognize_less_equal(void)
 void test_recognize_string(void)
 {
   TEST_ASSERT_EQUAL_INT(TOKEN_STRING, nextTokenTypeFor("\"this is a string\""));
+}
+
+void test_recognize_keywords(void)
+{
+  TEST_ASSERT_EQUAL_INT(TOKEN_BEGIN, nextTokenTypeFor("begin"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_BREAK, nextTokenTypeFor("break"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_CASE, nextTokenTypeFor("case"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_CLASS, nextTokenTypeFor("class"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_DEF, nextTokenTypeFor("def"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_DO, nextTokenTypeFor("do"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_ELSE, nextTokenTypeFor("else"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_END, nextTokenTypeFor("end"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_ENSURE, nextTokenTypeFor("ensure"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_FALSE, nextTokenTypeFor("false"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_IF, nextTokenTypeFor("if"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_IMPORT, nextTokenTypeFor("import"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_NEXT, nextTokenTypeFor("next"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_NIL, nextTokenTypeFor("nil"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_RESCUE, nextTokenTypeFor("rescue"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_RETURN, nextTokenTypeFor("return"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_SUPER, nextTokenTypeFor("super"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_SWITCH, nextTokenTypeFor("switch"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_THIS, nextTokenTypeFor("this"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_TRUE, nextTokenTypeFor("true"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_UNLESS, nextTokenTypeFor("unless"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_UNTIL, nextTokenTypeFor("until"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_WHILE, nextTokenTypeFor("while"));
+}
+
+void test_recognize_identifier(void)
+{
+  TEST_ASSERT_EQUAL_INT(TOKEN_IDENTIFIER, nextTokenTypeFor("someName"));
+}
+
+void test_recognize_numbers(void)
+{
+  TEST_ASSERT_EQUAL_INT(TOKEN_NUMBER, nextTokenTypeFor("12.3"));
+}
+
+void test_recognize_multiple_tokens(void)
+{
+  initScanner("def method()");
+  Token token = nextToken();
+  TEST_ASSERT_EQUAL_INT(TOKEN_DEF, token.type);
+  token = nextToken();
+  TEST_ASSERT_EQUAL_INT(TOKEN_IDENTIFIER, token.type);
+  token = nextToken();
+  TEST_ASSERT_EQUAL_INT(TOKEN_LEFT_PAREN, token.type);
+  token = nextToken();
+  TEST_ASSERT_EQUAL_INT(TOKEN_RIGHT_PAREN, token.type);
+  token = nextToken();
+  TEST_ASSERT_EQUAL_INT(TOKEN_EOF, token.type);
 }
