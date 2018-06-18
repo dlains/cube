@@ -1,130 +1,58 @@
 #include "keywords.h"
-#include "scanner.h"
+#include "token.h"
+
+typedef struct
+{
+  int token_type;
+  int hash;
+  char *word;
+} Keyword;
 
 // The keywords used in Cube.
-char *keywords[] = {
-  "begin",
-  "break",
-  "case",
-  "class",
-  "def",
-  "do",
-  "else",
-  "end",
-  "ensure",
-  "false",
-  "if",
-  "import",
-  "next",
-  "nil",
-  "rescue",
-  "return",
-  "super",
-  "switch",
-  "this",
-  "true",
-  "unless",
-  "until",
-  "while",
+Keyword keywords[] = {
+  { TOKEN_BEGIN,  2504, "begin"  },
+  { TOKEN_BREAK,  3748, "break"  },
+  { TOKEN_CASE,   3481, "case"   },
+  { TOKEN_CLASS,  1018, "class"  },
+  { TOKEN_DEF,    4235, "def"    },
+  { TOKEN_DO,     2081, "do"     },
+  { TOKEN_ELSE,   1128, "else"   },
+  { TOKEN_END,    7082, "end"    },
+  { TOKEN_ENSURE, 7205, "ensure" },
+  { TOKEN_FALSE,  2595, "false"  },
+  { TOKEN_IF,     6130, "if"     },
+  { TOKEN_IMPORT, 3869, "import" },
+  { TOKEN_NEXT,   1643, "next"   },
+  { TOKEN_NIL,    4493, "nil"    },
+  { TOKEN_RESCUE, 7137, "rescue" },
+  { TOKEN_RETURN, 2618, "return" },
+  { TOKEN_SUPER,  4786, "super"  },
+  { TOKEN_SWITCH, 5077, "switch" },
+  { TOKEN_THIS,   5937, "this"   },
+  { TOKEN_TRUE,   749,  "true"   },
+  { TOKEN_UNLESS, 7846, "unless" },
+  { TOKEN_UNTIL,  1255, "until"  },
+  { TOKEN_WHILE,  6530, "while"  },
 };
 
-// A hash value for each of the keywords. The index matches the
-// index in 'keywords'.
-int keyword_hashes[] = {
-  2504,
-  3748,
-  3481,
-  1018,
-  4235,
-  2081,
-  1128,
-  7082,
-  7205,
-  2595,
-  6130,
-  3869,
-  1643,
-  4493,
-  7137,
-  2618,
-  4786,
-  5077,
-  5937,
-  749,
-  7846,
-  1255,
-  6530,
-};
-
-bool is_keyword(const char *word)
+int find_keyword(const char *word)
 {
+  // Can't be a keyword if it is NULL.
+  if(word == NULL)
+    return 0;
+
+  // Can't be a keyword if it is 0 characters or greather than 6 characters.
+  int length = strnlen(word, LEXEME_LEN);
+  if(length < 1 || length > 6)
+    return 0;
+
   int value = hash(word);
   for(int i = 0; i < NUM_KEYWORDS; i++)
   {
-    if(keyword_hashes[i] == value)
+    if(keywords[i].hash == value)
       return verify_keyword(word, i);
   }
   return false;
-}
-
-// Seems like there should be a better way to do this. I could assign the hash values
-// as the token type values in 'scanner.h' then have is_keyword return the hash value
-// which will already be the correct token type id. Is that too tricky? Thinking about
-// this some more.
-int keyword_type(const char *word)
-{
-  int value = hash(word);
-  switch(value)
-  {
-    case 2504:
-      return TOKEN_BEGIN;
-    case 3748:
-      return TOKEN_BREAK;
-    case 3481:
-      return TOKEN_CASE;
-    case 1018:
-      return TOKEN_CLASS;
-    case 4235:
-      return TOKEN_DEF;
-    case 2081:
-      return TOKEN_DO;
-    case 1128:
-      return TOKEN_ELSE;
-    case 7082:
-      return TOKEN_END;
-    case 7205:
-      return TOKEN_ENSURE;
-    case 2595:
-      return TOKEN_FALSE;
-    case 6130:
-      return TOKEN_IF;
-    case 3869:
-      return TOKEN_IMPORT;
-    case 1643:
-      return TOKEN_NEXT;
-    case 4493:
-      return TOKEN_NIL;
-    case 7137:
-      return TOKEN_RESCUE;
-    case 2618:
-      return TOKEN_RETURN;
-    case 4786:
-      return TOKEN_SUPER;
-    case 5077:
-      return TOKEN_SWITCH;
-    case 5937:
-      return TOKEN_THIS;
-    case 749:
-      return TOKEN_TRUE;
-    case 7846:
-      return TOKEN_UNLESS;
-    case 1255:
-      return TOKEN_UNTIL;
-    case 6530:
-      return TOKEN_WHILE;
-    default:
-      return TOKEN_ERROR;
-  }
 }
 
 static int hash(const char *word)
@@ -136,9 +64,11 @@ static int hash(const char *word)
   return h;
 }
 
-static bool verify_keyword(const char *word, int keyword_index)
+static int verify_keyword(const char *word, int index)
 {
-  return memcmp(word, keywords[keyword_index], strlen(keywords[keyword_index])) == 0;
+  if(memcmp(word, keywords[index].word, strnlen(keywords[index].word, LEXEME_LEN)) == 0)
+    return keywords[index].token_type;
+  return 0;
 }
 
 // Use along with the first test in 'test/test_keywords.c' to show all keyword
