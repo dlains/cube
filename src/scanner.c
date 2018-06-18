@@ -216,8 +216,10 @@ static TokenType identifierType()
   char identifier[LEXEME_LEN];
   memcpy(identifier, scanner.start, scanner.current - scanner.start);
   identifier[scanner.current - scanner.start] = '\0';
-  if(is_keyword(identifier))
-    return keyword_type(identifier);
+
+  int type = find_keyword(identifier);
+  if(type != 0)
+    return type;
 
   return TOKEN_IDENTIFIER;
 }

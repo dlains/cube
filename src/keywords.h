@@ -7,16 +7,13 @@
 #define HASH_MAX 7919
 
 // Return true if 'word' is one of the known keywords, false otherwise.
-bool is_keyword(const char *word);
-
-// Get the keyword token type for the passed in word.
-int keyword_type(const char *word);
+int find_keyword(const char *word);
 
 // Calculate a hash value for the word.
 static int hash(const char *word);
 
 // If the passed in words hash matches one of the keywords
 // verify it is actually a keyword and not a hash colision.
-static bool verify_keyword(const char *word, int keyword_index);
+static int verify_keyword(const char *word, int index);
 
 #endif // KEYWORDS_H
