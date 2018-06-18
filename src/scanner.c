@@ -95,8 +95,8 @@ static Token makeToken(TokenType type)
 {
   Token token;
   token.type = type;
-  token.start = scanner.start;
-  token.length = (int)(scanner.current - scanner.start);
+  memcpy(token.lexeme, scanner.start, scanner.current - scanner.start);
+  token.lexeme[scanner.current - scanner.start] = '\0';
   token.line = scanner.line;
 
   return token;
@@ -106,8 +106,7 @@ static Token errorToken(const char *message)
 {
   Token token;
   token.type = TOKEN_ERROR;
-  token.start = message;
-  token.length = (int)strlen(message);
+  memcpy(token.lexeme, message, strlen(message));
   token.line = scanner.line;
 
   return token;
@@ -174,7 +173,9 @@ static Token string()
   while(peek() != '"' && !isAtEnd())
   {
     if(peek() == '\n')
+    {
       scanner.line++;
+    }
     advance();
   }
 
@@ -212,21 +213,13 @@ static Token identifier()
 
 static TokenType identifierType()
 {
-  char *identifier = create_identifier();
+  char identifier[LEXEME_LEN];
+  memcpy(identifier, scanner.start, scanner.current - scanner.start);
+  identifier[scanner.current - scanner.start] = '\0';
   if(is_keyword(identifier))
     return keyword_type(identifier);
 
   return TOKEN_IDENTIFIER;
-}
-
-static char *create_identifier()
-{
-  // TODO: There is a memory leak here at the moment. The identifier memory
-  // never gets freed. I think it will fix itself when I convert the scanner
-  // to store the actual token lexeme instead of the indice into the source buffer.
-  char *identifier = CALLOC(1, scanner.current - scanner.start + 1);
-  memcpy(identifier, scanner.start, scanner.current - scanner.start);
-  return identifier;
 }
 
 static bool isAlpha(char c)
