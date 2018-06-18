@@ -69,11 +69,12 @@ typedef enum
   TOKEN_EOF
 } TokenType;
 
+#define LEXEME_LEN 50
+
 typedef struct
 {
   TokenType type;
-  const char *start;
-  int length;
+  char lexeme[LEXEME_LEN];
   int line;
 } Token;
 
@@ -83,7 +84,6 @@ void initScanner(const char *source);
 Token nextToken();
 
 // Private scanner methods.
-
 static Token makeToken(TokenType type);
 static Token errorToken(const char *message);
 static bool isAtEnd();
@@ -98,6 +98,5 @@ static Token identifier();
 static bool isAlpha(char c);
 static bool isDigit(char c);
 static TokenType identifierType();
-static char *create_identifier();
 
 #endif // SCANNER_H
