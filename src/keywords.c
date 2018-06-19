@@ -1,14 +1,25 @@
+/** @file keywords.c
+ *
+ * @brief Provide the implementation of the keywords interface.
+ *
+ * @author David J. Lains (dlains)
+ * @bug No known bugs.
+ */
+
 #include "keywords.h"
 #include "token.h"
 
+/** @brief The Keyword struct holds all the relevant info for a keyword.
+ */
 typedef struct
 {
-  int token_type;
-  int hash;
-  char *word;
+  int token_type; /**< Store the TokenType enumeration value. */
+  int hash;       /**< Store the pre-calculated hash value for this keyword. */
+  char *word;     /**< The string value of the keyword. */
 } Keyword;
 
-// The keywords used in Cube.
+/** @brief The keywords array is an array of Keyword structs for each Cube keyword.
+ */
 Keyword keywords[] = {
   { TOKEN_BEGIN,  2504, "begin"  },
   { TOKEN_BREAK,  3748, "break"  },
