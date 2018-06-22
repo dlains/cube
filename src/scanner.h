@@ -1,28 +1,47 @@
+/** @file scanner.h
+ *
+ * @brief Scan the input source code and generate valid tokens for Cube.
+ *
+ * A very basic scanner. Use init_scanner to set the source code to be
+ * scanned. Then call nextToken in a loop until you see the EOF token.
+ *
+ * Many improvements need to be made to this code.
+ *
+ * 1. It currently does not handle wide characters.
+ * 2. All of the source code has to be read into memory currently.
+ * 3. Column numbers are not currently tracked.
+ * 4. Source file names are not currently tracked.
+ * 5. The skipWhitespace function doesn't skip all whitespace.
+ * 6. The isAlpha and isDigit functions need to be improved.
+ *
+ * @author David J. Lains (dlains)
+ * @bug No known bugs.
+ */
+
 #ifndef SCANNER_H
 #define SCANNER_H
 
 #include "common.h"
 #include "token.h"
 
-// Set the source code for the scanner to tokenize.
-void initScanner(const char *source);
-// Get the next token in the stream.
-Token nextToken();
+/** @brief Initialize the scanner with a pointer to the source code.
+ *
+ * This initializes the Scanner struct and sets the scanning position
+ * to the beginning of the source code.
+ *
+ * @param source The source code to be scanned.
+ * @return
+ */
+void init_scanner(const char *source);
 
-// Private scanner methods.
-static Token makeToken(TokenType type);
-static Token errorToken(const char *message);
-static bool isAtEnd();
-static char advance();
-static bool match(char expected);
-static char peek();
-static char peekNext();
-static void skipWhitespace();
-static Token string();
-static Token number();
-static Token identifier();
-static bool isAlpha(char c);
-static bool isDigit(char c);
-static TokenType identifierType();
+/** @brief Get the next token from the source code.
+ *
+ * Get the next token from the source code. If there is a problem
+ * the token type returned will be TOKEN_ERROR. If there are no more
+ * tokens in the source code it will return a token type of TOKEN_EOF.
+ *
+ * @return Token the next token found in the source code.
+ */
+Token next_token();
 
 #endif // SCANNER_H
