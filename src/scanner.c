@@ -23,93 +23,93 @@ typedef struct
 Scanner scanner;
 
 // Private scanner methods.
-static Token makeToken(TokenType type);
-static Token errorToken(const char *message);
+static Token make_token(TokenType type);
+static Token error_token(const char *message);
 static Token string();
 static Token number();
 static Token identifier();
-static TokenType identifierType();
+static TokenType identifier_type();
 static char advance();
 static char peek();
-static char peekNext();
-static void skipWhitespace();
-static bool isAtEnd();
+static char peek_next();
+static void skip_whitespace();
+static bool is_at_end();
 static bool match(char expected);
-static bool isAlpha(char c);
-static bool isDigit(char c);
+static bool is_alpha(char c);
+static bool is_digit(char c);
 
-void initScanner(const char *source)
+void init_scanner(const char *source)
 {
   scanner.start = source;
   scanner.current = source;
   scanner.line = 1;
 }
 
-Token nextToken()
+Token next_token()
 {
-  skipWhitespace();
+  skip_whitespace();
 
   scanner.start = scanner.current;
 
-  if(isAtEnd())
-    return makeToken(TOKEN_EOF);
+  if(is_at_end())
+    return make_token(TOKEN_EOF);
 
   char c = advance();
 
-  if(isAlpha(c))
+  if(is_alpha(c))
     return identifier();
-  if(isDigit(c))
+  if(is_digit(c))
     return number();
 
   switch(c)
   {
     case '(':
-      return makeToken(TOKEN_LEFT_PAREN);
+      return make_token(TOKEN_LEFT_PAREN);
     case ')':
-      return makeToken(TOKEN_RIGHT_PAREN);
+      return make_token(TOKEN_RIGHT_PAREN);
     case '{':
-      return makeToken(TOKEN_LEFT_BRACE);
+      return make_token(TOKEN_LEFT_BRACE);
     case '}':
-      return makeToken(TOKEN_RIGHT_BRACE);
+      return make_token(TOKEN_RIGHT_BRACE);
     case '[':
-      return makeToken(TOKEN_LEFT_BRACKET);
+      return make_token(TOKEN_LEFT_BRACKET);
     case ']':
-      return makeToken(TOKEN_RIGHT_BRACKET);
+      return make_token(TOKEN_RIGHT_BRACKET);
     case '%':
-      return makeToken(TOKEN_PERCENT);
+      return make_token(TOKEN_PERCENT);
     case ',':
-      return makeToken(TOKEN_COMMA);
+      return make_token(TOKEN_COMMA);
     case '^':
-      return makeToken(TOKEN_CARET);
+      return make_token(TOKEN_CARET);
     case '.':
-      return makeToken(TOKEN_DOT);
+      return make_token(TOKEN_DOT);
     case '-':
-      return makeToken(TOKEN_MINUS);
+      return make_token(TOKEN_MINUS);
     case '+':
-      return makeToken(TOKEN_PLUS);
+      return make_token(TOKEN_PLUS);
     case ';':
-      return makeToken(TOKEN_SEMICOLON);
+      return make_token(TOKEN_SEMICOLON);
     case '/':
-      return makeToken(TOKEN_SLASH);
+      return make_token(TOKEN_SLASH);
     case '&':
-      return makeToken(TOKEN_AND);
+      return make_token(TOKEN_AND);
     case '|':
-      return makeToken(TOKEN_OR);
+      return make_token(TOKEN_OR);
     case '*':
-      return makeToken(match('*') ? TOKEN_POWER : TOKEN_STAR);
+      return make_token(match('*') ? TOKEN_POWER : TOKEN_STAR);
     case '!':
-      return makeToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
+      return make_token(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
     case '=':
-      return makeToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
+      return make_token(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
     case '>':
-      return makeToken(match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
+      return make_token(match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
     case '<':
-      return makeToken(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
+      return make_token(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
     case '"':
       return string();
   }
 
-  return errorToken("Unexpected character.");
+  return error_token("Unexpected character.");
 }
 
 /** @brief Make a new token with the given token type.
@@ -121,11 +121,11 @@ Token nextToken()
  * @param type The token type to create.
  * @return Token the newly created token.
  */
-static Token makeToken(TokenType type)
+static Token make_token(TokenType type)
 {
   int length = scanner.current - scanner.start;
   if(length > LEXEME_LEN - 1)
-    return errorToken("Identifier length is too long.");
+    return error_token("Identifier length is too long.");
 
   Token token;
   token.type = type;
@@ -144,7 +144,7 @@ static Token makeToken(TokenType type)
  * @param message The error message for this token error.
  * @return Token The newly created error token.
  */
-static Token errorToken(const char *message)
+static Token error_token(const char *message)
 {
   Token token;
   token.type = TOKEN_ERROR;
@@ -157,7 +157,7 @@ static Token errorToken(const char *message)
 /** @brief Scan for a string literal.
  *
  * The string function is called when a double quote character
- * if found in the source. It scans forward until if finds
+ * is found in the source. It scans forward until it finds
  * either another double quote character or hits the end of
  * the source code.
  *
@@ -171,7 +171,7 @@ static Token errorToken(const char *message)
  */
 static Token string()
 {
-  while(peek() != '"' && !isAtEnd())
+  while(peek() != '"' && !is_at_end())
   {
     if(peek() == '\n')
     {
@@ -180,39 +180,68 @@ static Token string()
     advance();
   }
 
-  if(isAtEnd())
-    return errorToken("Unterminated string.");
+  if(is_at_end())
+    return error_token("Unterminated string.");
 
   // Advance past the closing quote.
   advance();
-  return makeToken(TOKEN_STRING);
+  return make_token(TOKEN_STRING);
 }
 
+/** @brief Scan for a number literal.
+ *
+ * The number function is called when a digit character
+ * is found in the source. It scans forward through any
+ * additional digits. If it finds a '.' character it
+ * checks for digits after it and combins them into a
+ * double value.
+ *
+ * @return Token The number token.
+ */
 static Token number()
 {
-  while(isDigit(peek()))
+  while(is_digit(peek()))
     advance();
 
   // Look for a fractional part.
-  if(peek() == '.' && isDigit(peekNext()))
+  if(peek() == '.' && is_digit(peek_next()))
   {
     advance();
-    while(isDigit(peek()))
+    while(is_digit(peek()))
       advance();
   }
 
-  return makeToken(TOKEN_NUMBER);
+  return make_token(TOKEN_NUMBER);
 }
 
+/** @brief Scan for an identifier or a keyword.
+ *
+ * The identifier function is called when a alpha character
+ * is found in the source. Additional alpha numeric
+ * characters are scanned until something other than a
+ * character or a digit is found. The identifier_type
+ * function is then used to determine if the token
+ * is a keyword or an identifier.
+ *
+ * @return Token Either an identifier or a keyword token.
+ */
 static Token identifier()
 {
-  while(isAlpha(peek()) || isDigit(peek()))
+  while(is_alpha(peek()) || is_digit(peek()))
     advance();
 
-  return makeToken(identifierType());
+  return make_token(identifier_type());
 }
 
-static TokenType identifierType()
+/** @brief Determine if the current token is an identifier or a keyword.
+ *
+ * Check the current marked token to see if it is a keyword. This uses
+ * the 'keywords' module. If a keyword is identified its token type is
+ * returned, otherwise the identifier token type is returned.
+ *
+ * @return TokenType The token type for this identifier.
+ */
+static TokenType identifier_type()
 {
   char identifier[LEXEME_LEN];
   memcpy(identifier, scanner.start, scanner.current - scanner.start);
@@ -225,25 +254,52 @@ static TokenType identifierType()
   return TOKEN_IDENTIFIER;
 }
 
+/** @brief Advance the scanner on character and return the current character.
+ *
+ * Move the current pointer on character forward and return
+ * the character that was just being pointed to.
+ *
+ * @return char The current character in the source code.
+ */
 static char advance()
 {
   scanner.current++;
   return scanner.current[-1];
 }
 
+/** @brief Look at the current character without advancing the pointer.
+ *
+ * Used to check one character ahead for certain two character tokens
+ * such as '>=' or '!=', ect.
+ *
+ * @return char The current character in the source code.
+ */
 static char peek()
 {
   return *scanner.current;
 }
 
-static char peekNext()
+/** @brief Look at the character past the current character.
+ *
+ * Used when scanning numbers, peek to see if the current
+ * character is a '.', then peek_next to look for additional
+ * digits.
+ *
+ * @return char The next character in the source code.
+ */
+static char peek_next()
 {
-  if(isAtEnd())
+  if(is_at_end())
     return '\0';
   return scanner.current[1];
 }
 
-static void skipWhitespace()
+/** @brief Skip over any white space between tokens.
+ *
+ * White space consists of spaces, tabs, newlines, page feeds,
+ * return characters and comments.
+ */
+static void skip_whitespace()
 {
   for(;;)
   {
@@ -260,7 +316,7 @@ static void skipWhitespace()
         advance();
         break;
       case '#':
-        while(peek() != '\n' && !isAtEnd())
+        while(peek() != '\n' && !is_at_end())
           advance();
         break;
       default:
@@ -269,14 +325,30 @@ static void skipWhitespace()
   }
 }
 
-static bool isAtEnd()
+/** @brief Check to see if the scanner is at the end of the source code.
+ *
+ * If the scanner has reached the end of the NULL terminated source
+ * buffer there is no more tokens to read.
+ *
+ * @return Boolean True if there is no more source code, false otherwise.
+ */
+static bool is_at_end()
 {
   return *scanner.current == '\0';
 }
 
+/** @brief Check for an expected character in the source code.
+ *
+ * If the current character matches the expected character advance
+ * the scanner and return true. If the current character does not
+ * match return false.
+ *
+ * @param char The expected character to check for.
+ * @return Boolean True if the current character matches, false othewise.
+ */
 static bool match(char expected)
 {
-  if(isAtEnd())
+  if(is_at_end())
     return false;
 
   if(*scanner.current != expected)
@@ -286,12 +358,28 @@ static bool match(char expected)
   return true;
 }
 
-static bool isAlpha(char c)
+/** @brief Is the given character an alpha character.
+ *
+ * If the given character is in the range of lower case characters
+ * or upper case characters or is an underscore it is considered
+ * an alpha character.
+ *
+ * @param char The character to check.
+ * @return Boolean True if the character is alpha, false otherwise.
+ */
+static bool is_alpha(char c)
 {
   return(c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 
-static bool isDigit(char c)
+/** @brief Is the given character a digit?
+ *
+ * If the given character is a digit (0 - 9) then return true.
+ *
+ * @param char The character to check.
+ * @return Boolean True if the character is a digit, false otherwise.
+ */
+static bool is_digit(char c)
 {
   return c >= '0' && c <= '9';
 }

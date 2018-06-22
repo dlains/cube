@@ -2,7 +2,7 @@
  *
  * @brief Scan the input source code and generate valid tokens for Cube.
  *
- * A very basic scanner. Use initScanner to set the source code to be
+ * A very basic scanner. Use init_scanner to set the source code to be
  * scanned. Then call nextToken in a loop until you see the EOF token.
  *
  * Many improvements need to be made to this code.
@@ -32,7 +32,7 @@
  * @param source The source code to be scanned.
  * @return
  */
-void initScanner(const char *source);
+void init_scanner(const char *source);
 
 /** @brief Get the next token from the source code.
  *
@@ -42,6 +42,6 @@ void initScanner(const char *source);
  *
  * @return Token the next token found in the source code.
  */
-Token nextToken();
+Token next_token();
 
 #endif // SCANNER_H

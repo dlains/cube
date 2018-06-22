@@ -4,201 +4,201 @@
 #include "error.h"
 #include "scanner.h"
 
-int nextTokenTypeFor(const char *source)
+int next_token_type_for(const char *source)
 {
-  initScanner(source);
-  Token token = nextToken();
+  init_scanner(source);
+  Token token = next_token();
   return token.type;
 }
 
 void test_empty_source_returns_eof(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_EOF, nextTokenTypeFor(""));
+  TEST_ASSERT_EQUAL_INT(TOKEN_EOF, next_token_type_for(""));
 }
 
 void test_recognize_lparen(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_LEFT_PAREN, nextTokenTypeFor("("));
+  TEST_ASSERT_EQUAL_INT(TOKEN_LEFT_PAREN, next_token_type_for("("));
 }
 
 void test_recognize_rparen(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_RIGHT_PAREN, nextTokenTypeFor(")"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_RIGHT_PAREN, next_token_type_for(")"));
 }
 
 void test_recognize_lbrace(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_LEFT_BRACE, nextTokenTypeFor("{"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_LEFT_BRACE, next_token_type_for("{"));
 }
 
 void test_recognize_rbrace(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_RIGHT_BRACE, nextTokenTypeFor("}"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_RIGHT_BRACE, next_token_type_for("}"));
 }
 
 void test_recognize_lbracket(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_LEFT_BRACKET, nextTokenTypeFor("["));
+  TEST_ASSERT_EQUAL_INT(TOKEN_LEFT_BRACKET, next_token_type_for("["));
 }
 
 void test_recognize_rbracket(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_RIGHT_BRACKET, nextTokenTypeFor("]"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_RIGHT_BRACKET, next_token_type_for("]"));
 }
 
 void test_recognize_percent(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_PERCENT, nextTokenTypeFor("%"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_PERCENT, next_token_type_for("%"));
 }
 
 void test_recognize_comma(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_COMMA, nextTokenTypeFor(","));
+  TEST_ASSERT_EQUAL_INT(TOKEN_COMMA, next_token_type_for(","));
 }
 
 void test_recognize_caret(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_CARET, nextTokenTypeFor("^"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_CARET, next_token_type_for("^"));
 }
 
 void test_recognize_dot(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_DOT, nextTokenTypeFor("."));
+  TEST_ASSERT_EQUAL_INT(TOKEN_DOT, next_token_type_for("."));
 }
 
 void test_recognize_minus(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_MINUS, nextTokenTypeFor("-"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_MINUS, next_token_type_for("-"));
 }
 
 void test_recognize_plus(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_PLUS, nextTokenTypeFor("+"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_PLUS, next_token_type_for("+"));
 }
 
 void test_recognize_semicolon(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_SEMICOLON, nextTokenTypeFor(";"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_SEMICOLON, next_token_type_for(";"));
 }
 
 void test_recognize_slash(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_SLASH, nextTokenTypeFor("/"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_SLASH, next_token_type_for("/"));
 }
 
 void test_recognize_and(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_AND, nextTokenTypeFor("&"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_AND, next_token_type_for("&"));
 }
 
 void test_recognize_or(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_OR, nextTokenTypeFor("|"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_OR, next_token_type_for("|"));
 }
 
 void test_recognize_star(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_STAR, nextTokenTypeFor("*"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_STAR, next_token_type_for("*"));
 }
 
 void test_recognize_power(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_POWER, nextTokenTypeFor("**"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_POWER, next_token_type_for("**"));
 }
 
 void test_recognize_bang(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_BANG, nextTokenTypeFor("!"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_BANG, next_token_type_for("!"));
 }
 
 void test_recognize_bang_equal(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_BANG_EQUAL, nextTokenTypeFor("!="));
+  TEST_ASSERT_EQUAL_INT(TOKEN_BANG_EQUAL, next_token_type_for("!="));
 }
 
 void test_recognize_equal(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_EQUAL, nextTokenTypeFor("="));
+  TEST_ASSERT_EQUAL_INT(TOKEN_EQUAL, next_token_type_for("="));
 }
 
 void test_recognize_equal_equal(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_EQUAL_EQUAL, nextTokenTypeFor("=="));
+  TEST_ASSERT_EQUAL_INT(TOKEN_EQUAL_EQUAL, next_token_type_for("=="));
 }
 
 void test_recognize_greater(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_GREATER, nextTokenTypeFor(">"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_GREATER, next_token_type_for(">"));
 }
 
 void test_recognize_greater_equal(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_GREATER_EQUAL, nextTokenTypeFor(">="));
+  TEST_ASSERT_EQUAL_INT(TOKEN_GREATER_EQUAL, next_token_type_for(">="));
 }
 
 void test_recognize_less(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_LESS, nextTokenTypeFor("<"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_LESS, next_token_type_for("<"));
 }
 
 void test_recognize_less_equal(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_LESS_EQUAL, nextTokenTypeFor("<="));
+  TEST_ASSERT_EQUAL_INT(TOKEN_LESS_EQUAL, next_token_type_for("<="));
 }
 
 void test_recognize_string(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_STRING, nextTokenTypeFor("\"this is a string\""));
+  TEST_ASSERT_EQUAL_INT(TOKEN_STRING, next_token_type_for("\"this is a string\""));
 }
 
 void test_recognize_keywords(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_BEGIN, nextTokenTypeFor("begin"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_BREAK, nextTokenTypeFor("break"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_CASE, nextTokenTypeFor("case"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_CLASS, nextTokenTypeFor("class"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_DEF, nextTokenTypeFor("def"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_DO, nextTokenTypeFor("do"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_ELSE, nextTokenTypeFor("else"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_END, nextTokenTypeFor("end"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_ENSURE, nextTokenTypeFor("ensure"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_FALSE, nextTokenTypeFor("false"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_IF, nextTokenTypeFor("if"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_IMPORT, nextTokenTypeFor("import"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_NEXT, nextTokenTypeFor("next"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_NIL, nextTokenTypeFor("nil"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_RESCUE, nextTokenTypeFor("rescue"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_RETURN, nextTokenTypeFor("return"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_SUPER, nextTokenTypeFor("super"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_SWITCH, nextTokenTypeFor("switch"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_THIS, nextTokenTypeFor("this"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_TRUE, nextTokenTypeFor("true"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_UNLESS, nextTokenTypeFor("unless"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_UNTIL, nextTokenTypeFor("until"));
-  TEST_ASSERT_EQUAL_INT(TOKEN_WHILE, nextTokenTypeFor("while"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_BEGIN, next_token_type_for("begin"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_BREAK, next_token_type_for("break"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_CASE, next_token_type_for("case"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_CLASS, next_token_type_for("class"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_DEF, next_token_type_for("def"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_DO, next_token_type_for("do"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_ELSE, next_token_type_for("else"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_END, next_token_type_for("end"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_ENSURE, next_token_type_for("ensure"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_FALSE, next_token_type_for("false"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_IF, next_token_type_for("if"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_IMPORT, next_token_type_for("import"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_NEXT, next_token_type_for("next"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_NIL, next_token_type_for("nil"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_RESCUE, next_token_type_for("rescue"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_RETURN, next_token_type_for("return"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_SUPER, next_token_type_for("super"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_SWITCH, next_token_type_for("switch"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_THIS, next_token_type_for("this"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_TRUE, next_token_type_for("true"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_UNLESS, next_token_type_for("unless"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_UNTIL, next_token_type_for("until"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_WHILE, next_token_type_for("while"));
 }
 
 void test_recognize_identifier(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_IDENTIFIER, nextTokenTypeFor("someName"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_IDENTIFIER, next_token_type_for("someName"));
 }
 
 void test_recognize_numbers(void)
 {
-  TEST_ASSERT_EQUAL_INT(TOKEN_NUMBER, nextTokenTypeFor("12.3"));
+  TEST_ASSERT_EQUAL_INT(TOKEN_NUMBER, next_token_type_for("12.3"));
 }
 
 void test_recognize_multiple_tokens(void)
 {
-  initScanner("def method()");
-  Token token = nextToken();
+  init_scanner("def method()");
+  Token token = next_token();
   TEST_ASSERT_EQUAL_INT(TOKEN_DEF, token.type);
-  token = nextToken();
+  token = next_token();
   TEST_ASSERT_EQUAL_INT(TOKEN_IDENTIFIER, token.type);
-  token = nextToken();
+  token = next_token();
   TEST_ASSERT_EQUAL_INT(TOKEN_LEFT_PAREN, token.type);
-  token = nextToken();
+  token = next_token();
   TEST_ASSERT_EQUAL_INT(TOKEN_RIGHT_PAREN, token.type);
-  token = nextToken();
+  token = next_token();
   TEST_ASSERT_EQUAL_INT(TOKEN_EOF, token.type);
 }
