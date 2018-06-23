@@ -309,6 +309,8 @@ static void skip_whitespace()
       case ' ':
       case '\r':
       case '\t':
+      case '\f':
+      case '\v':
         advance();
         break;
       case '\n':
