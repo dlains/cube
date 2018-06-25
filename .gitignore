@@ -55,12 +55,13 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# OS X Filesystem garbage.
+.DS_Store
+
 # Ignore the output in build.
-build/artifacts
-build/gcov
-build/logs
-build/temp
-build/test
+build/depends
+build/objects
+build/results
 
 # The executable
 cube

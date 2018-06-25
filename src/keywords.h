@@ -50,29 +50,4 @@
  */
 int find_keyword(const char *word);
 
-/** @brief Generate a hash value for the given string.
- *
- * Uses the universal string hash from (Algorithms in C)[https://www.amazon.com/Algorithms-Parts-1-4-Fundamentals-Structures/dp/0201314525].
- * Generates a hash value between 0 and HASH_MAX for the given word.
- *
- * @param word A string to generate a hash value for.
- * @return The generated hash value.
- */
-static int hash(const char *word);
-
-/** @brief Verify that the input word is actually a keyword.
- *
- * If the passed in words hash value matches one of the keyword
- * hash values we can't be positive that word is actually a keyword.
- * There could be hash collisions. This function does a comparison
- * of word and the suspected keyword. If they do indeed match
- * the TokenType for the keyword is returned. Otherwise it wasn't
- * actually a keyword and zero is returned.
- *
- * @param word A string to verify against a keyword.
- * @param index The index into the keywords array that has a matching hash value as word.
- * @return The TokenType of the keyword if they match, otherwise zero.
- */
-static int verify_keyword(const char *word, int index);
-
 #endif // KEYWORDS_H

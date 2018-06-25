@@ -202,3 +202,41 @@ void test_recognize_multiple_tokens(void)
   token = next_token();
   TEST_ASSERT_EQUAL_INT(TOKEN_EOF, token.type);
 }
+
+int main(void)
+{
+  UNITY_BEGIN();
+  RUN_TEST(test_empty_source_returns_eof, 14);
+  RUN_TEST(test_recognize_lparen, 19);
+  RUN_TEST(test_recognize_rparen, 24);
+  RUN_TEST(test_recognize_lbrace, 29);
+  RUN_TEST(test_recognize_rbrace, 34);
+  RUN_TEST(test_recognize_lbracket, 39);
+  RUN_TEST(test_recognize_rbracket, 44);
+  RUN_TEST(test_recognize_percent, 49);
+  RUN_TEST(test_recognize_comma, 54);
+  RUN_TEST(test_recognize_caret, 59);
+  RUN_TEST(test_recognize_dot, 64);
+  RUN_TEST(test_recognize_minus, 69);
+  RUN_TEST(test_recognize_plus, 74);
+  RUN_TEST(test_recognize_semicolon, 79);
+  RUN_TEST(test_recognize_slash, 84);
+  RUN_TEST(test_recognize_and, 89);
+  RUN_TEST(test_recognize_or, 94);
+  RUN_TEST(test_recognize_star, 99);
+  RUN_TEST(test_recognize_power, 104);
+  RUN_TEST(test_recognize_bang, 109);
+  RUN_TEST(test_recognize_bang_equal, 114);
+  RUN_TEST(test_recognize_equal, 119);
+  RUN_TEST(test_recognize_equal_equal, 124);
+  RUN_TEST(test_recognize_greater, 129);
+  RUN_TEST(test_recognize_greater_equal, 134);
+  RUN_TEST(test_recognize_less, 139);
+  RUN_TEST(test_recognize_less_equal, 144);
+  RUN_TEST(test_recognize_string, 149);
+  RUN_TEST(test_recognize_keywords, 154);
+  RUN_TEST(test_recognize_identifier, 181);
+  RUN_TEST(test_recognize_numbers, 186);
+  RUN_TEST(test_recognize_multiple_tokens, 191);
+  UNITY_END();
+}

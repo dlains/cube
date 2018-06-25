@@ -73,3 +73,13 @@ void test_find_keyword_with_null(void)
 {
   TEST_ASSERT_FALSE(find_keyword(NULL));
 }
+
+int main(void)
+{
+  UNITY_BEGIN();
+  RUN_TEST(test_find_keyword_with_match, 13);
+  RUN_TEST(test_find_keyword_without_match, 40);
+  RUN_TEST(test_find_keyword_with_unterminated_string, 66);
+  RUN_TEST(test_find_keyword_with_null, 72);
+  return UNITY_END();
+}
