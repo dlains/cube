@@ -1,41 +1,64 @@
-ifeq ($(OS),Windows_NT)
-	CLEANUP          = del /F /Q
-	MKDIR            = mkdir
-	TARGET_EXTENSION = exe
-else
-	CLEANUP          = rm -f
-	MKDIR            = mkdir -p
-	TARGET_EXTENSION = out
-endif
-
 .PHONY: clean
 .PHONY: test
 
-PATH_UNITY   = vendor/unity/
-PATH_SOURCE  = src/
-PATH_TEST    = test/
-PATH_BUILD   = build/
-PATH_DEPENDS = build/depends/
-PATH_OBJECTS = build/objects/
-PATH_RESULTS = build/results/
+# Setup the VPATH to the source code and set the SOURCES to just the *.c files.
+VPATH        = src
+INCLUDE      = include
+SOURCES      = $(wildcard $(VPATH)*.c)
 
-BUILD_PATHS  = $(PATH_BUILD) $(PATH_DEPENDS) $(PATH_OBJECTS) $(PATH_RESULTS)
+# Setup the path to the test source code and set the TEST_SOURCES to just the *.c files.
+TEST_DIR     = test
+TEST_SOURCES = $(wildcard $(TEST_DIR)/*.c)
 
-SRC_TEST     = $(wildcard $(PATH_TEST)*.c)
+# Setup the build output directories.
+BUILD_DIR    = build
+DEP_DIR      = build/dep
+OBJ_DIR      = build/obj
+RESULT_DIR   = build/result
 
+MKDIR        = mkdir -p
+EXTENSION    = out
+
+# Setup the Unity test library source directory.
+UNITY_DIR    = vendor/unity
+
+# Setup compile variables.
 CC           = gcc
-COMPILE      = $(CC) -c
-LINK         = $(CC)
-DEPEND       = $(CC) -MM -MG -MF
-CFLAGS       = -g -Wall -std=gnu11 -I. -I$(PATH_UNITY) -I$(PATH_SOURCE) -DTEST
+DEP_FLAGS    = -MT $@ -MMD -MP -MF $(DEP_DIR)/$*.Td
+COMPILE.c    = $(CC) $(DEP_FLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+COMPILE.cc   = $(CXX) $(DEP_FLAGS) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+POSTCOMPILE  = @mv -f $(DEP_DIR)/$*.Td $(DEP_DIR)/$*.d && touch $@
 
-RESULTS      = $(patsubst $(PATH_TEST)test_%.c,$(PATH_RESULTS)test_%.txt,$(SRC_TEST))
+CFLAGS       = -g -Wall -std=gnu11 -I$(INCLUDE) -I$(UNITY_DIR) -DTEST
 
-PASSED       = `grep -s PASS $(PATH_RESULTS)*.txt`
-FAILED       = `grep -s FAIL $(PATH_RESULTS)*.txt`
-IGNORED      = `grep -s IGNORE $(PATH_RESULTS)*.txt`
+# Rewrite the standard C compile rules to include the dependency files.
+%.o : %.c
+%.o : %.c $(DEP_DIR)/%.d
+	$(COMPILE.c) $(OUTPUT_OPTION) $<
+	$(POSTCOMPILE)
 
-test: $(BUILD_PATHS) $(RESULTS)
+%.o : %.cc
+%.o : %.cc $(DEP_DIR)/%.d
+	$(COMPILE.cc) $(OUTPUT_OPTION) $<
+	$(POSTCOMPILE)
+
+%.o : %.cxx
+%.o : %.cxx $(DEP_DIR)/%.d
+	$(COMPILE.cc) $(OUTPUT_OPTION) $<
+	$(POSTCOMPILE)
+
+BUILD_PATHS  = $(BUILD_DIR) $(DEP_DIR) $(OBJ_DIR) $(RESULT_DIR)
+
+TEST_RESULTS = $(patsubst $(TEST_DIR)/test_%.c,$(RESULT_DIR)/test_%.txt,$(TEST_SOURCES))
+
+PASSED       = `grep -s PASS $(RESULT_DIR)/*.txt`
+FAILED       = `grep -s FAIL $(RESULT_DIR)/*.txt`
+IGNORED      = `grep -s IGNORE $(RESULT_DIR)/*.txt`
+
+display:
+	@echo "$(TEST_RESULTS)"
+
+test: $(BUILD_PATHS) $(TEST_RESULTS)
 	@echo "-----------------------\nIGNORES:\n-----------------------"
 	@echo "$(IGNORED)" 
 	@echo "-----------------------\nFAILURES:\n----------------------"
@@ -44,45 +67,46 @@ test: $(BUILD_PATHS) $(RESULTS)
 	@echo "$(PASSED)" 
 	@echo "\nDONE"
 
+clean:
+	$(RM) $(OBJ_DIR)/*.o
+	$(RM) $(BUILD_DIR)/*.$(EXTENSION)
+	$(RM) $(RESULT_DIR)/*.txt
 
-$(PATH_RESULTS)%.txt: $(PATH_BUILD)%.$(TARGET_EXTENSION)
+$(RESULT_DIR)/%.txt: $(BUILD_DIR)/%.$(EXTENSION)
 	-./$< > $@ 2>&1
 
-$(PATH_BUILD)test_%.$(TARGET_EXTENSION): $(PATH_OBJECTS)test_%.o $(PATH_OBJECTS)%.o $(PATH_OBJECTS)unity.o $(PATH_DEPENDS)test_%.d
+$(BUILD_DIR)/test_%.$(EXTENSION): $(OBJ_DIR)/test_%.o $(OBJ_DIR)/%.o $(OBJ_DIR)/unity.o $(DEP_DIR)/test_%.d
 	$(LINK) -o $@ $^
 
-$(PATH_OBJECTS)%.o:: $(PATH_TEST)%.c
-	$(COMPILE) $(CFLAGS) $< -o $@
+$(OBJ_DIR)/%.o:: $(TEST_DIR)/%.c
+	$(COMPILE.c) $(CFLAGS) $< -o $@
 
-$(PATH_OBJECTS)%.o:: $(PATH_SOURCE)%.c
-	$(COMPILE) $(CFLAGS) $< -o $@
+$(OBJ_DIR)/%.o:: $(VPATH)/%.c
+	$(COMPILE.c) $(CFLAGS) $< -o $@
 
-$(PATH_OBJECTS)%.o:: $(PATH_UNITY)%.c $(PATH_UNITY)%.h
-	$(COMPILE) $(CFLAGS) $< -o $@
+$(OBJ_DIR)/%.o:: $(UNITY_DIR)/%.c $(UNITY_DIR)/%.h
+	$(COMPILE.c) $(CFLAGS) $< -o $@
 
-$(PATH_DEPENDS)%.d:: $(PATH_TEST)%.c
+$(DEP_DIR)/%.d:: $(TEST_DIR)/%.c
 	$(DEPEND) $@ $<
 
-$(PATH_BUILD):
-	$(MKDIR) $(PATH_BUILD)
+$(BUILD_DIR):
+	$(MKDIR) $(BUILD_DIR)
 
-$(PATH_DEPENDS):
-	$(MKDIR) $(PATH_DEPENDS)
+$(DEP_DIR):
+	$(MKDIR) $(DEP_DIR)
 
-$(PATH_OBJECTS):
-	$(MKDIR) $(PATH_OBJECTS)
+$(OBJ_DIR):
+	$(MKDIR) $(OBJ_DIR)
 
-$(PATH_RESULTS):
-	$(MKDIR) $(PATH_RESULTS)
+$(RESULT_DIR):
+	$(MKDIR) $(RESULT_DIR)
 
-clean:
-	$(CLEANUP) $(PATH_OBJECTS)*.o
-	$(CLEANUP) $(PATH_BUILD)*.$(TARGET_EXTENSION)
-	$(CLEANUP) $(PATH_RESULTS)*.txt
+# Don't run any commands on dependency files.
+$(DEP_DIR)/%.d: ;
 
-.PRECIOUS: $(PATH_BUILD)test_%.$(TARGET_EXTENSION)
-.PRECIOUS: $(PATH_DEPENDS)%.d
-.PRECIOUS: $(PATH_OBJECTS)%.o
-.PRECIOUS: $(PATH_RESULTS)%.txt
-
-
+# Tell make to keep these intermediate files around.
+.PRECIOUS: $(BUILD_DIR)/test_%.$(EXTENSION)
+.PRECIOUS: $(DEP_DIR)/%.d
+.PRECIOUS: $(OBJ_DIR)/%.o
+.PRECIOUS: $(RESULT_DIR)/%.txt

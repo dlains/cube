@@ -59,9 +59,9 @@ dkms.conf
 .DS_Store
 
 # Ignore the output in build.
-build/depends
-build/objects
-build/results
+build/dep
+build/obj
+build/result
 
 # The executable
 cube
