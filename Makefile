@@ -1,112 +1,113 @@
-.PHONY: clean
-.PHONY: test
+#
+# Compiler flags
+#
+CC            = gcc
+CFLAGS        = -Wall -Werror -Wextra
+CPPFLAGS      = -I include
 
-# Setup the VPATH to the source code and set the SOURCES to just the *.c files.
-VPATH        = src
-INCLUDE      = include
-SOURCES      = $(wildcard $(VPATH)*.c)
+#
+# Project files
+#
+VPATH         = src
+SOURCES       = $(wildcard $(VPATH)/*.c)
+OBJECTS       = $(subst .c,.o,$(notdir $(SOURCES))) 
+EXE           = cube
 
-# Setup the path to the test source code and set the TEST_SOURCES to just the *.c files.
-TEST_DIR     = test
-TEST_SOURCES = $(wildcard $(TEST_DIR)/*.c)
+#
+# Test files
+#
+TEST_DIR      = test
+TEST_LIB      = vendor/unity
+TEST_SOURCES  = $(wildcard $(TEST_DIR)/*.c)
+TEST_SOURCES += $(wildcard $(TEST_LIB)/*.c)
+TEST_OBJECTS  = $(subst .c,.o,$(notdir $(TEST_SOURCES)))
+TEST_OBJECTS += $(subst .c,.o,$(notdir $(SOURCES)))
+TEST_RUNNERS  = $(subst .c,,$(notdir $(TEST_SOURCES)))
 
-# Setup the build output directories.
-BUILD_DIR    = build
-DEP_DIR      = build/dep
-OBJ_DIR      = build/obj
-RESULT_DIR   = build/result
+#
+# Debug build settings
+#
+DEBUG_DIR     = build/debug
+DEBUG_EXE     = $(DEBUG_DIR)/$(EXE)
+DEBUG_OBJS    = $(addprefix $(DEBUG_DIR)/, $(OBJECTS))
+DEBUG_FLAGS   = -g -O0 -DDEBUG
 
-MKDIR        = mkdir -p
-EXTENSION    = out
+#
+# Release build settings
+#
+RELEASE_DIR   = build/release
+RELEASE_EXE   = $(RELEASE_DIR)/$(EXE)
+RELEASE_OBJS  = $(addprefix $(RELEASE_DIR)/, $(OBJECTS))
+RELEASE_FLAGS = -O3 -DNDEBUG
 
-# Setup the Unity test library source directory.
-UNITY_DIR    = vendor/unity
+#
+# Test build settings
+#
+RESULTS_DIR   = build/test
+CPPFLAGS     += -I $(TEST_LIB)
+ALL_RUNNERS   = $(addprefix $(RESULTS_DIR)/, $(TEST_RUNNERS))
+TEST_OBJS     = $(addprefix $(RESULTS_DIR)/, $(TEST_OBJECTS))
+TEST_RESULTS  = $(patsubst $(TEST_DIR)/test_%.c,$(RESULTS_DIR)/test_%.txt,$(TEST_SOURCES))
+PASSED        = `grep -s PASS $(RESULTS_DIR)/*.txt`
+FAILED        = `grep -s FAIL $(RESULTS_DIR)/*.txt`
+IGNORED       = `grep -s IGNORE $(RESULTS_DIR)/*.txt`
 
-# Setup compile variables.
-CC           = gcc
-DEP_FLAGS    = -MT $@ -MMD -MP -MF $(DEP_DIR)/$*.Td
-COMPILE.c    = $(CC) $(DEP_FLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
-COMPILE.cc   = $(CXX) $(DEP_FLAGS) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
-POSTCOMPILE  = @mv -f $(DEP_DIR)/$*.Td $(DEP_DIR)/$*.d && touch $@
+.PHONY: all clean debug release test prep
 
-CFLAGS       = -g -Wall -std=gnu11 -I$(INCLUDE) -I$(UNITY_DIR) -DTEST
+# Default build
+all: prep release
 
-# Rewrite the standard C compile rules to include the dependency files.
-%.o : %.c
-%.o : %.c $(DEP_DIR)/%.d
-	$(COMPILE.c) $(OUTPUT_OPTION) $<
-	$(POSTCOMPILE)
+#
+# Debug rules
+#
+debug: prep $(DEBUG_EXE)
 
-%.o : %.cc
-%.o : %.cc $(DEP_DIR)/%.d
-	$(COMPILE.cc) $(OUTPUT_OPTION) $<
-	$(POSTCOMPILE)
+$(DEBUG_EXE): $(DEBUG_OBJS)
+	$(CC) $(CFLAGS) $(DEBUG_FLAGS) -o $(DEBUG_EXE) $^
 
-%.o : %.cxx
-%.o : %.cxx $(DEP_DIR)/%.d
-	$(COMPILE.cc) $(OUTPUT_OPTION) $<
-	$(POSTCOMPILE)
+$(DEBUG_DIR)/%.o: %.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(DEBUG_FLAGS) -o $@ $<
 
-BUILD_PATHS  = $(BUILD_DIR) $(DEP_DIR) $(OBJ_DIR) $(RESULT_DIR)
+#
+# Release rules
+#
+release: $(RELEASE_EXE)
 
-TEST_RESULTS = $(patsubst $(TEST_DIR)/test_%.c,$(RESULT_DIR)/test_%.txt,$(TEST_SOURCES))
+$(RELEASE_EXE): $(RELEASE_OBJS)
+	$(CC) $(CFLAGS) $(RELEASE_FLAGS) -o $(RELEASE_EXE) $^
 
-PASSED       = `grep -s PASS $(RESULT_DIR)/*.txt`
-FAILED       = `grep -s FAIL $(RESULT_DIR)/*.txt`
-IGNORED      = `grep -s IGNORE $(RESULT_DIR)/*.txt`
+$(RELEASE_DIR)/%.o: %.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(RELEASE_FLAGS) -o $@ $<
 
-display:
-	@echo "$(TEST_RESULTS)"
-
-test: $(BUILD_PATHS) $(TEST_RESULTS)
-	@echo "-----------------------\nIGNORES:\n-----------------------"
+#
+# Test rules
+#
+test: prep $(TEST_RESULTS)
+	@echo "-----------------------\nIGNORED:\n-----------------------"
 	@echo "$(IGNORED)" 
-	@echo "-----------------------\nFAILURES:\n----------------------"
+	@echo "-----------------------\nFAILED:\n------------------------"
 	@echo "$(FAILED)"
 	@echo "-----------------------\nPASSED:\n------------------------"
 	@echo "$(PASSED)" 
 	@echo "\nDONE"
 
-clean:
-	$(RM) $(OBJ_DIR)/*.o
-	$(RM) $(BUILD_DIR)/*.$(EXTENSION)
-	$(RM) $(RESULT_DIR)/*.txt
-
-$(RESULT_DIR)/%.txt: $(BUILD_DIR)/%.$(EXTENSION)
+$(RESULTS_DIR)/%.txt: $(ALL_RUNNERS)
 	-./$< > $@ 2>&1
 
-$(BUILD_DIR)/test_%.$(EXTENSION): $(OBJ_DIR)/test_%.o $(OBJ_DIR)/%.o $(OBJ_DIR)/unity.o $(DEP_DIR)/test_%.d
-	$(LINK) -o $@ $^
+$(ALL_RUNNERS): $(TEST_OBJS) 
+	$(CC) -c $(CFLAGS) -o $@ $^
 
-$(OBJ_DIR)/%.o:: $(TEST_DIR)/%.c
-	$(COMPILE.c) $(CFLAGS) $< -o $@
+$(RESULTS_DIR)/%.o: %.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(TEST_FLAGS) -o $@ $<
 
-$(OBJ_DIR)/%.o:: $(VPATH)/%.c
-	$(COMPILE.c) $(CFLAGS) $< -o $@
+#
+# Utility rules
+#
+prep:
+	@mkdir -p $(DEBUG_DIR) $(RELEASE_DIR) $(RESULTS_DIR)
 
-$(OBJ_DIR)/%.o:: $(UNITY_DIR)/%.c $(UNITY_DIR)/%.h
-	$(COMPILE.c) $(CFLAGS) $< -o $@
-
-$(DEP_DIR)/%.d:: $(TEST_DIR)/%.c
-	$(DEPEND) $@ $<
-
-$(BUILD_DIR):
-	$(MKDIR) $(BUILD_DIR)
-
-$(DEP_DIR):
-	$(MKDIR) $(DEP_DIR)
-
-$(OBJ_DIR):
-	$(MKDIR) $(OBJ_DIR)
-
-$(RESULT_DIR):
-	$(MKDIR) $(RESULT_DIR)
-
-# Don't run any commands on dependency files.
-$(DEP_DIR)/%.d: ;
+clean:
+	$(RM) $(RELEASE_EXE) $(RELEASE_OBJS) $(DEBUG_EXE) $(DEBUG_OBJS) $(RESULTS_DIR)/*.txt
 
 # Tell make to keep these intermediate files around.
-.PRECIOUS: $(BUILD_DIR)/test_%.$(EXTENSION)
-.PRECIOUS: $(DEP_DIR)/%.d
-.PRECIOUS: $(OBJ_DIR)/%.o
-.PRECIOUS: $(RESULT_DIR)/%.txt
+.PRECIOUS: $(RESULTS_DIR)/%.txt
