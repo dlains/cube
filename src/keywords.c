@@ -32,7 +32,6 @@ Keyword keywords[] = {
   { TOKEN_ENSURE, 7205, "ensure" },
   { TOKEN_FALSE,  2595, "false"  },
   { TOKEN_IF,     6130, "if"     },
-  { TOKEN_IMPORT, 3869, "import" },
   { TOKEN_NEXT,   1643, "next"   },
   { TOKEN_NIL,    4493, "nil"    },
   { TOKEN_RESCUE, 7137, "rescue" },

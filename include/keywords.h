@@ -27,7 +27,7 @@
  *
  * @def NUM_KEYWORDS is the number of Cube keywords.
  */
-#define NUM_KEYWORDS 23
+#define NUM_KEYWORDS 22
 
 /** @brief A maximum value for the hash function to use.
  *
