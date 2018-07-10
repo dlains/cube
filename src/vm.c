@@ -8,33 +8,40 @@ VM vm;
 
 // Comment out the run function for the time being. Not currently being used.
 // static InterpretResult run();
-static void resetStack();
+static void reset_stack();
 // static void printStack();
 
-void VMInit()
+void vm_init()
 {
-  resetStack();
+  reset_stack();
 }
 
-void VMFree()
+void vm_free()
 {
+}
+
+InterpretResult interpret()
+{
+  compile();
+  // return run();
+  return INTERPRET_OK;
 }
 
 void push(Value value)
 {
-  *vm.stackTop = value;
-  vm.stackTop++;
+  *vm.stack_top = value;
+  vm.stack_top++;
 }
 
 Value pop()
 {
-  vm.stackTop--;
-  return *vm.stackTop;
+  vm.stack_top--;
+  return *vm.stack_top;
 }
 
-static void resetStack()
+static void reset_stack()
 {
-  vm.stackTop = vm.stack;
+  vm.stack_top = vm.stack;
 }
 
 /*
@@ -50,13 +57,6 @@ static void printStack()
   printf("\n");
 }
 */
-
-InterpretResult interpret(const char *source)
-{
-  compile(source);
-  // return run();
-  return INTERPRET_OK;
-}
 
 /*
 static InterpretResult run()

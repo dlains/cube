@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include "common.h"
+#include "memory.h"
 #include "source.h"
 
 /** @brief Read a source file.
@@ -42,7 +43,7 @@ Source source_create(const char *source)
  */
 Source source_create_file(const char *file_path)
 {
-  Source s = NEW(s);
+  Source s   = NEW(s);
   s->buffer  = source_read_file(file_path);
   s->start   = s->buffer;
   s->current = s->buffer;
@@ -61,7 +62,7 @@ Source source_create_file(const char *file_path)
  */
 void source_destroy(Source s)
 {
-  FREE(s->buffer);
+  free((char*)s->buffer);
   FREE(s);
 }
 
@@ -69,7 +70,7 @@ static char *source_read_file(const char *file_path)
 {
   FILE *file = fopen(file_path, "r");
   if(file == NULL)
-    die("Could not open file '%s'.\n", file_path);
+    die("Could not open file '%s'.\n", file_path, __LINE__);
 
   fseek(file, 0L, SEEK_END);
   size_t size = ftell(file);
@@ -77,11 +78,11 @@ static char *source_read_file(const char *file_path)
 
   char *buffer = ALLOC(size + 1);
   if(buffer == NULL)
-    die("Not enough memory to read '%s'.\n", file_path);
+    die("Not enough memory to read '%s'.\n", file_path, __LINE__);
 
   size_t bytes = fread(buffer, sizeof(char), size, file);
   if(bytes < size)
-    die("Error reading file '%s'.\n", file_path);
+    die("Error reading file '%s'.\n", file_path, __LINE__);
 
   buffer[bytes] = '\0';
 

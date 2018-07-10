@@ -11,7 +11,7 @@ typedef struct
   Chunk *chunk;
   Byte *ip;
   Value stack[STACK_MAX];
-  Value *stackTop;
+  Value *stack_top;
 } VM;
 
 typedef enum
@@ -21,9 +21,9 @@ typedef enum
   INTERPRET_RUNTIME_ERROR
 } InterpretResult;
 
-void VMInit();
-void VMFree();
-InterpretResult interpret(const char* source);
+void vm_init();
+void vm_free();
+InterpretResult interpret();
 void push(Value value);
 Value pop();
 

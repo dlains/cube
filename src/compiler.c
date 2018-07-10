@@ -1,11 +1,21 @@
+/** @file compiler.c
+ *
+ * @brief Implementation of the compiler module. 
+ *
+ * @author David J. Lains (dlains)
+ * @bug No known bugs.
+ */
+
 #include "common.h"
 #include "compiler.h"
 #include "scanner.h"
 
-void compile(const char *source)
+/** @brief Compile the source code available in the scanner.
+ *
+ * Compile the source code available in the scanner.
+ */
+void compile()
 {
-  init_scanner(source);
-
   int line = -1;
   for(;;)
   {

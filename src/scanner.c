@@ -9,18 +9,10 @@
 #include "common.h"
 #include "keywords.h"
 #include "scanner.h"
+#include "source.h"
 #include "memory.h"
 
-/** @brief The Scanner struct holds the current scanning information.
- */
-typedef struct
-{
-  const char *start;     /**< Marks the start of the current token. */
-  const char *current;   /**< Markes the current position of the scan. */
-  int line;              /**< Tracks the current line number for error reporting. */
-} Scanner;
-
-Scanner scanner;
+Source scanner = NULL;
 
 // Private scanner methods.
 static Token make_token(TokenType type);
@@ -38,18 +30,42 @@ static bool match(char expected);
 static bool is_alpha(char c);
 static bool is_digit(char c);
 
+void make_current(Source source)
+{
+  if(scanner && !is_at_end())
+  {
+    // TODO: Push it on the source stack.
+  }
+
+  scanner = source;
+}
+
+/*
 void init_scanner(const char *source)
 {
   scanner.start = source;
   scanner.current = source;
   scanner.line = 1;
 }
+*/
+
+void add_source_line(const char *line)
+{
+  Source s = source_create(line);
+  make_current(s);
+}
+
+void add_source_file(const char *file_path)
+{
+  Source s = source_create_file(file_path);
+  make_current(s);
+}
 
 Token next_token()
 {
   skip_whitespace();
 
-  scanner.start = scanner.current;
+  scanner->start = scanner->current;
 
   if(is_at_end())
     return make_token(TOKEN_EOF);
@@ -123,15 +139,15 @@ Token next_token()
  */
 static Token make_token(TokenType type)
 {
-  int length = scanner.current - scanner.start;
+  int length = scanner->current - scanner->start;
   if(length > LEXEME_LEN - 1)
     return error_token("Identifier length is too long.");
 
   Token token;
   token.type = type;
-  memcpy(token.lexeme, scanner.start, length);
+  memcpy(token.lexeme, scanner->start, length);
   token.lexeme[length] = '\0';
-  token.line = scanner.line;
+  token.line = scanner->line;
 
   return token;
 }
@@ -149,7 +165,7 @@ static Token error_token(const char *message)
   Token token;
   token.type = TOKEN_ERROR;
   memcpy(token.lexeme, message, strlen(message));
-  token.line = scanner.line;
+  token.line = scanner->line;
 
   return token;
 }
@@ -175,7 +191,7 @@ static Token string()
   {
     if(peek() == '\n')
     {
-      scanner.line++;
+      scanner->line++;
     }
     advance();
   }
@@ -244,8 +260,8 @@ static Token identifier()
 static TokenType identifier_type()
 {
   char identifier[LEXEME_LEN];
-  memcpy(identifier, scanner.start, scanner.current - scanner.start);
-  identifier[scanner.current - scanner.start] = '\0';
+  memcpy(identifier, scanner->start, scanner->current - scanner->start);
+  identifier[scanner->current - scanner->start] = '\0';
 
   int type = find_keyword(identifier);
   if(type != 0)
@@ -263,8 +279,8 @@ static TokenType identifier_type()
  */
 static char advance()
 {
-  scanner.current++;
-  return scanner.current[-1];
+  scanner->current++;
+  return scanner->current[-1];
 }
 
 /** @brief Look at the current character without advancing the pointer.
@@ -276,7 +292,7 @@ static char advance()
  */
 static char peek()
 {
-  return *scanner.current;
+  return *scanner->current;
 }
 
 /** @brief Look at the character past the current character.
@@ -291,7 +307,7 @@ static char peek_next()
 {
   if(is_at_end())
     return '\0';
-  return scanner.current[1];
+  return scanner->current[1];
 }
 
 /** @brief Skip over any white space between tokens.
@@ -314,7 +330,7 @@ static void skip_whitespace()
         advance();
         break;
       case '\n':
-        scanner.line++;
+        scanner->line++;
         advance();
         break;
       case '#':
@@ -336,7 +352,7 @@ static void skip_whitespace()
  */
 static bool is_at_end()
 {
-  return *scanner.current == '\0';
+  return *scanner->current == '\0';
 }
 
 /** @brief Check for an expected character in the source code.
@@ -353,10 +369,10 @@ static bool match(char expected)
   if(is_at_end())
     return false;
 
-  if(*scanner.current != expected)
+  if(*scanner->current != expected)
     return false;
 
-  scanner.current++;
+  scanner->current++;
   return true;
 }
 
