@@ -26,13 +26,31 @@
 
 /** @brief Initialize the scanner with a pointer to the source code.
  *
+ * TODO: This will be removed once the add_source* functions are working.
  * This initializes the Scanner struct and sets the scanning position
  * to the beginning of the source code.
  *
  * @param source The source code to be scanned.
- * @return
  */
 void init_scanner(const char *source);
+
+/** @brief Add a source line to be scanned.
+ *
+ * This function is used by the REPL to add a line at a time to the
+ * scanner. Each line is added as a Source buffer.
+ *
+ * @param line The string source code input from the REPL.
+ */
+void add_source_line(const char *line);
+
+/** @brief Add a source file to be scanned.
+ *
+ * This function creates a new Source buffer based on the supplied
+ * file.
+ *
+ * @param file_path The full path to the source file to scan.
+ */
+void add_source_file(const char *file_path);
 
 /** @brief Get the next token from the source code.
  *

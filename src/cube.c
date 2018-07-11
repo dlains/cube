@@ -2,22 +2,24 @@
 #include "chunk.h"
 #include "debug.h"
 #include "vm.h"
+#include "scanner.h"
 
-static void repl();
-static void runFile(const char *path);
-static char *readFile(const char *path);
+static int repl();
+static int run_file(const char *file_path);
 
 int main(int argc, char *argv[])
 {
-  VMInit();
+  int result = 0;
+
+  vm_init();
 
   if(argc == 1)
   {
-    repl();
+    result = repl();
   }
   else if(argc == 2)
   {
-    runFile(argv[1]);
+    result = run_file(argv[1]);
   }
   else
   {
@@ -25,13 +27,15 @@ int main(int argc, char *argv[])
     exit(EXIT_FAILURE);
   }
   
-  VMFree();
+  vm_free();
 
-  return 0;
+  return result;
 }
 
-static void repl()
+static int repl()
 {
+  InterpretResult result = INTERPRET_OK;
+
   char line[1024];
   for(;;)
   {
@@ -43,51 +47,15 @@ static void repl()
       break;
     }
 
-    interpret(line);
+    add_source_line(line);
+    result = interpret();
   }
+
+  return result;
 }
 
-static void runFile(const char *path)
+static int run_file(const char *file_path)
 {
-  char *source = readFile(path);
-  InterpretResult result = interpret(source);
-  free(source);
-
-  if(result == INTERPRET_COMPILE_ERROR)
-    exit(65);
-  if(result == INTERPRET_RUNTIME_ERROR)
-    exit(70);
-}
-
-static char *readFile(const char *path)
-{
-  FILE *file = fopen(path, "rb");
-  if(file == NULL)
-  {
-    fprintf(stderr, "Could not open file \"%s\".\n", path);
-    exit(74);
-  }
-
-  fseek(file, 0L, SEEK_END);
-  size_t fileSize = ftell(file);
-  rewind(file);
-
-  char *buffer = (char *)malloc(fileSize + 1);
-  if(buffer == NULL)
-  {
-    fprintf(stderr, "Not enough memory to read \"%s\".\n", path);
-    exit(74);
-  }
-
-  size_t bytesRead = fread(buffer, sizeof(char), fileSize, file);
-  if(bytesRead < fileSize)
-  {
-    fprintf(stderr, "Could not read file \"%s\".\n", path);
-    exit(74);
-  }
-  buffer[bytesRead] = '\0';
-
-  fclose(file);
-
-  return buffer;
+  add_source_file(file_path);
+  return interpret();
 }
