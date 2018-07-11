@@ -66,6 +66,120 @@ void source_destroy(Source s)
   FREE(s);
 }
 
+/** @brief Is this source buffer at the EOF marker?
+ *
+ * Determine if the passed in source buffer is at the
+ * end of the file or not.
+ *
+ * @param s The source buffer to check.
+ * @return True if the source buffer is at the end of the file, false otherwise.
+ */
+bool is_at_end(Source s)
+{
+  return *s->current == '\0';
+}
+
+/** @brief Skip whitespace characters between tokens.
+ *
+ * The next_token function starts by skipping any whitespace before
+ * it attempts to find the next token. This skips spaces, tabs,
+ * vertical tabs, formfeeds and newlines.
+ *
+ * @param s The source buffer to skip whitespace for.
+ */
+void skip_whitespace(Source s)
+{
+  for(;;)
+  {
+    char c = peek(s);
+    switch(c)
+    {
+      case ' ':
+      case '\r':
+      case '\t':
+      case '\f':
+      case '\v':
+        advance(s);
+        break;
+      case '\n':
+        s->line++;
+        advance(s);
+        break;
+      case '#':
+        while(peek(s) != '\n' && !is_at_end(s))
+          advance(s);
+        break;
+      default:
+        return;
+    }
+  }
+}
+
+/** @brief Advance the scanner on character and return the current character.
+ *
+ * Move the current pointer on character forward and return
+ * the character that was just being pointed to.
+ *
+ * @param s The source buffer to advance.
+ * @return char The current character in the source code.
+ */
+char advance(Source s)
+{
+  s->current++;
+  return s->current[-1];
+}
+
+/** @brief Look at the current character without advancing the pointer.
+ *
+ * Used to check one character ahead for certain two character tokens
+ * such as '>=' or '!=', ect.
+ *
+ * @param s The source buffer to peek into.
+ * @return char The current character in the source code.
+ */
+char peek(Source s)
+{
+  return *s->current;
+}
+
+/** @brief Look at the character past the current character.
+ *
+ * Used when scanning numbers, peek to see if the current
+ * character is a '.', then peek_next to look for additional
+ * digits.
+ *
+ * @param s The source buffer to peek at the next char in.
+ * @return char The next character in the source code.
+ */
+char peek_next(Source s)
+{
+  if(is_at_end(s))
+    return '\0';
+  return s->current[1];
+}
+
+/** @brief Check for an expected character in the source code.
+ *
+ * If the current character matches the expected character advance
+ * the scanner and return true. If the current character does not
+ * match return false.
+ *
+ * @param s The source buffer to check.
+ * @param char The expected character to check for.
+ * @return Boolean True if the current character matches, false othewise.
+ */
+bool match(Source s, char expected)
+{
+  if(is_at_end(s))
+    return false;
+
+  if(*s->current != expected)
+    return false;
+
+  s->current++;
+  return true;
+}
+
 static char *source_read_file(const char *file_path)
 {
   FILE *file = fopen(file_path, "r");

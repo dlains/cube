@@ -21,33 +21,18 @@ static Token string();
 static Token number();
 static Token identifier();
 static TokenType identifier_type();
-static char advance();
-static char peek();
-static char peek_next();
-static void skip_whitespace();
-static bool is_at_end();
-static bool match(char expected);
 static bool is_alpha(char c);
 static bool is_digit(char c);
 
 void make_current(Source source)
 {
-  if(scanner && !is_at_end())
+  if(scanner && !is_at_end(source))
   {
     // TODO: Push it on the source stack.
   }
 
   scanner = source;
 }
-
-/*
-void init_scanner(const char *source)
-{
-  scanner.start = source;
-  scanner.current = source;
-  scanner.line = 1;
-}
-*/
 
 void add_source_line(const char *line)
 {
@@ -63,14 +48,14 @@ void add_source_file(const char *file_path)
 
 Token next_token()
 {
-  skip_whitespace();
+  skip_whitespace(scanner);
 
   scanner->start = scanner->current;
 
-  if(is_at_end())
+  if(is_at_end(scanner))
     return make_token(TOKEN_EOF);
 
-  char c = advance();
+  char c = advance(scanner);
 
   if(is_alpha(c))
     return identifier();
@@ -112,15 +97,15 @@ Token next_token()
     case '|':
       return make_token(TOKEN_OR);
     case '*':
-      return make_token(match('*') ? TOKEN_POWER : TOKEN_STAR);
+      return make_token(match(scanner, '*') ? TOKEN_POWER : TOKEN_STAR);
     case '!':
-      return make_token(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
+      return make_token(match(scanner, '=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
     case '=':
-      return make_token(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
+      return make_token(match(scanner, '=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
     case '>':
-      return make_token(match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
+      return make_token(match(scanner, '=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
     case '<':
-      return make_token(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
+      return make_token(match(scanner, '=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
     case '"':
       return string();
   }
@@ -187,20 +172,20 @@ static Token error_token(const char *message)
  */
 static Token string()
 {
-  while(peek() != '"' && !is_at_end())
+  while(peek(scanner) != '"' && !is_at_end(scanner))
   {
-    if(peek() == '\n')
+    if(peek(scanner) == '\n')
     {
       scanner->line++;
     }
-    advance();
+    advance(scanner);
   }
 
-  if(is_at_end())
+  if(is_at_end(scanner))
     return error_token("Unterminated string.");
 
   // Advance past the closing quote.
-  advance();
+  advance(scanner);
   return make_token(TOKEN_STRING);
 }
 
@@ -216,15 +201,15 @@ static Token string()
  */
 static Token number()
 {
-  while(is_digit(peek()))
-    advance();
+  while(is_digit(peek(scanner)))
+    advance(scanner);
 
   // Look for a fractional part.
-  if(peek() == '.' && is_digit(peek_next()))
+  if(peek(scanner) == '.' && is_digit(peek_next(scanner)))
   {
-    advance();
-    while(is_digit(peek()))
-      advance();
+    advance(scanner);
+    while(is_digit(peek(scanner)))
+      advance(scanner);
   }
 
   return make_token(TOKEN_NUMBER);
@@ -243,8 +228,8 @@ static Token number()
  */
 static Token identifier()
 {
-  while(is_alpha(peek()) || is_digit(peek()))
-    advance();
+  while(is_alpha(peek(scanner)) || is_digit(peek(scanner)))
+    advance(scanner);
 
   return make_token(identifier_type());
 }
@@ -268,112 +253,6 @@ static TokenType identifier_type()
     return type;
 
   return TOKEN_IDENTIFIER;
-}
-
-/** @brief Advance the scanner on character and return the current character.
- *
- * Move the current pointer on character forward and return
- * the character that was just being pointed to.
- *
- * @return char The current character in the source code.
- */
-static char advance()
-{
-  scanner->current++;
-  return scanner->current[-1];
-}
-
-/** @brief Look at the current character without advancing the pointer.
- *
- * Used to check one character ahead for certain two character tokens
- * such as '>=' or '!=', ect.
- *
- * @return char The current character in the source code.
- */
-static char peek()
-{
-  return *scanner->current;
-}
-
-/** @brief Look at the character past the current character.
- *
- * Used when scanning numbers, peek to see if the current
- * character is a '.', then peek_next to look for additional
- * digits.
- *
- * @return char The next character in the source code.
- */
-static char peek_next()
-{
-  if(is_at_end())
-    return '\0';
-  return scanner->current[1];
-}
-
-/** @brief Skip over any white space between tokens.
- *
- * White space consists of spaces, tabs, newlines, page feeds,
- * return characters and comments.
- */
-static void skip_whitespace()
-{
-  for(;;)
-  {
-    char c = peek();
-    switch(c)
-    {
-      case ' ':
-      case '\r':
-      case '\t':
-      case '\f':
-      case '\v':
-        advance();
-        break;
-      case '\n':
-        scanner->line++;
-        advance();
-        break;
-      case '#':
-        while(peek() != '\n' && !is_at_end())
-          advance();
-        break;
-      default:
-        return;
-    }
-  }
-}
-
-/** @brief Check to see if the scanner is at the end of the source code.
- *
- * If the scanner has reached the end of the NULL terminated source
- * buffer there is no more tokens to read.
- *
- * @return Boolean True if there is no more source code, false otherwise.
- */
-static bool is_at_end()
-{
-  return *scanner->current == '\0';
-}
-
-/** @brief Check for an expected character in the source code.
- *
- * If the current character matches the expected character advance
- * the scanner and return true. If the current character does not
- * match return false.
- *
- * @param char The expected character to check for.
- * @return Boolean True if the current character matches, false othewise.
- */
-static bool match(char expected)
-{
-  if(is_at_end())
-    return false;
-
-  if(*scanner->current != expected)
-    return false;
-
-  scanner->current++;
-  return true;
 }
 
 /** @brief Is the given character an alpha character.
