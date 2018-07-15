@@ -21,7 +21,7 @@
 typedef struct source_t *Source;
 
 struct source_t {
-  const char *buffer;      /**< The rolling buffer to hold the source code. */
+  char *buffer;            /**< The rolling buffer to hold the source code. */
   const char *start;       /**< The start of the current token being scanned. */
   const char *current;     /**< The current location in the buffer. */
   const char *file;        /**< The full path to the file associated with this buffer. NULL for non file buffers. */

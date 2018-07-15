@@ -60,7 +60,7 @@ $(RELEASE_DIR)/%.o: %.c
 # Utility rules
 #
 prep:
-	@mkdir -p $(DEBUG_DIR) $(RELEASE_DIR) $(RESULTS_DIR)
+	@mkdir -p $(DEBUG_DIR) $(RELEASE_DIR)
 
 clean:
-	$(RM) $(RELEASE_EXE) $(RELEASE_OBJS) $(DEBUG_EXE) $(DEBUG_OBJS) $(RESULTS_DIR)/*.txt
+	$(RM) $(RELEASE_EXE) $(RELEASE_OBJS) $(DEBUG_EXE) $(DEBUG_OBJS)

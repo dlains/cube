@@ -24,9 +24,10 @@ static char *source_read_file(const char *file_path);
 Source source_create(const char *source)
 {
   Source s   = NEW(s);
-  s->buffer  = source;
-  s->start   = source;
-  s->current = source;
+  s->buffer  = malloc(strlen(source));
+  memcpy(s->buffer, source, strlen(source));
+  s->start   = s->buffer;
+  s->current = s->buffer;
   s->file    = NULL;
   s->line    = 1;
   s->col     = 1;
@@ -62,7 +63,7 @@ Source source_create_file(const char *file_path)
  */
 void source_destroy(Source s)
 {
-  free((char*)s->buffer);
+  FREE(s->buffer);
   FREE(s);
 }
 

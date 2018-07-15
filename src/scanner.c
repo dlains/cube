@@ -46,6 +46,22 @@ void add_source_file(const char *file_path)
   make_current(s);
 }
 
+bool source_buffers_remain()
+{
+  return false;
+}
+
+void activate_next_buffer()
+{
+  remove_current_buffer();
+  return;
+}
+
+void remove_current_buffer()
+{
+  source_destroy(scanner);
+}
+
 Token next_token()
 {
   skip_whitespace(scanner);
