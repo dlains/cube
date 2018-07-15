@@ -32,6 +32,14 @@ void compile()
     printf("%2d '%s'\n", token.type, token.lexeme);
 
     if(token.type == TOKEN_EOF)
-      break;
+    {
+      if(source_buffers_remain())
+        activate_next_buffer();
+      else
+      {
+        remove_current_buffer();
+        break;
+      }
+    }
   }
 }
