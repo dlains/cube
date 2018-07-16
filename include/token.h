@@ -1,3 +1,11 @@
+/** @file token.h
+ *
+ * @brief Define the tokens used by the Cube language.
+ *
+ * @author David J. Lains
+ * @bug No known bugs
+ */
+
 #ifndef TOKEN_H
 #define TOKEN_H
 
@@ -74,5 +82,23 @@ typedef struct
   char lexeme[LEXEME_LEN];
   int line;
 } Token;
+
+/** @brief Translate a token enum id to a user friendly token name.
+ *
+ * This function returns the token name for a given token id. If the token
+ * id is unknown it returns an error message.
+ *
+ * @param TokenType The token type value to get the name for.
+ * @return The user friendly name of the token type supplied or an error string.
+ */
+const char *token_name(TokenType type);
+
+/** @brief Display the token for debugging purposes.
+ *
+ * Prints a token and some of the information about the token to stdout.
+ *
+ * @param Token The token to be printed.
+ */
+void print_token(Token token);
 
 #endif // TOKEN_H
