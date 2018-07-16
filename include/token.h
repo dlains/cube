@@ -2,6 +2,10 @@
  *
  * @brief Define the tokens used by the Cube language.
  *
+ * The token module provides an enumeration of all the valid
+ * tokens used by the Cube language. It also provides a couple
+ * functions to display a token that can be useful during debugging.
+ *
  * @author David J. Lains
  * @bug No known bugs
  */
