@@ -20,15 +20,6 @@
 
 typedef struct source_t *Source;
 
-struct source_t {
-  char *buffer;            /**< The rolling buffer to hold the source code. */
-  const char *start;       /**< The start of the current token being scanned. */
-  const char *current;     /**< The current location in the buffer. */
-  const char *file;        /**< The full path to the file associated with this buffer. NULL for non file buffers. */
-  int line;                /**< The current line number. */
-  int col;                 /**< The current column. */
-};
-
 /** @brief Create a new source buffer.
  *
  * This function creates a new source buffer from a string.
@@ -46,6 +37,53 @@ Source source_create_file(const char *file);
  * Release the memory used by this Source buffer.
  */
 void source_destroy(Source s);
+
+/** @brief Get the start position for the token.
+ *
+ * Return the starting position for the current token.
+ *
+ * @param Source The source buffer to operate on.
+ * @return const char * The starting position for the current token.
+ */
+const char *start_position(Source s);
+
+/** @brief Get the current line number being processed.
+ *
+ * Return the current line number that is being scanned in
+ * the source buffer.
+ *
+ * @param Source The source buffer to operate on.
+ * @return int The current line number.
+ */
+int line_number(Source s);
+
+/** @brief Increment the line number for this source buffer.
+ *
+ * Increment the line number for this source buffer.
+ *
+ * @param Source The source buffer to operate on.
+ * @return The current line number.
+ */
+int increment_line(Source s);
+
+/** @brief Start scanning for a new token.
+ *
+ * Call this function at the start of a new token scan
+ * to syncronize the buffers.
+ *
+ * @param Source The source buffer to start a new token for.
+ */
+void start_token(Source s);
+
+/** @brief Get the length of the current token.
+ *
+ * Calculate the distance between the start and current
+ * pointers. This is the length of the token.
+ *
+ * @param Source The source buffer to get the length for.
+ * @return int The length of the current token.
+ */
+int token_length(Source s);
 
 /** @brief Is this source buffer at the EOF marker?
  *

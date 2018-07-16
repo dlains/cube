@@ -66,7 +66,7 @@ Token next_token()
 {
   skip_whitespace(scanner);
 
-  scanner->start = scanner->current;
+  start_token(scanner); 
 
   if(is_at_end(scanner))
     return make_token(TOKEN_EOF);
@@ -140,15 +140,15 @@ Token next_token()
  */
 static Token make_token(TokenType type)
 {
-  int length = scanner->current - scanner->start;
+  int length = token_length(scanner); 
   if(length > LEXEME_LEN - 1)
     return error_token("Identifier length is too long.");
 
   Token token;
   token.type = type;
-  memcpy(token.lexeme, scanner->start, length);
+  memcpy(token.lexeme, start_position(scanner), length);
   token.lexeme[length] = '\0';
-  token.line = scanner->line;
+  token.line = line_number(scanner);
 
   return token;
 }
@@ -166,7 +166,7 @@ static Token error_token(const char *message)
   Token token;
   token.type = TOKEN_ERROR;
   memcpy(token.lexeme, message, strlen(message));
-  token.line = scanner->line;
+  token.line = line_number(scanner);
 
   return token;
 }
@@ -192,7 +192,7 @@ static Token string()
   {
     if(peek(scanner) == '\n')
     {
-      scanner->line++;
+      increment_line(scanner);
     }
     advance(scanner);
   }
@@ -261,8 +261,9 @@ static Token identifier()
 static TokenType identifier_type()
 {
   char identifier[LEXEME_LEN];
-  memcpy(identifier, scanner->start, scanner->current - scanner->start);
-  identifier[scanner->current - scanner->start] = '\0';
+  int length = token_length(scanner);
+  memcpy(identifier, start_position(scanner), length);
+  identifier[length] = '\0';
 
   int type = find_keyword(identifier);
   if(type != 0)
