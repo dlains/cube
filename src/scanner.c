@@ -149,6 +149,7 @@ static Token make_token(TokenType type)
   memcpy(token.lexeme, start_position(scanner), length);
   token.lexeme[length] = '\0';
   token.line = line_number(scanner);
+  token.col  = col_number(scanner) - length;
 
   return token;
 }
@@ -167,6 +168,7 @@ static Token error_token(const char *message)
   token.type = TOKEN_ERROR;
   memcpy(token.lexeme, message, strlen(message));
   token.line = line_number(scanner);
+  token.col  = col_number(scanner);
 
   return token;
 }

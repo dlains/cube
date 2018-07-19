@@ -111,7 +111,20 @@ int line_number(Source s)
 int increment_line(Source s)
 {
   s->line++;
+  s->col = 1;
   return s->line;
+}
+
+/** @brief Get the current column number.
+ *
+ * The current column number for the start of the token.
+ *
+ * @param Source The source buffer to operate on.
+ * @return int The current column number.
+ */
+int col_number(Source s)
+{
+  return s->col;
 }
 
 /** @brief Start scanning for a new token.
@@ -199,6 +212,7 @@ void skip_whitespace(Source s)
 char advance(Source s)
 {
   s->current++;
+  s->col++;
   return s->current[-1];
 }
 
@@ -250,6 +264,7 @@ bool match(Source s, char expected)
     return false;
 
   s->current++;
+  s->col++;
   return true;
 }
 
