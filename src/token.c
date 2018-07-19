@@ -144,5 +144,5 @@ const char *token_name(TokenType type)
  */
 void print_token(Token token)
 {
-  printf("%4d %-20s '%s'\n", token.line, token_name(token.type), token.lexeme);
+  printf("%4d:%-4d %-20s '%s'\n", token.line, token.col, token_name(token.type), token.lexeme);
 }

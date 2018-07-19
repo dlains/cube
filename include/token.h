@@ -85,6 +85,7 @@ typedef struct
   TokenType type;
   char lexeme[LEXEME_LEN];
   int line;
+  int col;
 } Token;
 
 /** @brief Translate a token enum id to a user friendly token name.

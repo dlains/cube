@@ -66,6 +66,15 @@ int line_number(Source s);
  */
 int increment_line(Source s);
 
+/** @brief Get the current column number.
+ *
+ * The current column number for the start of the token.
+ *
+ * @param Source The source buffer to operate on.
+ * @return int The current column number.
+ */
+int col_number(Source s);
+
 /** @brief Start scanning for a new token.
  *
  * Call this function at the start of a new token scan
