@@ -1,60 +1,48 @@
+/** @file memory.c
+ *
+ * @brief Implementation of the memory management functions.
+ *
+ * @author David J. Lains (dlains)
+ * @bug No known bugs.
+ */
 #include <stdlib.h>
-#include <assert.h>
 #include "common.h"
 #include "memory.h"
 
-void *MemAlloc(long num_bytes, const char *file, int line)
+/** @brief Reallocate memory to the given size.
+ *
+ * Works in four modes:
+ *   1. new_size == 0 - free the memory.
+ *   2. old_size == 0 and new_size > 0 - allocate new memory.
+ *   3. old_size > 0 and new_size > old_size - grow to new size.
+ *   4. old_size > 0 and new_size < old_size - reduce to new size.
+ * 
+ * If the allocation fails an error message is displayed and the program
+ * exits.
+ *
+ * @param previous A pointer to the existing memory.
+ * @param old_size The existing size of the allocated memory.
+ * @param new_size The new size to reallocate the memory to.
+ * @param file Diagnostic source file of the reallocate call.
+ * @param line Diagnostic source file line of the reallocate call.
+ * @return A pointer to the reallocated memory.
+ */
+void *reallocate(void *previous, size_t old_size, size_t new_size, const char *file, int line)
 {
-  void *ptr;
-
-  assert(num_bytes > 0);
-  ptr = malloc(num_bytes);
-
-  if(ptr == NULL)
+  if(new_size == 0)
   {
-    die("Memory allocation failed", file, line);
+    free(previous);
+    return NULL;
   }
 
-  return ptr;
-}
-
-void *MemCalloc(long count, long num_bytes, const char *file, int line)
-{
-  void *ptr;
-
-  assert(count > 0);
-  assert(num_bytes > 0);
-  ptr = calloc(count, num_bytes);
-
-  if(ptr == NULL)
+  if(new_size > old_size)
   {
-    die("Memory allocation failed", file, line);
+    // Garbage collection will be here.
   }
 
-  return ptr;
+  void *result = realloc(previous, new_size);
+  if(result == NULL)
+    die("Memory management error.", file, line);
+
+  return result;
 }
-
-void *MemResize(void *ptr, long num_bytes, const char *file, int line)
-{
-  assert(ptr);
-  assert(num_bytes > 0);
-  ptr = realloc(ptr, num_bytes);
-
-  if(ptr == NULL)
-  {
-    die("Memory resize failed", file, line);
-  }
-
-  return ptr;
-}
-
-void MemFree(void *ptr, const char *file, int line)
-{
-  if(ptr == NULL)
-  {
-    die("Attempt to free a null pointer.", file, line);
-  }
-
-  free(ptr);
-}
-
