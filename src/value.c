@@ -60,7 +60,7 @@ void write_value_array(ValueArray *array, Value value)
  *
  * @param value The value to print.
  */
-void printValue(Value value)
+void print_value(Value value)
 {
   printf("%g", value);
 }

@@ -1,3 +1,10 @@
+/** @file vm.c
+ *
+ * @brief Implementation of the Virtual Machine for Cube.
+ *
+ * @author David J. Lains (dlains)
+ * @bug No known bugs.
+ */
 #include <stdio.h>
 #include "common.h"
 #include "vm.h"
@@ -7,9 +14,9 @@
 VM vm;
 
 // Comment out the run function for the time being. Not currently being used.
-// static InterpretResult run();
+static InterpretResult run();
 static void reset_stack();
-// static void printStack();
+static void printStack();
 
 void vm_init()
 {
@@ -22,9 +29,23 @@ void vm_free()
 
 InterpretResult interpret()
 {
-  compile();
-  // return run();
-  return INTERPRET_OK;
+  Chunk chunk;
+  init_chunk(&chunk);
+
+  if(!compile(&chunk))
+  {
+    free_chunk(&chunk);
+    return INTERPRET_COMPILE_ERROR;
+  }
+
+  vm.chunk = &chunk;
+  vm.ip    = vm.chunk->code;
+
+  InterpretResult result = run();
+
+  free_chunk(&chunk);
+
+  return result;
 }
 
 void push(Value value)
@@ -44,21 +65,18 @@ static void reset_stack()
   vm.stack_top = vm.stack;
 }
 
-/*
 static void printStack()
 {
   printf("          ");
-  for(Value *slot = vm.stack; slot < vm.stackTop; slot++)
+  for(Value *slot = vm.stack; slot < vm.stack_top; slot++)
   {
     printf("[ ");
-    printValue(*slot);
+    print_value(*slot);
     printf(" ]");
   }
   printf("\n");
 }
-*/
 
-/*
 static InterpretResult run()
 {
 #define READ_BYTE() (*vm.ip++)
@@ -112,7 +130,7 @@ static InterpretResult run()
       }
       case OP_RETURN:
       {
-        printValue(pop());
+        print_value(pop());
         printf("\n");
         return INTERPRET_OK;
       }
@@ -123,4 +141,3 @@ static InterpretResult run()
 #undef READ_CONSTANT
 #undef BINARY_OP
 }
-*/
