@@ -177,33 +177,15 @@ static void emit_return();
  * Error Handling Functions
  */
 
-/** @brief Display an error message about the current token.
- *
- * Use the current tokens lexeme as the message for an error
- * report.
- *
- * @param message The error message to display.
- */
-static void error_at_current(const char *message);
-
 /** @brief Display an error message about the previous token.
  *
  * Use the parser previous token as the message for an error
  * report.
  *
+ * @param token The token that caused the error.
  * @param message The error message to display.
  */
-static void error(const char *message);
-
-/** @brief Display a parse error.
- *
- * Prints an error message to stderr regarding the given token
- * and the given message.
- *
- * @param token The Token that generated the error.
- * @param message A message with details about the error.
- */
-static void error_at(Token *token, const char *message);
+static void error(Token *token, const char *message);
 
 /** @brief Compile the source code available in the scanner.
  *
@@ -337,7 +319,7 @@ static void advance(void)
     if(parser.current.type != TOKEN_ERROR)
       break;
 
-    error_at_current(parser.current.lexeme);
+    error(&parser.current, parser.current.lexeme);
   }
 }
 
@@ -357,7 +339,7 @@ static void consume(TokenType type, const char *message)
     return;
   }
 
-  error_at_current(message);
+  error(&parser.current, message);
 }
 
 /** @brief Parse a binary expression.
@@ -444,7 +426,7 @@ static void parse_precedence(Precedence precedence)
   ParseFn prefix_rule = get_rule(parser.previous.type)->prefix;
   if(prefix_rule == NULL)
   {
-    error("Expect expression.");
+    error(&parser.previous, "Expect expression.");
     return;
   }
 
@@ -533,7 +515,7 @@ static Byte make_constant(Value value)
   int index = add_constant(current_chunk(), value);
   if(index > UINT8_MAX)
   {
-    error("Too many constants in one chunk.");
+    error(&parser.previous, "Too many constants in one chunk.");
     return 0;
   }
 
@@ -549,61 +531,20 @@ static void emit_return()
   emit_byte(OP_RETURN);
 }
 
-/** @brief Display an error message about the current token.
+/** @brief Wrapper for the parse_error function. 
  *
- * Use the current tokens lexeme as the message for an error
- * report.
+ * Send the token and error message along to parse_error and
+ * set the Parser error recovery flags appropriately.
  *
+ * @param token The token that caused the error.
  * @param message The error message to display.
  */
-static void error_at_current(const char *message)
-{
-  error_at(&parser.current, message);
-}
-
-/** @brief Display an error message about the previous token.
- *
- * Use the parser previous token as the message for an error
- * report.
- *
- * @param message The error message to display.
- */
-static void error(const char *message)
-{
-  error_at(&parser.previous, message);
-}
-
-/** @brief Display a parse error.
- *
- * Prints an error message to stderr regarding the given token
- * and the given message.
- *
- * @param token The Token that generated the error.
- * @param message A message with details about the error.
- */
-static void error_at(Token *token, const char *message)
+static void error(Token *token, const char *message)
 {
   if(parser.panic_mode)
     return;
   parser.panic_mode = true;
+  parser.had_error  = true;
 
-  fprintf(stderr, "[%d:%d] Error", token->line, token->col);
-
-  if(token->type == TOKEN_EOF)
-  {
-    fprintf(stderr, " at EOF");
-  }
-  else if(token->type == TOKEN_ERROR)
-  {
-    // Nothing
-  }
-  else
-  {
-    fprintf(stderr, " at '%s'", token->lexeme);
-  }
-
-  fprintf(stderr, ": %s\n", message);
-  parser.had_error = true;
+  parse_error(token, message);
 }
-
-
