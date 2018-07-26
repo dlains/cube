@@ -11,6 +11,7 @@
 
 #include "error.h"
 
+#define DEBUG_PRINT_CODE
 #define DEBUG_TRACE_EXECUTION
 
 typedef uint8_t Byte;
