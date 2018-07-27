@@ -32,12 +32,11 @@ typedef enum
   TOKEN_PLUS,
   TOKEN_SEMICOLON,
   TOKEN_SLASH,
+  TOKEN_STAR,
   TOKEN_AND,
   TOKEN_OR,
 
   // One or two character tokens.
-  TOKEN_STAR,
-  TOKEN_POWER,
   TOKEN_BANG,
   TOKEN_BANG_EQUAL,
   TOKEN_EQUAL,

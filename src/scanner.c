@@ -66,7 +66,7 @@ Token next_token()
 {
   skip_whitespace(scanner);
 
-  start_token(scanner); 
+  start_token(scanner);
 
   if(is_at_end(scanner))
     return make_token(TOKEN_EOF);
@@ -108,12 +108,12 @@ Token next_token()
       return make_token(TOKEN_SEMICOLON);
     case '/':
       return make_token(TOKEN_SLASH);
+    case '*':
+      return make_token(TOKEN_STAR);
     case '&':
       return make_token(TOKEN_AND);
     case '|':
       return make_token(TOKEN_OR);
-    case '*':
-      return make_token(match(scanner, '*') ? TOKEN_POWER : TOKEN_STAR);
     case '!':
       return make_token(match(scanner, '=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
     case '=':
@@ -140,7 +140,7 @@ Token next_token()
  */
 static Token make_token(TokenType type)
 {
-  int length = token_length(scanner); 
+  int length = token_length(scanner);
   if(length > LEXEME_LEN - 1)
     return error_token("Identifier length is too long.");
 
