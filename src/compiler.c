@@ -39,6 +39,7 @@ typedef enum {
   PREC_COMPARISON,  // < > <= >=
   PREC_TERM,        // + -
   PREC_FACTOR,      // * /
+  PREC_POWER,       // ^
   PREC_UNARY,       // ! - +
   PREC_CALL,        // . () []
   PREC_PRIMARY,
@@ -245,16 +246,15 @@ ParseRule rules[] = {
   { NULL,     NULL,    PREC_NONE },       // TOKEN_RIGHT_BRACKET
   { NULL,     NULL,    PREC_NONE },       // TOKEN_PERCENT
   { NULL,     NULL,    PREC_NONE },       // TOKEN_COMMA
-  { NULL,     NULL,    PREC_NONE },       // TOKEN_CARET
+  { NULL,     binary,  PREC_POWER },      // TOKEN_CARET
   { NULL,     NULL,    PREC_CALL },       // TOKEN_DOT
   { unary,    binary,  PREC_TERM },       // TOKEN_MINUS
   { NULL,     binary,  PREC_TERM },       // TOKEN_PLUS
   { NULL,     NULL,    PREC_NONE },       // TOKEN_SEMICOLON
   { NULL,     binary,  PREC_FACTOR },     // TOKEN_SLASH
+  { NULL,     binary,  PREC_FACTOR },     // TOKEN_STAR
   { NULL,     NULL,    PREC_AND },        // TOKEN_AND
   { NULL,     NULL,    PREC_OR },         // TOKEN_OR
-  { NULL,     binary,  PREC_FACTOR },     // TOKEN_STAR
-  { NULL,     NULL,    PREC_FACTOR },     // TOKEN_POWER
   { NULL,     NULL,    PREC_NONE },       // TOKEN_BANG
   { NULL,     NULL,    PREC_EQUALITY },   // TOKEN_BANG_EQUAL
   { NULL,     NULL,    PREC_NONE },       // TOKEN_EQUAL
@@ -368,6 +368,9 @@ static void binary()
       break;
     case TOKEN_SLASH:
       emit_byte(OP_DIVIDE);
+      break;
+    case TOKEN_CARET:
+      emit_byte(OP_POWER);
       break;
     default:
       return;

@@ -53,14 +53,12 @@ const char *token_name(TokenType type)
       return "TOKEN_SEMICOLON";
     case TOKEN_SLASH:
       return "TOKEN_SLASH";
+    case TOKEN_STAR:
+      return "TOKEN_STAR";
     case TOKEN_AND:
       return "TOKEN_AND";
     case TOKEN_OR:
       return "TOKEN_OR";
-    case TOKEN_STAR:
-      return "TOKEN_STAR";
-    case TOKEN_POWER:
-      return "TOKEN_POWER";
     case TOKEN_BANG:
       return "TOKEN_BANG";
     case TOKEN_BANG_EQUAL:

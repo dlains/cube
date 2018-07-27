@@ -6,6 +6,7 @@
  * @bug No known bugs.
  */
 #include <stdio.h>
+#include <math.h>
 #include "common.h"
 #include "vm.h"
 #include "compiler.h"
@@ -121,6 +122,13 @@ static InterpretResult run()
       case OP_DIVIDE:
       {
         BINARY_OP(/);
+        break;
+      }
+      case OP_POWER:
+      {
+        double b = pop();
+        double a = pop();
+        push(pow((int)a, (int)b));
         break;
       }
       case OP_NEGATE:
