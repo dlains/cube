@@ -38,7 +38,7 @@ typedef enum {
   PREC_EQUALITY,    // == !=
   PREC_COMPARISON,  // < > <= >=
   PREC_TERM,        // + -
-  PREC_FACTOR,      // * /
+  PREC_FACTOR,      // * / %
   PREC_POWER,       // ^
   PREC_UNARY,       // ! - +
   PREC_CALL,        // . () []
@@ -206,6 +206,7 @@ bool compile(Chunk *chunk)
   expression();
   consume(TOKEN_EOF, "Expect end of expression.");
   /*
+   * TODO: Move the buffer checking to the advance function.
   for(;;)
   {
     Token token = next_token();
@@ -244,7 +245,7 @@ ParseRule rules[] = {
   { NULL,     NULL,    PREC_NONE },       // TOKEN_RIGHT_BRACE
   { NULL,     NULL,    PREC_NONE },       // TOKEN_LEFT_BRACKET
   { NULL,     NULL,    PREC_NONE },       // TOKEN_RIGHT_BRACKET
-  { NULL,     NULL,    PREC_NONE },       // TOKEN_PERCENT
+  { NULL,     binary,  PREC_FACTOR },     // TOKEN_PERCENT
   { NULL,     NULL,    PREC_NONE },       // TOKEN_COMMA
   { NULL,     binary,  PREC_POWER },      // TOKEN_CARET
   { NULL,     NULL,    PREC_CALL },       // TOKEN_DOT
@@ -368,6 +369,9 @@ static void binary()
       break;
     case TOKEN_SLASH:
       emit_byte(OP_DIVIDE);
+      break;
+    case TOKEN_PERCENT:
+      emit_byte(OP_MODULUS);
       break;
     case TOKEN_CARET:
       emit_byte(OP_POWER);

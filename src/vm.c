@@ -124,8 +124,17 @@ static InterpretResult run()
         BINARY_OP(/);
         break;
       }
+      case OP_MODULUS:
+      {
+        // TODO: Make modulo work for more numeric types.
+        double b = pop();
+        double a = pop();
+        push ((int)a % (int)b);
+        break;
+      }
       case OP_POWER:
       {
+        // TODO: Better way to handle powers? This probably needs to change when Cube can handle more types than double.
         double b = pop();
         double a = pop();
         push(pow((int)a, (int)b));
