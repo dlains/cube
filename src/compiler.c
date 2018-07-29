@@ -204,26 +204,6 @@ bool compile(Chunk *chunk)
 
   advance();
   expression();
-  consume(TOKEN_EOF, "Expect end of expression.");
-  /*
-   * TODO: Move the buffer checking to the advance function.
-  for(;;)
-  {
-    Token token = next_token();
-    print_token(token);
-
-    if(token.type == TOKEN_EOF)
-    {
-      if(source_buffers_remain())
-        activate_next_buffer();
-      else
-      {
-        remove_current_buffer();
-        break;
-      }
-    }
-  }
-  */
 
   end_compiler();
   return !parser.had_error;
@@ -317,6 +297,18 @@ static void advance(void)
   for(;;)
   {
     parser.current = next_token();
+
+    if(parser.current.type == TOKEN_EOF)
+    {
+      if(source_buffers_remain())
+        activate_next_buffer();
+      else
+      {
+        remove_current_buffer();
+        break;
+      }
+    }
+
     if(parser.current.type != TOKEN_ERROR)
       break;
 
