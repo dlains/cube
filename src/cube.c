@@ -3,30 +3,30 @@
 #include "debug.h"
 #include "vm.h"
 #include "scanner.h"
+#include "options.h"
 
 static int repl();
 static int run_file(const char *file_path);
 
 int main(int argc, char *argv[])
 {
+  Options options = options_init();
+  options_parse(options, argc, argv);
+
   int result = 0;
 
   vm_init();
 
-  if(argc == 1)
+  if(options_get_script(options) == NULL)
   {
     result = repl();
   }
-  else if(argc == 2)
-  {
-    result = run_file(argv[1]);
-  }
   else
   {
-    fprintf(stderr, "Usage: cube [path]\n");
-    exit(EXIT_FAILURE);
+    result = run_file(options_get_script(options));
   }
-  
+ 
+  options_free(options);
   vm_free();
 
   return result;
