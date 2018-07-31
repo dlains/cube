@@ -192,7 +192,7 @@ void skip_whitespace(Source s)
         advance(s);
         break;
       case '\n':
-        increment_line(s); 
+        increment_line(s);
         advance(s);
         break;
       case '#':
@@ -282,7 +282,9 @@ static char *source_read_file(const char *file_path)
 {
   FILE *file = fopen(file_path, "r");
   if(file == NULL)
-    die("Could not open file '%s'.\n", file_path, __LINE__);
+  {
+    fprintf(stderr, "Could not open file '%s'.\n", file_path);
+  }
 
   fseek(file, 0L, SEEK_END);
   size_t size = ftell(file);
@@ -290,11 +292,15 @@ static char *source_read_file(const char *file_path)
 
   char *buffer = ALLOC(char, size + 1);
   if(buffer == NULL)
-    die("Not enough memory to read '%s'.\n", file_path, __LINE__);
+  {
+    fprintf(stderr, "Not enough memory to read '%s'.\n", file_path);
+  }
 
   size_t bytes = fread(buffer, sizeof(char), size, file);
   if(bytes < size)
-    die("Error reading file '%s'.\n", file_path, __LINE__);
+  {
+    fprintf(stderr, "Error reading file '%s'.\n", file_path);
+  }
 
   buffer[bytes] = '\0';
 
