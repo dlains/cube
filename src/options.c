@@ -11,7 +11,7 @@
 #include "options.h"
 
 struct options {
-  const char *script;
+  char *script;
   bool show_tokens;
   bool show_bytecode;
 };
@@ -54,6 +54,7 @@ Options options_init(void)
  */
 void options_free(Options options)
 {
+  FREE(char, options->script);
   FREE(Options, options);
 }
 
@@ -77,9 +78,8 @@ void options_parse(Options options, int argc, char *argv[])
       { 0,         0,                 0,  0 }
     };
 
-    int option_index = 0;
-
-    int c = getopt_long(argc, argv, "d:hv", long_opts, &option_index);
+    int opt_index = 0;
+    int c = getopt_long(argc, argv, "d:hv", long_opts, &opt_index);
 
     if(c == -1)
       break;
@@ -87,21 +87,27 @@ void options_parse(Options options, int argc, char *argv[])
     switch(c)
     {
       case 'd':
-        printf("option with value '%s'\n", optarg);
         if(strcmp(optarg, "tokens") == 0)
           options->show_tokens = true;
         else if(strcmp(optarg, "code") == 0)
           options->show_bytecode = true;
         break;
-      case 'h':
-        print_usage();
-        break;
       case 'v':
         print_version();
         break;
+      case 'h':
+      case '?':
       default:
         print_usage();
     }
+  }
+
+  if(optind < argc)
+  {
+    // Copy a single argument at argv[optind] to options->script. Ignore anything
+    // else on the command line.
+    options->script = ALLOC(char, strlen(argv[optind] + 1));
+    strcpy(options->script, argv[optind]);
   }
 }
 
