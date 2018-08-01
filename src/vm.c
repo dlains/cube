@@ -19,15 +19,35 @@ static InterpretResult run();
 static void reset_stack();
 static void printStack();
 
-void vm_init()
+/** @brief Initialize the virtual machine.
+ *
+ * Create the VM structure and store any command line
+ * options that were provided.
+ *
+ * @param options The command line options.
+ */
+void vm_init(Options options)
 {
+  vm.options = options;
   reset_stack();
 }
 
+/** @brief Free the resources used by the virtual machine.
+ *
+ * Release any memory and resources used by the virtual machine.
+ */
 void vm_free()
 {
 }
 
+/** @brief Interpret the current code.
+ *
+ * The compiler adds code the the VM and this function
+ * determines what should happen based on the OpCode.
+ *
+ * @return The interpret results lets the caller know if there
+ * was a compilation error, a runtime error or no error.
+ */
 InterpretResult interpret()
 {
   Chunk chunk;
@@ -49,12 +69,24 @@ InterpretResult interpret()
   return result;
 }
 
+/** @brief Push a value onto the stack.
+ *
+ * Places a value at the top of the runtime stack.
+ *
+ * @param value The value to put on the stack.
+ */
 void push(Value value)
 {
   *vm.stack_top = value;
   vm.stack_top++;
 }
 
+/** @brief Remove a value from the stack.
+ *
+ * Removes and returns the top value from the runtime stack.
+ *
+ * @return The top Value from the stack.
+ */
 Value pop()
 {
   vm.stack_top--;
@@ -91,10 +123,12 @@ static InterpretResult run()
 
   for(;;)
   {
-#ifdef DEBUG_TRACE_EXECUTION
-    printStack();
-    disassembleInstruction(vm.chunk, (int)(vm.ip - vm.chunk->code));
-#endif
+    if(options_get_show_tokens(vm.options))
+    {
+      printStack();
+      disassembleInstruction(vm.chunk, (int)(vm.ip - vm.chunk->code));
+    }
+
     Byte instruction;
     switch(instruction = READ_BYTE())
     {
