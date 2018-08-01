@@ -124,6 +124,17 @@ const char *options_get_script(Options options)
   return options->script;
 }
 
+/** @brief Get the show tokens option.
+ *
+ * Get the show tokens option from the Options structure.
+ *
+ * @return The show tokens option.
+ */
+bool options_get_show_tokens(Options options)
+{
+  return options->show_tokens;
+}
+
 /** @brief Show command line help.
  *
  * Prints a simple command line help message to stdout.

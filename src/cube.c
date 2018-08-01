@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
   int result = 0;
 
-  vm_init();
+  vm_init(options);
 
   if(options_get_script(options) == NULL)
   {
@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
   {
     result = run_file(options_get_script(options));
   }
- 
+
   options_free(options);
   vm_free();
 
