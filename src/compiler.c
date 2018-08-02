@@ -11,10 +11,6 @@
 #include "compiler.h"
 #include "scanner.h"
 
-#ifdef DEBUG_PRINT_CODE
-#include "debug.h"
-#endif
-
 /** @struct Parser
  *
  * Holds the current and the previous token from the scanner.
@@ -482,13 +478,6 @@ static void emit_bytes(Byte byte1, Byte byte2)
 static void end_compiler()
 {
   emit_return();
-
-#ifdef DEBUG_PRINT_CODE
-  if(!parser.had_error)
-  {
-    disassembleChunk(current_chunk(), "code");
-  }
-#endif
 }
 
 /** @brief Emit a number constant operation.

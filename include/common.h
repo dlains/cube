@@ -11,8 +11,6 @@
 
 #include "error.h"
 
-#define DEBUG_PRINT_CODE
-
 typedef uint8_t Byte;
 
 #endif // COMMON_H

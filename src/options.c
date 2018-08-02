@@ -135,6 +135,17 @@ bool options_get_show_tokens(Options options)
   return options->show_tokens;
 }
 
+/** @brief Get the show code option.
+ *
+ * Get the show code option from the Options structure.
+ *
+ * @return The show code option.
+ */
+bool options_get_show_code(Options options)
+{
+  return options->show_bytecode;
+}
+
 /** @brief Show command line help.
  *
  * Prints a simple command line help message to stdout.

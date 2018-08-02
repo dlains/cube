@@ -59,6 +59,12 @@ InterpretResult interpret()
     return INTERPRET_COMPILE_ERROR;
   }
 
+  // If the dump code flag is set show the bytecode.
+  if(options_get_show_code(vm.options))
+  {
+    disassembleChunk(&chunk, "code");
+  }
+
   vm.chunk = &chunk;
   vm.ip    = vm.chunk->code;
 
