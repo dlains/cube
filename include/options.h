@@ -60,4 +60,12 @@ const char *options_get_script(Options options);
  */
 bool options_get_show_tokens(Options options);
 
+/** @brief Get the show code option.
+ *
+ * Get the show code option from the Options structure.
+ *
+ * @return The show code option.
+ */
+bool options_get_show_code(Options options);
+
 #endif // OPTIONS_H
