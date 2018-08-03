@@ -14,10 +14,26 @@
 
 VM vm;
 
-// Comment out the run function for the time being. Not currently being used.
-static InterpretResult run();
+/** @brief Reset the stack.
+ *
+ * Reset the stack.
+ */
 static void reset_stack();
-static void printStack();
+
+/** @brief Print the stack.
+ *
+ * Print the stack to stdout.
+ */
+static void print_stack();
+
+/** @brief Run the code in the Chunk array.
+ *
+ * The run() function cycles through all the the OpCodes in the Chunk array
+ * and performs the necessary actions.
+ *
+ * @return The InterpretResult of running the code.
+ */
+static InterpretResult run();
 
 /** @brief Initialize the virtual machine.
  *
@@ -99,23 +115,13 @@ Value pop()
   return *vm.stack_top;
 }
 
-static void reset_stack()
-{
-  vm.stack_top = vm.stack;
-}
-
-static void printStack()
-{
-  printf("          ");
-  for(Value *slot = vm.stack; slot < vm.stack_top; slot++)
-  {
-    printf("[ ");
-    print_value(*slot);
-    printf(" ]");
-  }
-  printf("\n");
-}
-
+/** @brief Run the code in the Chunk array.
+ *
+ * The run() function cycles through all the the OpCodes in the Chunk array
+ * and performs the necessary actions.
+ *
+ * @return The InterpretResult of running the code.
+ */
 static InterpretResult run()
 {
 #define READ_BYTE() (*vm.ip++)
@@ -131,7 +137,7 @@ static InterpretResult run()
   {
     if(options_get_show_tokens(vm.options))
     {
-      printStack();
+      print_stack();
       disassembleInstruction(vm.chunk, (int)(vm.ip - vm.chunk->code));
     }
 
@@ -197,4 +203,29 @@ static InterpretResult run()
 #undef READ_BYTE
 #undef READ_CONSTANT
 #undef BINARY_OP
+}
+
+/** @brief Reset the stack.
+ *
+ * Reset the stack.
+ */
+static void reset_stack()
+{
+  vm.stack_top = vm.stack;
+}
+
+/** @brief Print the stack.
+ *
+ * Print the stack to stdout.
+ */
+static void print_stack()
+{
+  printf("          ");
+  for(Value *slot = vm.stack; slot < vm.stack_top; slot++)
+  {
+    printf("[ ");
+    print_value(*slot);
+    printf(" ]");
+  }
+  printf("\n");
 }
