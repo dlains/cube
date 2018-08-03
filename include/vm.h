@@ -17,20 +17,28 @@
 
 #define STACK_MAX 256
 
+/** @struct The virtual machine structure.
+ *
+ * Holds all the necessary information for the virtual machine to do its work.
+ */
 typedef struct
 {
-  Chunk *chunk;
-  Byte *ip;
-  Options options;
-  Value stack[STACK_MAX];
-  Value *stack_top;
+  Chunk *chunk;               /**< Pointer to the Chunk array of compiled code. */
+  Byte *ip;                   /**< The instruction pointer. This is the next operation to perform. */
+  Options options;            /**< The command line options. */
+  Value stack[STACK_MAX];     /**< The value stack to hold intermediate results during processing. */
+  Value *stack_top;           /**< Pointer to the top of the value stack. */
 } VM;
 
+/** @enum Iterpret results enumeration.
+ *
+ * Result of interpreting the code.
+ */
 typedef enum
 {
-  INTERPRET_OK,
-  INTERPRET_COMPILE_ERROR,
-  INTERPRET_RUNTIME_ERROR
+  INTERPRET_OK,              /**< Interpeting had no errors. */
+  INTERPRET_COMPILE_ERROR,   /**< There was a compile error during interpreting. */
+  INTERPRET_RUNTIME_ERROR    /**< There was a runtime error while running the code. */
 } InterpretResult;
 
 /** @brief Initialize the virtual machine.
