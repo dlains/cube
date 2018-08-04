@@ -12,7 +12,6 @@
 
 struct options {
   char *script;
-  bool show_tokens;
   bool show_bytecode;
 };
 
@@ -39,7 +38,6 @@ Options options_init(void)
 {
   Options o        = NEW(o);
   o->script        = NULL;
-  o->show_tokens   = false;
   o->show_bytecode = false;
 
   return o;
@@ -72,14 +70,14 @@ void options_parse(Options options, int argc, char *argv[])
   while(true)
   {
     static struct option long_opts[] = {
-      { "dump",    required_argument, 0, 'd'},
+      { "dump",    no_argument,       0, 'd'},
       { "help",    no_argument,       0, 'h'},
       { "version", no_argument,       0, 'v'},
       { 0,         0,                 0,  0 }
     };
 
     int opt_index = 0;
-    int c = getopt_long(argc, argv, "d:hv", long_opts, &opt_index);
+    int c = getopt_long(argc, argv, "dhv", long_opts, &opt_index);
 
     if(c == -1)
       break;
@@ -87,10 +85,7 @@ void options_parse(Options options, int argc, char *argv[])
     switch(c)
     {
       case 'd':
-        if(strcmp(optarg, "tokens") == 0)
-          options->show_tokens = true;
-        else if(strcmp(optarg, "code") == 0)
-          options->show_bytecode = true;
+        options->show_bytecode = true;
         break;
       case 'v':
         print_version();
@@ -122,17 +117,6 @@ void options_parse(Options options, int argc, char *argv[])
 const char *options_get_script(Options options)
 {
   return options->script;
-}
-
-/** @brief Get the show tokens option.
- *
- * Get the show tokens option from the Options structure.
- *
- * @return The show tokens option.
- */
-bool options_get_show_tokens(Options options)
-{
-  return options->show_tokens;
 }
 
 /** @brief Get the show code option.

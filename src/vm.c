@@ -20,12 +20,6 @@ VM vm;
  */
 static void reset_stack();
 
-/** @brief Print the stack.
- *
- * Print the stack to stdout.
- */
-static void print_stack();
-
 /** @brief Run the code in the Chunk array.
  *
  * The run() function cycles through all the the OpCodes in the Chunk array
@@ -135,12 +129,6 @@ static InterpretResult run()
 
   for(;;)
   {
-    if(options_get_show_tokens(vm.options))
-    {
-      print_stack();
-      disassembleInstruction(vm.chunk, (int)(vm.ip - vm.chunk->code));
-    }
-
     Byte instruction;
     switch(instruction = READ_BYTE())
     {
@@ -212,20 +200,4 @@ static InterpretResult run()
 static void reset_stack()
 {
   vm.stack_top = vm.stack;
-}
-
-/** @brief Print the stack.
- *
- * Print the stack to stdout.
- */
-static void print_stack()
-{
-  printf("          ");
-  for(Value *slot = vm.stack; slot < vm.stack_top; slot++)
-  {
-    printf("[ ");
-    print_value(*slot);
-    printf(" ]");
-  }
-  printf("\n");
 }

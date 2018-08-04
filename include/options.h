@@ -52,14 +52,6 @@ void options_parse(Options options, int argc, char *argv[]);
  */
 const char *options_get_script(Options options);
 
-/** @brief Get the show tokens option.
- *
- * Get the show tokens option from the Options structure.
- *
- * @return The show tokens option.
- */
-bool options_get_show_tokens(Options options);
-
 /** @brief Get the show code option.
  *
  * Get the show code option from the Options structure.
