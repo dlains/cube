@@ -519,7 +519,7 @@ static void emit_return()
   emit_byte(OP_RETURN);
 }
 
-/** @brief Wrapper for the parse_error function. 
+/** @brief Wrapper for the parse_error function.
  *
  * Send the token and error message along to parse_error and
  * set the Parser error recovery flags appropriately.

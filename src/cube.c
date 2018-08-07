@@ -5,6 +5,9 @@
 #include "scanner.h"
 #include "options.h"
 
+#include "readline/readline.h"
+#include "readline/history.h"
+
 static int repl();
 static int run_file(const char *file_path);
 
@@ -36,16 +39,19 @@ static int repl()
 {
   InterpretResult result = INTERPRET_OK;
 
-  char line[1024];
+  static char *line = (char *)NULL;
   for(;;)
   {
-    printf("> ");
-
-    if(!fgets(line, sizeof(line), stdin))
+    if(line)
     {
-      printf("\n");
-      break;
+      free(line);
+      line = (char *)NULL;
     }
+
+    line = readline("> ");
+
+    if(line && *line)
+      add_history(line);
 
     add_source_line(line);
     result = interpret();
