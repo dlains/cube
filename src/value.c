@@ -62,5 +62,5 @@ void write_value_array(ValueArray *array, Value value)
  */
 void print_value(Value value)
 {
-  printf("%g", value);
+  printf(" => %g", value);
 }

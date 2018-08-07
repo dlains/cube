@@ -3,14 +3,16 @@
 #
 CC            = gcc
 CFLAGS        = -Wall -Werror -Wextra
-CPPFLAGS      = -I include
+CPPFLAGS      = -I/usr/local/Cellar/readline/7.0.3_1/include -Iinclude
+LDFLAGS       = -L/usr/local/Cellar/readline/7.0.3_1/lib
+LDLIBS        = -lreadline
 
 #
 # Project files
 #
 VPATH         = src
 SOURCES       = $(wildcard $(VPATH)/*.c)
-OBJECTS       = $(subst .c,.o,$(notdir $(SOURCES))) 
+OBJECTS       = $(subst .c,.o,$(notdir $(SOURCES)))
 EXE           = cube
 
 #
@@ -40,7 +42,7 @@ all: prep release
 debug: prep $(DEBUG_EXE)
 
 $(DEBUG_EXE): $(DEBUG_OBJS)
-	$(CC) $(CFLAGS) $(DEBUG_FLAGS) -o $(DEBUG_EXE) $^
+	$(CC) $(CFLAGS) $(LDLIBS) $(LDFLAGS) $(DEBUG_FLAGS) -o $(DEBUG_EXE) $^
 
 $(DEBUG_DIR)/%.o: %.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(DEBUG_FLAGS) -o $@ $<
@@ -51,7 +53,7 @@ $(DEBUG_DIR)/%.o: %.c
 release: $(RELEASE_EXE)
 
 $(RELEASE_EXE): $(RELEASE_OBJS)
-	$(CC) $(CFLAGS) $(RELEASE_FLAGS) -o $(RELEASE_EXE) $^
+	$(CC) $(CFLAGS) $(LDLIBS) $(LDFLAGS) $(RELEASE_FLAGS) -o $(RELEASE_EXE) $^
 
 $(RELEASE_DIR)/%.o: %.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(RELEASE_FLAGS) -o $@ $<
