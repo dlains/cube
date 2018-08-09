@@ -5,7 +5,6 @@
  * @author David J. Lains (dlains)
  * @bug No known bugs.
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "error.h"
@@ -61,5 +60,3 @@ void parse_error(Token *token, const char *message)
 
   fprintf(stderr, ": %s\n", message);
 }
-
-
