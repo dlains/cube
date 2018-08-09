@@ -27,6 +27,17 @@ static void print_usage(void);
  */
 static void print_version(void);
 
+/** @brief Validate the options handle passed to many functions.
+ *
+ * Check that the Options handle is not null. There is no way
+ * to recover from that error, so the program is ended.
+ *
+ * @param options The Options structure handle to validate.
+ */
+static void options_validate(Options options, const char *file, int line);
+
+#define VALIDATE(o) (options_validate((o), __FILE__, __LINE__))
+
 /** @brief Initialize a new Options structure.
  *
  * Create a new Options structure with default values
@@ -52,8 +63,10 @@ Options options_init(void)
  */
 void options_free(Options options)
 {
+  VALIDATE(options);
   FREE(char, options->script);
   FREE(Options, options);
+  options = NULL;
 }
 
 /** @brief Parse the supplied command line options.
@@ -67,6 +80,7 @@ void options_free(Options options)
  */
 void options_parse(Options options, int argc, char *argv[])
 {
+  VALIDATE(options);
   while(true)
   {
     static struct option long_opts[] = {
@@ -116,6 +130,7 @@ void options_parse(Options options, int argc, char *argv[])
  */
 const char *options_get_script(Options options)
 {
+  VALIDATE(options);
   return options->script;
 }
 
@@ -127,6 +142,7 @@ const char *options_get_script(Options options)
  */
 bool options_get_show_code(Options options)
 {
+  VALIDATE(options);
   return options->show_bytecode;
 }
 
@@ -152,4 +168,17 @@ static void print_version(void)
 {
   printf("Cube v0.1.0\n");
   exit(EXIT_SUCCESS);
+}
+
+/** @brief Validate the options handle passed to many functions.
+ *
+ * Check that the Options handle is not null. There is no way
+ * to recover from that error, so the program is ended.
+ *
+ * @param options The Options structure handle to validate.
+ */
+static void options_validate(Options options, const char *file, int line)
+{
+  if(!options)
+    die("Invalid Options handle used.", file, line);
 }
