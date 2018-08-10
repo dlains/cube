@@ -12,6 +12,7 @@
 #include "compiler.h"
 #include "debug.h"
 
+/** The global virutal machine variable used by the Virtual Machine. */
 VM vm;
 
 /** @brief Reset the stack.

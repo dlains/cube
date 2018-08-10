@@ -1,6 +1,9 @@
-/** @file value.h
+/** @file value.c
  *
  * @brief Implementation of the ValueArray dynamic array.
+ *
+ * The ValueArray holds constants found in the source code for later
+ * use by the compiler and virtual machine.
  *
  * @author David J. Lains (dlains)
  * @bug No known bugs.

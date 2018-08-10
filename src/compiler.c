@@ -13,40 +13,56 @@
 
 /** @struct Parser
  *
- * Holds the current and the previous token from the scanner.
+ * Holds the current and the previous token from the scanner. It
+ * also holds information regarding the current error status and
+ * if the compiler is in panic mode and recovering from a parse error.
  */
 typedef struct {
-  Token current;
-  Token previous;
-  bool had_error;
-  bool panic_mode;
+  Token current;   /**< The current token from the input stream. */
+  Token previous;  /**< The previous token from the input stream. */
+  bool had_error;  /**< Was an error generated during compilation? */
+  bool panic_mode; /**< Is the compiler in panic mode? */
 } Parser;
 
-Parser parser;
+Parser parser;           /**< Global Parser struct used by the compiler. */
 
-Chunk *compiling_chunk;
+Chunk *compiling_chunk;  /**< Global Chunk used by the compiler. */
 
+/** @enum Precedence
+ *
+ * Set up precedence levels for the expression parser.
+ */
 typedef enum {
-  PREC_NONE,
-  PREC_ASSIGNMENT,  // =
-  PREC_OR,          // or
-  PREC_AND,         // and
-  PREC_EQUALITY,    // == !=
-  PREC_COMPARISON,  // < > <= >=
-  PREC_TERM,        // + -
-  PREC_FACTOR,      // * / %
-  PREC_POWER,       // ^
-  PREC_UNARY,       // ! - +
-  PREC_CALL,        // . () []
-  PREC_PRIMARY,
+  PREC_NONE,        /**< No precedence level. */
+  PREC_ASSIGNMENT,  /**< Assignment (=). */
+  PREC_OR,          /**< Logical or. */
+  PREC_AND,         /**< Logical and. */
+  PREC_EQUALITY,    /**< Equal (==) and Not Equal (!=). */
+  PREC_COMPARISON,  /**< Comparison operators (<, >, <=, >=). */
+  PREC_TERM,        /**< Addition and Subtraction (+, -). */
+  PREC_FACTOR,      /**< Multiplication, Division and Modulo (*, /, %). */
+  PREC_POWER,       /**< Exponentiation (^). */
+  PREC_UNARY,       /**< Unary operations (!, -, +). */
+  PREC_CALL,        /**< Function, Method and Index calls. {., (), []) */
+  PREC_PRIMARY,     /**< Highest level precedence, sentinal value. */
 } Precedence;
 
+/** @brief Define a function pointer to a parse function.
+ *
+ * The ParseRule structure holds function pointers of type
+ * ParseFn to use for parsing the token input stream.
+ */
 typedef void (*ParseFn)();
 
+/** @struct ParseRule
+ *
+ * Describes a single parse rule and functions to call for prefix
+ * and infix versions of the parse rule.
+ */
 typedef struct {
-  ParseFn prefix;
-  ParseFn infix;
-  Precedence precedence;
+  ParseFn prefix;        /**< Function to call for prefix parse of the token. */
+  ParseFn infix;         /**< Function to call for infix parse of the token. */
+  Precedence precedence; /**< The precedence of this parse rule. */
 } ParseRule;
 
 /*
@@ -214,6 +230,13 @@ void expression(void)
   parse_precedence(PREC_ASSIGNMENT);
 }
 
+/** @brief The rules array holds all of the ParseRule structures.
+ *
+ * Holds the ParseRule structures that define what to do for a given
+ * Token value. Each ParseRule index coincides with a TokenType value.
+ * Look up the current token type value in the rules array to fine
+ * the ParseFn for parsing that token.
+ */
 ParseRule rules[] = {
   { grouping, NULL,    PREC_CALL },       // TOKEN_LEFT_PAREN
   { NULL,     NULL,    PREC_NONE },       // TOKEN_RIGHT_PAREN

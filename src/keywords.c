@@ -70,6 +70,19 @@ static int hash(const char *word);
  */
 static int verify_keyword(const char *word, int index);
 
+/** @brief Find a keyword that matches the input word.
+ *
+ * Will generate a hash value for the input word and
+ * check against the Cube keyword hash values. If there
+ * is a match a further verification check is performed
+ * to prevent false positives in the case of a hash collision.
+ *
+ * If word is NULL or zero length, or if word is longer than
+ * any of the existing Cube keywords the function returns zero.
+ *
+ * @param word A string provided by the scanner.
+ * @return An integer matching the keyword TokenType if word is a keyword, zero otherwise.
+ */
 int find_keyword(const char *word)
 {
   // Can't be a keyword if it is NULL.

@@ -10,9 +10,14 @@
 #include "memory.h"
 #include "options.h"
 
+/** @struct options
+ *
+ * Store any command line options parsed from the command line
+ * for use later in the code.
+ */
 struct options {
-  char *script;
-  bool show_bytecode;
+  char *script;         /**< The source file provided on the command line. */
+  bool show_bytecode;   /**< Set if the -d / --dump flag is given. */
 };
 
 /** @brief Show command line help.
@@ -33,9 +38,14 @@ static void print_version(void);
  * to recover from that error, so the program is ended.
  *
  * @param options The Options structure handle to validate.
+ * @param file The current file name where the validate call is called.
+ * @param line The current line number where validate is called.
  */
 static void options_validate(Options options, const char *file, int line);
 
+/** @def VALIDATE is used to simplify calling `options_validate` with the
+ * current file and line number.
+ */
 #define VALIDATE(o) (options_validate((o), __FILE__, __LINE__))
 
 /** @brief Initialize a new Options structure.
