@@ -10,7 +10,11 @@
 #include "memory.h"
 #include "source.h"
 
-struct source_t {
+/** @struct source
+ *
+ * Defines the source code to be parsed and interpreted.
+ */
+struct source {
   char *buffer;            /**< The rolling buffer to hold the source code. */
   const char *start;       /**< The start of the current token being scanned. */
   const char *current;     /**< The current location in the buffer. */
@@ -256,7 +260,7 @@ char peek_next(Source s)
  * match return false.
  *
  * @param s The source buffer to check.
- * @param The expected character to check for.
+ * @param expected The expected character to check for.
  * @return True if the current character matches, false othewise.
  */
 bool match(Source s, char expected)

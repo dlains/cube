@@ -12,9 +12,11 @@
 #include "source.h"
 #include "memory.h"
 
+/** The main scanner variable is a Source buffer that is read a character
+ * at a time looking for valid tokens.
+ */
 Source scanner = NULL;
 
-// Private scanner methods.
 static Token make_token(TokenType type);
 static Token error_token(const char *message);
 static Token string();
@@ -24,6 +26,16 @@ static TokenType identifier_type();
 static bool is_alpha(char c);
 static bool is_digit(char c);
 
+/** @brief Make the passed in Source the current Source.
+ *
+ * The scanner reads tokens from the current source buffer.
+ * This function switches the current source buffer to the
+ * one supplied. This happens when reading imported source
+ * files.
+ *
+ * @param source The new Source buffer to set as the current
+ * source buffer.
+ */
 void make_current(Source source)
 {
   if(scanner && !is_at_end(source))
@@ -34,34 +46,79 @@ void make_current(Source source)
   scanner = source;
 }
 
+/** @brief Make a new Source buffer from the supplied string.
+ *
+ * Used by the REPL to add typed in source code lines to the
+ * source code stack to be processed.
+ *
+ * @param line The source code string entered at the REPL prompt.
+ */
 void add_source_line(const char *line)
 {
   Source s = source_create(line);
   make_current(s);
 }
 
+/** @brief Make a new Source buffer from a file.
+ *
+ * Create a new Source buffer from the `file_path` parameter
+ * and make it the current source buffer to be read by the
+ * scanner.
+ * @param file_path The full path to the file to be read.
+ */
 void add_source_file(const char *file_path)
 {
   Source s = source_create_file(file_path);
   make_current(s);
 }
 
+/** @brief Determine if there are any Source buffers remaining to be processed.
+ *
+ * Currently just returns false, but when the `import` statement is added to the
+ * language it will create a stack of Source buffers. This will let callers
+ * know if the stack is empty.
+ *
+ * @return True if there are Source buffers remaining to be processed, false otherwise.
+ */
 bool source_buffers_remain()
 {
   return false;
 }
 
+/** @brief Set the next buffer on the Source buffer stack to be current.
+ *
+ * Not currently using a stack, simply removes the current buffer, which
+ * frees all resources used by that Source buffer. When the Source buffer
+ * stack is implemented this will pop the next buffer and activate it.
+ */
 void activate_next_buffer()
 {
   remove_current_buffer();
   return;
 }
 
+/** Remove the current Source buffer.
+ *
+ * Calls the Source buffer destroy function to release any resources
+ * associated with the current source buffer.
+ */
 void remove_current_buffer()
 {
   source_destroy(scanner);
 }
 
+/** @brief Get the next token from the input stream.
+ *
+ * This is the main scanner driver function. It skips whitespace,
+ * starts a new token and then scans the input stream for a valid
+ * token.
+ *
+ * If it finds a valid token it calls `make_token` to create it,
+ * otherwise it calls `error_token` to create a token with an error
+ * message.
+ *
+ * @return The scanned token, or an error token.
+ */
 Token next_token()
 {
   skip_whitespace(scanner);
@@ -280,7 +337,7 @@ static TokenType identifier_type()
  * or upper case characters or is an underscore it is considered
  * an alpha character.
  *
- * @param char The character to check.
+ * @param c The character to check.
  * @return Boolean True if the character is alpha, false otherwise.
  */
 static bool is_alpha(char c)
@@ -292,7 +349,7 @@ static bool is_alpha(char c)
  *
  * If the given character is a digit (0 - 9) then return true.
  *
- * @param char The character to check.
+ * @param c The character to check.
  * @return Boolean True if the character is a digit, false otherwise.
  */
 static bool is_digit(char c)

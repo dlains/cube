@@ -21,7 +21,7 @@
 #ifndef SOURCE_H
 #define SOURCE_H
 
-typedef struct source_t *Source;
+typedef struct source *Source;
 
 /** @brief Create a new source buffer.
  *

@@ -18,7 +18,7 @@
  * This function returns the token name for a given token id. If the token
  * id is unknown it returns an error message.
  *
- * @param TokenType The token type value to get the name for.
+ * @param type The token type value to get the name for.
  * @return The user friendly name of the token type supplied or an error string.
  */
 const char *token_name(TokenType type)
@@ -138,7 +138,7 @@ const char *token_name(TokenType type)
  *
  * Prints a token and some of the information about the token to stdout.
  *
- * @param Token The token to be printed.
+ * @param token The token to be printed.
  */
 void print_token(Token token)
 {
