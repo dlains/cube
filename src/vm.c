@@ -73,7 +73,7 @@ InterpretResult interpret()
   // If the dump code flag is set show the bytecode.
   if(options_get_show_code(vm.options))
   {
-    disassembleChunk(&chunk, "code");
+    disassemble_chunk(&chunk, "code");
   }
 
   vm.chunk = &chunk;

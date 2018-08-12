@@ -3,7 +3,7 @@
  * @brief Implementation of the Token interface.
  *
  * Provide a way to display a Token in a user friendly way. Will be
- * useful for debugging purposes during the implementation of the 
+ * useful for debugging purposes during the implementation of the
  * Cube language.
  *
  * @author David J. Lains
