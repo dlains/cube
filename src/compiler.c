@@ -399,7 +399,7 @@ static void binary()
 static void number()
 {
   double value = strtod(parser.previous.lexeme, NULL);
-  emit_constant(value);
+  emit_constant(REAL_VAL(value));
 }
 
 /** @brief Parse a grouped expression.
