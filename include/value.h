@@ -45,7 +45,7 @@ typedef struct {
 #define BOOL_VAL(value)      ((Value){ CUBE_BOOL,    { .boolean = value } })
 
 /** Create a Value with type CUBE_NIL */
-#define NIL_VAL(value)       ((Value){ CUBE_NIL,     { .real = 0 } })
+#define NIL_VAL              ((Value){ CUBE_NIL,     { .real = 0 } })
 
 /** Create a Value with type CUBE_INTEGER */
 #define INTEGER_VAL(value)   ((Value){ CUBE_INTEGER, { .integer = value } })
@@ -84,6 +84,16 @@ typedef struct {
 
 /** Check if Value is a CUBE_INTEGER or CUBE_REAL. */
 #define IS_NUMBER(value)     ((value).type == CUBE_INTEGER || (value).type == CUBE_REAL)
+
+/** @brief Check if Values are equivalent.
+ *
+ * Check if the passed in values are equivalent.
+ *
+ * @param a The first Value to check.
+ * @param b The second Value to check.
+ * @return True if the underlying values are equivalent, false otherwise.
+ */
+bool values_equal(Value a, Value b);
 
 /** @struct ValueArray
  *

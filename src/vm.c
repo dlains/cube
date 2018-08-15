@@ -40,6 +40,20 @@ static void runtime_error(const char *format, ...);
  */
 static InterpretResult run();
 
+/** @brief Perform the greater than comparison operation.
+ *
+ * Checks to see if operand one is greater than operand two. The values
+ * can be either integer or real values.
+ */
+static void do_greater();
+
+/** @brief Perform the less than comparison operation.
+ *
+ * Check to see if operand one is less than operand two. The values
+ * can be either integer or real values.
+ */
+static void do_less();
+
 /** @brief Perform the addition operation.
  *
  * Adds two number values. The values can be either integer or real
@@ -79,6 +93,15 @@ static void do_modulo();
  * Raise an integer to a power of another integer.
  */
 static void do_power();
+
+/** @brief Check if the value is false.
+ *
+ * False is defined as NIL or `false`. Everything else is true.
+ *
+ * @param value The value to check for false-ness.
+ * @return True if the value is false, otherwise false.
+ */
+static bool is_falsey(Value value);
 
 /** @brief Peek at a value in the stack.
  *
@@ -206,6 +229,48 @@ static InterpretResult run()
         push(constant);
         break;
       }
+      case OP_FALSE:
+      {
+        push(BOOL_VAL(false));
+        break;
+      }
+      case OP_EQUAL:
+      {
+        Value b = pop();
+        Value a = pop();
+        push(BOOL_VAL(values_equal(a, b)));
+        break;
+      }
+      case OP_GREATER:
+      {
+        if(!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1)))
+        {
+          runtime_error("Operands must be numeric.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        do_greater(); 
+        break;
+      }
+      case OP_LESS:
+      {
+        if(!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1)))
+        {
+          runtime_error("Operands must be numeric.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        do_less();
+        break;
+      }
+      case OP_NIL:
+      {
+        push(NIL_VAL);
+        break;
+      }
+      case OP_TRUE:
+      {
+        push(BOOL_VAL(true));
+        break;
+      }
       case OP_ADD:
       {
         if(!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1)))
@@ -277,6 +342,11 @@ static InterpretResult run()
         do_power();
         break;
       }
+      case OP_NOT:
+      {
+        push(BOOL_VAL(is_falsey(pop())));
+        break;
+      }
       case OP_NEGATE:
       {
         if(!IS_NUMBER(peek(0)))
@@ -343,6 +413,94 @@ static void runtime_error(const char *format, ...)
   fprintf(stderr, "[line %d] in script\n", vm.chunk->lines[instruction]);
 
   reset_stack();
+}
+
+/** @brief Perform the greater than comparison operation.
+ *
+ * Checks to see if operand one is greater than operand two. The values
+ * can be either integer or real values.
+ */
+static void do_greater()
+{
+  if(IS_INTEGER(peek(0)) && IS_INTEGER(peek(1)))
+  {
+    long b = AS_INTEGER(pop());
+    long a = AS_INTEGER(pop());
+
+    push(BOOL_VAL(a > b));
+    return;
+  }
+
+  if(IS_REAL(peek(0)) && IS_REAL(peek(1)))
+  {
+    double b = AS_REAL(pop());
+    double a = AS_REAL(pop());
+
+    push(BOOL_VAL(a > b));
+    return;
+  }
+
+  if(IS_INTEGER(peek(0)) && IS_REAL(peek(1)))
+  {
+    double b = (double)AS_INTEGER(pop());
+    double a = AS_REAL(pop());
+
+    push(BOOL_VAL(a > b));
+    return;
+  }
+
+  if(IS_REAL(peek(0)) && IS_INTEGER(peek(1)))
+  {
+    double b = AS_REAL(pop());
+    double a = (double)AS_INTEGER(pop());
+
+    push(BOOL_VAL(a > b));
+    return;
+  }
+}
+
+/** @brief Perform the less than comparison operation.
+ *
+ * Check to see if operand one is less than operand two. The values
+ * can be either integer or real values.
+ */
+static void do_less()
+{
+  if(IS_INTEGER(peek(0)) && IS_INTEGER(peek(1)))
+  {
+    long b = AS_INTEGER(pop());
+    long a = AS_INTEGER(pop());
+
+    push(BOOL_VAL(a < b));
+    return;
+  }
+
+  if(IS_REAL(peek(0)) && IS_REAL(peek(1)))
+  {
+    double b = AS_REAL(pop());
+    double a = AS_REAL(pop());
+
+    push(BOOL_VAL(a < b));
+    return;
+  }
+
+  if(IS_INTEGER(peek(0)) && IS_REAL(peek(1)))
+  {
+    double b = (double)AS_INTEGER(pop());
+    double a = AS_REAL(pop());
+
+    push(BOOL_VAL(a < b));
+    return;
+  }
+
+  if(IS_REAL(peek(0)) && IS_INTEGER(peek(1)))
+  {
+    double b = AS_REAL(pop());
+    double a = (double)AS_INTEGER(pop());
+
+    push(BOOL_VAL(a < b));
+    return;
+  }
 }
 
 /** @brief Perform the addition operation.
@@ -574,4 +732,16 @@ static void do_power()
     push(REAL_VAL(pow(a, b)));
     return;
   }
+}
+
+/** @brief Check if the value is false.
+ *
+ * False is defined as NIL or `false`. Everything else is true.
+ *
+ * @param value The value to check for false-ness.
+ * @return True if the value is false, otherwise false.
+ */
+static bool is_falsey(Value value)
+{
+  return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
 }
