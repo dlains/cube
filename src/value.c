@@ -12,6 +12,32 @@
 #include "memory.h"
 #include "value.h"
 
+/** @brief Check if Values are equivalent.
+ *
+ * Check if the passed in values are equivalent.
+ *
+ * @param a The first Value to check.
+ * @param b The second Value to check.
+ * @return True if the underlying values are equivalent, false otherwise.
+ */
+bool values_equal(Value a, Value b)
+{
+  if(a.type != b.type)
+    return false;
+
+  switch(a.type)
+  {
+    case CUBE_BOOL:
+      return AS_BOOL(a) == AS_BOOL(b);
+    case CUBE_NIL:
+      return true;
+    case CUBE_INTEGER:
+      return AS_INTEGER(a) == AS_INTEGER(b);
+    case CUBE_REAL:
+      return AS_REAL(a) == AS_REAL(b);
+  }
+}
+
 /** @brief Initialize a new value array.
  *
  * Allocate space for the initial value array structure.
@@ -65,5 +91,21 @@ void write_value_array(ValueArray *array, Value value)
  */
 void print_value(Value value)
 {
-  printf(" => %g", value);
+  printf("-> ");
+
+  switch(value.type)
+  {
+    case CUBE_BOOL:
+      printf(AS_BOOL(value) ? "true" : "false");
+      break;
+    case CUBE_NIL:
+      printf("nil");
+      break;
+    case CUBE_INTEGER:
+      printf("%ld", AS_INTEGER(value));
+      break;
+    case CUBE_REAL:
+      printf("%g", AS_REAL(value));
+      break;
+  }
 }

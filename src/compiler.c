@@ -101,6 +101,12 @@ static void consume(TokenType type, const char *message);
  */
 static void binary();
 
+/** @brief Parse a literal value such as `true` or `false`.
+ *
+ * Look for literal values and convert them to the correct OpCode.
+ */
+static void literal();
+
 /** @brief Parse a number.
  *
  * Parse a number constant from the source code.
@@ -255,14 +261,14 @@ ParseRule rules[] = {
   { NULL,     binary,  PREC_FACTOR },     // TOKEN_STAR
   { NULL,     NULL,    PREC_AND },        // TOKEN_AND
   { NULL,     NULL,    PREC_OR },         // TOKEN_OR
-  { NULL,     NULL,    PREC_NONE },       // TOKEN_BANG
-  { NULL,     NULL,    PREC_EQUALITY },   // TOKEN_BANG_EQUAL
+  { unary,    NULL,    PREC_NONE },       // TOKEN_BANG
+  { NULL,     binary,  PREC_EQUALITY },   // TOKEN_BANG_EQUAL
   { NULL,     NULL,    PREC_NONE },       // TOKEN_EQUAL
-  { NULL,     NULL,    PREC_EQUALITY },   // TOKEN_EQUAL_EQUAL
-  { NULL,     NULL,    PREC_COMPARISON }, // TOKEN_GREATER
-  { NULL,     NULL,    PREC_COMPARISON }, // TOKEN_GREATER_EQUAL
-  { NULL,     NULL,    PREC_COMPARISON }, // TOKEN_LESS
-  { NULL,     NULL,    PREC_COMPARISON }, // TOKEN_LESS_EQUAL
+  { NULL,     binary,  PREC_EQUALITY },   // TOKEN_EQUAL_EQUAL
+  { NULL,     binary,  PREC_COMPARISON }, // TOKEN_GREATER
+  { NULL,     binary,  PREC_COMPARISON }, // TOKEN_GREATER_EQUAL
+  { NULL,     binary,  PREC_COMPARISON }, // TOKEN_LESS
+  { NULL,     binary,  PREC_COMPARISON }, // TOKEN_LESS_EQUAL
   { NULL,     NULL,    PREC_NONE },       // TOKEN_IDENTIFIER
   { NULL,     NULL,    PREC_NONE },       // TOKEN_STRING
   { number,   NULL,    PREC_NONE },       // TOKEN_NUMBER
@@ -275,16 +281,16 @@ ParseRule rules[] = {
   { NULL,     NULL,    PREC_NONE },       // TOKEN_ELSE
   { NULL,     NULL,    PREC_NONE },       // TOKEN_END
   { NULL,     NULL,    PREC_NONE },       // TOKEN_ENSURE
-  { NULL,     NULL,    PREC_NONE },       // TOKEN_FALSE
+  { literal,  NULL,    PREC_NONE },       // TOKEN_FALSE
   { NULL,     NULL,    PREC_NONE },       // TOKEN_IF
   { NULL,     NULL,    PREC_NONE },       // TOKEN_NEXT
-  { NULL,     NULL,    PREC_NONE },       // TOKEN_NIL
+  { literal,  NULL,    PREC_NONE },       // TOKEN_NIL
   { NULL,     NULL,    PREC_NONE },       // TOKEN_RESCUE
   { NULL,     NULL,    PREC_NONE },       // TOKEN_RETURN
   { NULL,     NULL,    PREC_NONE },       // TOKEN_SUPER
   { NULL,     NULL,    PREC_NONE },       // TOKEN_SWITCH
   { NULL,     NULL,    PREC_NONE },       // TOKEN_THIS
-  { NULL,     NULL,    PREC_NONE },       // TOKEN_TRUE
+  { literal,  NULL,    PREC_NONE },       // TOKEN_TRUE
   { NULL,     NULL,    PREC_NONE },       // TOKEN_UNLESS
   { NULL,     NULL,    PREC_NONE },       // TOKEN_UNTIL
   { NULL,     NULL,    PREC_NONE },       // TOKEN_WHILE
@@ -369,6 +375,24 @@ static void binary()
   // Emit the operator instruction.
   switch(type)
   {
+    case TOKEN_BANG_EQUAL:
+      emit_bytes(OP_EQUAL, OP_NOT);
+      break;
+    case TOKEN_EQUAL_EQUAL:
+      emit_byte(OP_EQUAL);
+      break;
+    case TOKEN_GREATER:
+      emit_byte(OP_GREATER);
+      break;
+    case TOKEN_GREATER_EQUAL:
+      emit_bytes(OP_LESS, OP_NOT);
+      break;
+    case TOKEN_LESS:
+      emit_byte(OP_LESS);
+      break;
+    case TOKEN_LESS_EQUAL:
+      emit_bytes(OP_GREATER, OP_NOT);
+      break;
     case TOKEN_PLUS:
       emit_byte(OP_ADD);
       break;
@@ -392,6 +416,28 @@ static void binary()
   }
 }
 
+/** @brief Parse a literal value such as `true` or `false`.
+ *
+ * Look for literal values and convert them to the correct OpCode.
+ */
+static void literal()
+{
+  switch(parser.previous.type)
+  {
+    case TOKEN_FALSE:
+      emit_byte(OP_FALSE);
+      break;
+    case TOKEN_NIL:
+      emit_byte(OP_NIL);
+      break;
+    case TOKEN_TRUE:
+      emit_byte(OP_TRUE);
+      break;
+    default:
+      return;
+  }
+}
+
 /** @brief Parse a number.
  *
  * Parse a number constant from the source code.
@@ -399,7 +445,7 @@ static void binary()
 static void number()
 {
   double value = strtod(parser.previous.lexeme, NULL);
-  emit_constant(value);
+  emit_constant(REAL_VAL(value));
 }
 
 /** @brief Parse a grouped expression.
@@ -424,6 +470,9 @@ static void unary()
 
   switch(type)
   {
+    case TOKEN_BANG:
+      emit_byte(OP_NOT);
+      break;
     case TOKEN_MINUS:
       emit_byte(OP_NEGATE);
       break;
