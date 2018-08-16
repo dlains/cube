@@ -91,8 +91,6 @@ void write_value_array(ValueArray *array, Value value)
  */
 void print_value(Value value)
 {
-  printf("-> ");
-
   switch(value.type)
   {
     case CUBE_BOOL:

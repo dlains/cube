@@ -79,8 +79,10 @@ const char *token_name(TokenType type)
       return "TOKEN_IDENTIFIER";
     case TOKEN_STRING:
       return "TOKEN_STRING";
-    case TOKEN_NUMBER:
-      return "TOKEN_NUMBER";
+    case TOKEN_INTEGER:
+      return "TOKEN_INTEGER";
+    case TOKEN_REAL:
+      return "TOKEN_REAL";
     case TOKEN_BEGIN:
       return "TOKEN_BEGIN";
     case TOKEN_BREAK:

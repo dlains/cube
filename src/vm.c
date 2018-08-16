@@ -373,6 +373,7 @@ static InterpretResult run()
       }
       case OP_RETURN:
       {
+        printf("-> ");
         print_value(pop());
         printf("\n");
         return INTERPRET_OK;
