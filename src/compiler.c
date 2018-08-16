@@ -107,11 +107,17 @@ static void binary();
  */
 static void literal();
 
-/** @brief Parse a number.
+/** @brief Parse a number as an integer.
  *
- * Parse a number constant from the source code.
+ * Parse an integer constant from the source code.
  */
-static void number();
+static void integer();
+
+/** @brief Parse a number as a real.
+ *
+ * Parse a real constant from the source code.
+ */
+static void real();
 
 /** @brief Parge a grouped expression.
  *
@@ -271,7 +277,8 @@ ParseRule rules[] = {
   { NULL,     binary,  PREC_COMPARISON }, // TOKEN_LESS_EQUAL
   { NULL,     NULL,    PREC_NONE },       // TOKEN_IDENTIFIER
   { NULL,     NULL,    PREC_NONE },       // TOKEN_STRING
-  { number,   NULL,    PREC_NONE },       // TOKEN_NUMBER
+  { integer,  NULL,    PREC_NONE },       // TOKEN_INTEGER
+  { real,     NULL,    PREC_NONE },       // TOKEN_REAL
   { NULL,     NULL,    PREC_NONE },       // TOKEN_BEGIN
   { NULL,     NULL,    PREC_NONE },       // TOKEN_BREAK
   { NULL,     NULL,    PREC_NONE },       // TOKEN_CASE
@@ -438,11 +445,21 @@ static void literal()
   }
 }
 
-/** @brief Parse a number.
+/** @brief Parse an integer number.
  *
- * Parse a number constant from the source code.
+ * Parse an integer constant from the source code.
  */
-static void number()
+static void integer()
+{
+  long value = strtol(parser.previous.lexeme, NULL, 10);
+  emit_constant(INTEGER_VAL(value));
+}
+
+/** @brief Parse an real number.
+ *
+ * Parse a real constant from the source code.
+ */
+static void real()
 {
   double value = strtod(parser.previous.lexeme, NULL);
   emit_constant(REAL_VAL(value));

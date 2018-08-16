@@ -276,18 +276,22 @@ static Token string()
  */
 static Token number()
 {
+  // Start out as an integer.
+  TokenType type = TOKEN_INTEGER;
+
   while(is_digit(peek(scanner)))
     advance(scanner);
 
   // Look for a fractional part.
   if(peek(scanner) == '.' && is_digit(peek_next(scanner)))
   {
+    type = TOKEN_REAL;
     advance(scanner);
     while(is_digit(peek(scanner)))
       advance(scanner);
   }
 
-  return make_token(TOKEN_NUMBER);
+  return make_token(type);
 }
 
 /** @brief Scan for an identifier or a keyword.
