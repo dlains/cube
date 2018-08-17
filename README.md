@@ -1,6 +1,6 @@
 # Cube
 
-Cube is a dynamic, class-based, scripting language with a syntax similar to Ruby.
+Cube is a dynamically typed, class based object oriented scripting language with a syntax similar to Ruby.
 
 ## Examples
 

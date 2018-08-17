@@ -94,6 +94,12 @@ static void do_modulo();
  */
 static void do_power();
 
+/** @brief Perform a negation operation.
+ *
+ * Negate the numeric value.
+ */
+static void do_negate();
+
 /** @brief Check if the value is false.
  *
  * False is defined as NIL or `false`. Everything else is true.
@@ -206,6 +212,33 @@ static Value peek(int distance)
   return vm.stack_top[-1 - distance];
 }
 
+/**
+ * Validate that the top two operands on the stack are
+ * valid with the `validator` macro. If not, display the
+ * runtime error message and return an error.
+ */
+#define VALIDATE_BINARY_OPERANDS(validator, message) \
+  do {\
+    if(!validator(peek(0)) || !validator(peek(1)))\
+    {\
+      runtime_error(message);\
+      return INTERPRET_RUNTIME_ERROR;\
+    }\
+  } while(false)
+
+/** Validate that the top operand on the stack is valid with
+ * the `validator` macro. If not, display the runtime error
+ * message and return an error.
+ */
+#define VALIDATE_UNARY_OPERAND(validator, message)\
+  do {\
+    if(!validator(peek(0)))\
+    {\
+      runtime_error(message);\
+      return INTERPRET_RUNTIME_ERROR;\
+    }\
+  } while(false)
+
 /** @brief Run the code in the Chunk array.
  *
  * The run() function cycles through all the the OpCodes in the Chunk array
@@ -243,21 +276,13 @@ static InterpretResult run()
       }
       case OP_GREATER:
       {
-        if(!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1)))
-        {
-          runtime_error("Operands must be numeric.");
-          return INTERPRET_RUNTIME_ERROR;
-        }
-        do_greater(); 
+        VALIDATE_BINARY_OPERANDS(IS_NUMBER, "Operands must be numeric.");
+        do_greater();
         break;
       }
       case OP_LESS:
       {
-        if(!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1)))
-        {
-          runtime_error("Operands must be numeric.");
-          return INTERPRET_RUNTIME_ERROR;
-        }
+        VALIDATE_BINARY_OPERANDS(IS_NUMBER, "Operands must be numberic.");
         do_less();
         break;
       }
@@ -273,41 +298,25 @@ static InterpretResult run()
       }
       case OP_ADD:
       {
-        if(!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1)))
-        {
-          runtime_error("Operands must be numeric.");
-          return INTERPRET_RUNTIME_ERROR;
-        }
+        VALIDATE_BINARY_OPERANDS(IS_NUMBER, "Operands must be numberic.");
         do_addition();
         break;
       }
       case OP_SUBTRACT:
       {
-        if(!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1)))
-        {
-          runtime_error("Operands must be numeric.");
-          return INTERPRET_RUNTIME_ERROR;
-        }
+        VALIDATE_BINARY_OPERANDS(IS_NUMBER, "Operands must be numeric.");
         do_subtraction();
         break;
       }
       case OP_MULTIPLY:
       {
-        if(!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1)))
-        {
-          runtime_error("Operands must be numeric.");
-          return INTERPRET_RUNTIME_ERROR;
-        }
+        VALIDATE_BINARY_OPERANDS(IS_NUMBER, "Operands must be numeric.");
         do_multiplication();
         break;
       }
       case OP_DIVIDE:
       {
-        if(!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1)))
-        {
-          runtime_error("Operands must be numeric.");
-          return INTERPRET_RUNTIME_ERROR;
-        }
+        VALIDATE_BINARY_OPERANDS(IS_NUMBER, "Operands must be numeric.");
         // Check for divide by zero runtime error.
         if(IS_INTEGER(peek(0)) && AS_INTEGER(peek(0)) == 0)
         {
@@ -324,21 +333,13 @@ static InterpretResult run()
       }
       case OP_MODULUS:
       {
-        if(!IS_INTEGER(peek(0)) && !IS_INTEGER(peek(1)))
-        {
-          runtime_error("Modulo operation can only be performed on integer values.");
-          return INTERPRET_RUNTIME_ERROR;
-        }
+        VALIDATE_BINARY_OPERANDS(IS_INTEGER, "Modulo operation can only be performed on integer values.");
         do_modulo();
         break;
       }
       case OP_POWER:
       {
-        if(!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1)))
-        {
-          runtime_error("Operands must be numeric.");
-          return INTERPRET_RUNTIME_ERROR;
-        }
+        VALIDATE_BINARY_OPERANDS(IS_NUMBER, "Operands must be numeric.");
         do_power();
         break;
       }
@@ -349,26 +350,8 @@ static InterpretResult run()
       }
       case OP_NEGATE:
       {
-        if(!IS_NUMBER(peek(0)))
-        {
-          runtime_error("Operand must be numeric.");
-          return INTERPRET_RUNTIME_ERROR;
-        }
-
-        Value v = pop();
-        switch(v.type)
-        {
-          case CUBE_INTEGER:
-            push(INTEGER_VAL(-AS_INTEGER(v)));
-            break;
-          case CUBE_REAL:
-            push(REAL_VAL(-AS_REAL(v)));
-            break;
-          case CUBE_BOOL:
-          case CUBE_NIL:
-          default:
-            break;
-        }
+        VALIDATE_UNARY_OPERAND(IS_NUMBER, "Operand must be numeric.");
+        do_negate();
         break;
       }
       case OP_RETURN:
@@ -732,6 +715,28 @@ static void do_power()
 
     push(REAL_VAL(pow(a, b)));
     return;
+  }
+}
+
+/** @brief Perform a negation operation.
+ *
+ * Negate the numeric value.
+ */
+static void do_negate()
+{
+  Value v = pop();
+  switch(v.type)
+  {
+    case CUBE_INTEGER:
+      push(INTEGER_VAL(-AS_INTEGER(v)));
+      break;
+    case CUBE_REAL:
+      push(REAL_VAL(-AS_REAL(v)));
+      break;
+    case CUBE_BOOL:
+    case CUBE_NIL:
+    default:
+      break;
   }
 }
 
