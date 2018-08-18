@@ -5,7 +5,7 @@
  * @author David J. Lains (dlains)
  * @bug No known bugs
  */
-
+#include <string.h>
 #include "common.h"
 #include "keywords.h"
 #include "scanner.h"
