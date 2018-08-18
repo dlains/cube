@@ -6,6 +6,7 @@
  * @bug No known bugs.
  */
 #include <stdio.h>
+#include <string.h>
 #include "common.h"
 #include "memory.h"
 #include "source.h"

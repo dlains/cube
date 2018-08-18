@@ -5,7 +5,8 @@
  * @author David J. Lains (dlains)
  * @bug No known bugs.
  */
-
+#include <stdlib.h>
+#include <string.h>
 #include "keywords.h"
 #include "token.h"
 
