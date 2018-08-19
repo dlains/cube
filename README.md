@@ -7,11 +7,23 @@ Cube is a dynamically typed, class based object oriented scripting language with
 Only simple expressions are being parsed at the moment. There is a built in REPL
 which can be accessed by running the `cube` executable without a script file name.
 
+The typical operator precedence rules apply. The currently working precedence levels are
+(from highest to lowest):
+
+1. Unary Not (!), Negation (-)
+2. Exponentiation (^)
+3. Multiplication (\*), Division (/), Modulo (%)
+4. Addition (+), Subtraction (-)
+5. Comparison (<, <=, >, >=)
+6. Equality (==), Inequality (!=)
+
+The precedence levels can be overridden with parentheses.
+
 ```
 > (2 + 20) * 100
- => 2200
+-> 2200
 > 2 + 20 * 100
- => 2002
+-> 2002
 ```
 
 Use Ctrl-C to exit the REPL.
