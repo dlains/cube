@@ -28,6 +28,14 @@ The precedence levels can be overridden with parentheses.
 
 Use Ctrl-C to exit the REPL.
 
+### Functions
+
+To be implemented.
+
+### Classes
+
+To be implemented.
+
 ## Getting Started
 
 ### Prerequisites
