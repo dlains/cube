@@ -13,6 +13,9 @@
 
 #include "common.h"
 
+typedef struct object Object;
+typedef struct object_string ObjectString;
+
 /** @enum ValueType
  *
  * Keep track of the actual type for a Value.
@@ -22,6 +25,7 @@ typedef enum {
   CUBE_NIL,      /**< Nil, no value */
   CUBE_INTEGER,  /**< Signed integers */
   CUBE_REAL,     /**< Signed floating point values */
+  CUBE_OBJECT,   /**< Pointer to a larger type */
 } ValueType;
 
 /** @struct Value
@@ -34,6 +38,7 @@ typedef struct {
     bool boolean;
     long integer;
     double real;
+    Object *object;
   } as;             /** The actual value stored in the correct type. */
 } Value;
 
@@ -53,9 +58,15 @@ typedef struct {
 /** Create a Value with type CUBE_REAL */
 #define REAL_VAL(value)      ((Value){ CUBE_REAL,    { .real = value } })
 
+/** Create an Value with type CUBE_OBJECT */
+#define OBJECT_VAL(value)    ((Value){ CUBE_OBJECT,  { .object = (Object*)value } })
+
 //
 // Get Value helper macros.
 //
+
+/** Extract a CUBE_OBJECT value from a Value. */
+#define AS_OBJECT(value)     ((value).as.object)
 
 /** Extract a CUBE_BOOL value from a Value. */
 #define AS_BOOL(value)       ((value).as.boolean)
@@ -69,6 +80,9 @@ typedef struct {
 //
 // Check ValueType helper macros.
 //
+
+/** Check if Value is a CUBE_OBJECT. */
+#define IS_OBJECT(value)     ((value).type == CUBE_OBJECT)
 
 /** Check if Value is a CUBE_BOOL. */
 #define IS_BOOL(value)       ((value).type == CUBE_BOOL)
@@ -94,6 +108,22 @@ typedef struct {
  * @return True if the underlying values are equivalent, false otherwise.
  */
 bool values_equal(Value a, Value b);
+
+/** @brief Print the object value to stdout.
+ *
+ * Print the given object to stdout.
+ *
+ * @param value The object value to print.
+ */
+void print_object(Value value);
+
+/** @brief Print the value to stdout.
+ *
+ * Print the given value to stdout.
+ *
+ * @param value The value to print.
+ */
+void print_value(Value value);
 
 /** @struct ValueArray
  *
@@ -130,13 +160,5 @@ void free_value_array(ValueArray *array);
  * @param value The constant value to add.
  */
 void write_value_array(ValueArray *array, Value value);
-
-/** @brief Print the value to stdout.
- *
- * Print the given value to stdout.
- *
- * @param value The value to print.
- */
-void print_value(Value value);
 
 #endif // VALUE_H

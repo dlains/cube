@@ -6,6 +6,7 @@
  * @bug No known bugs.
  */
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include "common.h"
 #include "compiler.h"
@@ -118,6 +119,12 @@ static void integer();
  * Parse a real constant from the source code.
  */
 static void real();
+
+/** @brief Parse a string object.
+ *
+ * Parse a string literal into a ObjectString.
+ */
+static void string();
 
 /** @brief Parge a grouped expression.
  *
@@ -276,7 +283,7 @@ ParseRule rules[] = {
   { NULL,     binary,  PREC_COMPARISON }, // TOKEN_LESS
   { NULL,     binary,  PREC_COMPARISON }, // TOKEN_LESS_EQUAL
   { NULL,     NULL,    PREC_NONE },       // TOKEN_IDENTIFIER
-  { NULL,     NULL,    PREC_NONE },       // TOKEN_STRING
+  { string,   NULL,    PREC_NONE },       // TOKEN_STRING
   { integer,  NULL,    PREC_NONE },       // TOKEN_INTEGER
   { real,     NULL,    PREC_NONE },       // TOKEN_REAL
   { NULL,     NULL,    PREC_NONE },       // TOKEN_BEGIN
@@ -463,6 +470,15 @@ static void real()
 {
   double value = strtod(parser.previous.lexeme, NULL);
   emit_constant(REAL_VAL(value));
+}
+
+/** @brief Parse a string object.
+ *
+ * Parse a string literal into a ObjectString.
+ */
+static void string()
+{
+  emit_constant(OBJECT_VAL(copy_string(parser.previous.lexeme + 1, strlen(parser.previous.lexeme) - 2)));
 }
 
 /** @brief Parse a grouped expression.

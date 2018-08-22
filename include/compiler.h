@@ -12,6 +12,7 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
+#include "object.h"
 #include "vm.h"
 
 /** @brief Compile any source code available in the scanner.
