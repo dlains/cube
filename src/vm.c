@@ -7,11 +7,14 @@
  */
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include "common.h"
-#include "vm.h"
 #include "compiler.h"
 #include "debug.h"
+#include "object.h"
+#include "memory.h"
+#include "vm.h"
 
 /** The global virutal machine variable used by the Virtual Machine. */
 VM vm;
@@ -109,6 +112,12 @@ static void do_negate();
  */
 static bool is_falsey(Value value);
 
+/** @brief Concatenate two ObjectString objects.
+ *
+ * Used for string concatenation using the '+' operator.
+ */
+static void do_concatenate();
+
 /** @brief Peek at a value in the stack.
  *
  * Returns but does not remove a value at distance offset
@@ -118,6 +127,12 @@ static bool is_falsey(Value value);
  * @return The value found in the stack.
  */
 static Value peek(int distance);
+
+/** @brief Release the linked list of objects from the VM.
+ *
+ * Free the memory for all of the object linked in vm.objects.
+ */
+static void free_objects();
 
 /** @brief Initialize the virtual machine.
  *
@@ -129,6 +144,7 @@ static Value peek(int distance);
 void vm_init(Options options)
 {
   vm.options = options;
+  vm.objects = NULL;
   reset_stack();
 }
 
@@ -138,6 +154,7 @@ void vm_init(Options options)
  */
 void vm_free()
 {
+  free_objects();
 }
 
 /** @brief Interpret the current code.
@@ -210,6 +227,21 @@ Value pop()
 static Value peek(int distance)
 {
   return vm.stack_top[-1 - distance];
+}
+
+/** @brief Release the linked list of objects from the VM.
+ *
+ * Free the memory for all of the object linked in vm.objects.
+ */
+static void free_objects()
+{
+  Object *object = vm.objects;
+  while(object != NULL)
+  {
+    Object *next = object->next;
+    free_object(object);
+    object = next;
+  }
 }
 
 /**
@@ -298,8 +330,15 @@ static InterpretResult run()
       }
       case OP_ADD:
       {
-        VALIDATE_BINARY_OPERANDS(IS_NUMBER, "Operands must be numberic.");
-        do_addition();
+        if(IS_STRING(peek(0)) && IS_STRING(peek(1)))
+          do_concatenate();
+        else if(IS_NUMBER(peek(0)) && IS_NUMBER(peek(1)))
+          do_addition();
+        else
+        {
+          runtime_error("Operands must be two numbers or two strings.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
         break;
       }
       case OP_SUBTRACT:
@@ -750,4 +789,23 @@ static void do_negate()
 static bool is_falsey(Value value)
 {
   return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+}
+
+/** @brief Concatenate two ObjectString objects.
+ *
+ * Used for string concatenation using the '+' operator.
+ */
+static void do_concatenate()
+{
+  ObjectString *b = AS_STRING(pop());
+  ObjectString *a = AS_STRING(pop());
+
+  int length = a->length + b->length;
+  char *chars = ALLOC(char, length + 1);
+  memcpy(chars, a->chars, a->length);
+  memcpy(chars + a->length, b->chars, b->length);
+  chars[length] = '\0';
+
+  ObjectString *result = take_string(chars, length);
+  push(OBJECT_VAL(result));
 }

@@ -9,7 +9,9 @@
  * @bug No known bugs.
  */
 #include <stdio.h>
+#include <string.h>
 #include "memory.h"
+#include "object.h"
 #include "value.h"
 
 /** @brief Check if Values are equivalent.
@@ -35,6 +37,59 @@ bool values_equal(Value a, Value b)
       return AS_INTEGER(a) == AS_INTEGER(b);
     case CUBE_REAL:
       return AS_REAL(a) == AS_REAL(b);
+    case CUBE_OBJECT:
+    {
+      ObjectString* aString = AS_STRING(a);
+      ObjectString* bString = AS_STRING(b);
+      return aString->length == bString->length && memcmp(aString->chars, bString->chars, aString->length) == 0;
+    }
+  }
+}
+
+/** @brief Print the object value to stdout.
+ *
+ * Print the given object to stdout.
+ *
+ * @param value The object value to print.
+ */
+void print_object(Value value)
+{
+  switch(OBJ_TYPE(value))
+  {
+    case OBJ_STRING:
+      printf("\"%s\"", AS_CSTRING(value));
+      break;
+    default:
+      printf("Unknown object type passed to print_object.");
+      break;
+  }
+}
+
+/** @brief Print the value to stdout.
+ *
+ * Print the given value to stdout.
+ *
+ * @param value The value to print.
+ */
+void print_value(Value value)
+{
+  switch(value.type)
+  {
+    case CUBE_BOOL:
+      printf(AS_BOOL(value) ? "true" : "false");
+      break;
+    case CUBE_NIL:
+      printf("nil");
+      break;
+    case CUBE_INTEGER:
+      printf("%ld", AS_INTEGER(value));
+      break;
+    case CUBE_REAL:
+      printf("%g", AS_REAL(value));
+      break;
+    case CUBE_OBJECT:
+      print_object(value);
+      break;
   }
 }
 
@@ -81,29 +136,4 @@ void write_value_array(ValueArray *array, Value value)
 
   array->values[array->count] = value;
   array->count++;
-}
-
-/** @brief Print the value to stdout.
- *
- * Print the given value to stdout.
- *
- * @param value The value to print.
- */
-void print_value(Value value)
-{
-  switch(value.type)
-  {
-    case CUBE_BOOL:
-      printf(AS_BOOL(value) ? "true" : "false");
-      break;
-    case CUBE_NIL:
-      printf("nil");
-      break;
-    case CUBE_INTEGER:
-      printf("%ld", AS_INTEGER(value));
-      break;
-    case CUBE_REAL:
-      printf("%g", AS_REAL(value));
-      break;
-  }
 }

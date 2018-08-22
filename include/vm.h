@@ -28,7 +28,10 @@ typedef struct
   Options options;            /**< The command line options. */
   Value stack[STACK_MAX];     /**< The value stack to hold intermediate results during processing. */
   Value *stack_top;           /**< Pointer to the top of the value stack. */
+  Object *objects;            /**< Linked list of objects. */
 } VM;
+
+extern VM vm;
 
 /** @enum Iterpret results enumeration.
  *
