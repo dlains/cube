@@ -1,35 +1,30 @@
-/** @file common.h
+/** @file common.c
  *
- * Common includes and typedefs used througout the Cude code base.
+ * @brief Implementation of the common functions.
+ *
+ * @author David J. Lains (dlains)
+ * @bug No known bugs.
  */
-#ifndef COMMON_H
-#define COMMON_H
+#include <string.h>
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
-#include "error.h"
-
-/**
- * Because Byte is so much easier to type than uint8_t, and also much
- * more meaningful.
- */
-typedef uint8_t Byte;
-
-/** Make it easier to work with C Strings. */
-typedef char* String;
+#include "memory.h"
+#include "common.h"
 
 /** @brief Create a new String.
  *
  * Allocate new memory for the C String and copy over
  * the characters so there is no issue with ownership.
- * This works for valid C Strings that are null terminated.
  *
  * @param s The C String to be copied.
  * @return The new String containing the original C String.
  */
-String string_init(const char *s);
+String string_init(const char *s)
+{
+  String result = ALLOC(char, strlen(s) + 1);
+  strcpy(result, s);
+
+  return result;
+}
 
 /** @brief Create a new String with the given length.
  *
@@ -41,6 +36,13 @@ String string_init(const char *s);
  * @param length The number of characters to be copied.
  * @return The new String containing the original C String.
  */
-String string_copy(const char *s, int length);
+String string_copy(const char *s, int length)
+{
+  String result = ALLOC(char, length + 1);
+  strncpy(result, s, length);
+  result[length] = '\0';
 
-#endif // COMMON_H
+  return result;
+}
+
+

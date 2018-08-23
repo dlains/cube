@@ -13,6 +13,28 @@
 #include <stdio.h>
 #include "token.h"
 
+/** @brief Create a new token.
+ *
+ * Create a token with the given TokenType and Lexeme.
+ *
+ * @param type The TokenType to assign to this Token.
+ * @param lexeme The String that makes up the Token.
+ * @param line The line number in the source where the token originated.
+ * @param col The column number in the line where the token originated.
+ * @return The newly created Token.
+ */
+Token token_create(TokenType type, String lexeme, int line, int col)
+{
+  Token token;
+
+  token.type   = type;
+  token.lexeme = lexeme;
+  token.line   = line;
+  token.col    = col;
+
+  return token;
+}
+
 /** @brief Translate a token enum id to a user friendly token name.
  *
  * This function returns the token name for a given token id. If the token

@@ -31,7 +31,7 @@ RELEASE_EXE   = $(RELEASE_DIR)/$(EXE)
 RELEASE_OBJS  = $(addprefix $(RELEASE_DIR)/, $(OBJECTS))
 RELEASE_FLAGS = -O3 -DNDEBUG
 
-.PHONY: all clean debug release test prep
+.PHONY: all clean debug release prep
 
 # Default build
 all: prep release
