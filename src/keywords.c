@@ -91,7 +91,7 @@ int find_keyword(const char *word)
     return 0;
 
   // Can't be a keyword if it is 0 characters or greather than 6 characters.
-  int length = strnlen(word, LEXEME_LEN);
+  int length = strnlen(word, MAX_KEYWORD_LEN);
   if(length < 1 || length > 6)
     return 0;
 
@@ -115,7 +115,7 @@ static int hash(const char *word)
 
 static int verify_keyword(const char *word, int index)
 {
-  if(memcmp(word, keywords[index].word, strnlen(keywords[index].word, LEXEME_LEN)) == 0)
+  if(memcmp(word, keywords[index].word, strnlen(keywords[index].word, MAX_KEYWORD_LEN)) == 0)
     return keywords[index].token_type;
   return 0;
 }

@@ -13,7 +13,7 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#define LEXEME_LEN 50
+typedef char* String;
 
 typedef enum
 {
@@ -83,10 +83,22 @@ typedef enum
 typedef struct
 {
   TokenType type;
-  char lexeme[LEXEME_LEN];
+  String lexeme;
   int line;
   int col;
 } Token;
+
+/** @brief Create a new token.
+ *
+ * Create a token with the given TokenType and Lexeme.
+ *
+ * @param type The TokenType to assign to this Token.
+ * @param lexeme The String that makes up the Token.
+ * @param line The line number in the source where the token originated.
+ * @param col The column number in the line where the token originated.
+ * @return The newly created Token.
+ */
+Token token_create(TokenType type, String lexeme, int line, int col);
 
 /** @brief Translate a token enum id to a user friendly token name.
  *

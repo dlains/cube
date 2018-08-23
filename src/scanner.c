@@ -197,18 +197,21 @@ Token next_token()
  */
 static Token make_token(TokenType type)
 {
-  int length = token_length(scanner);
-  if(length > LEXEME_LEN - 1)
-    return error_token("Identifier length is too long.");
-
-  Token token;
-  token.type = type;
-  memcpy(token.lexeme, start_position(scanner), length);
-  token.lexeme[length] = '\0';
-  token.line = line_number(scanner);
-  token.col  = col_number(scanner) - length;
-
-  return token;
+  switch(type)
+  {
+    case TOKEN_IDENTIFIER:
+    case TOKEN_STRING:
+    case TOKEN_INTEGER:
+    case TOKEN_REAL:
+    {
+      String lexeme = string_copy(start_position(scanner), token_length(scanner));
+      return token_create(type, lexeme, line_number(scanner), col_number(scanner));
+    }
+    default:
+    {
+      return token_create(type, NULL, line_number(scanner), col_number(scanner));
+    }
+  }
 }
 
 /** @brief Make an error token to signal a scan error.
@@ -221,13 +224,8 @@ static Token make_token(TokenType type)
  */
 static Token error_token(const char *message)
 {
-  Token token;
-  token.type = TOKEN_ERROR;
-  memcpy(token.lexeme, message, strlen(message));
-  token.line = line_number(scanner);
-  token.col  = col_number(scanner);
-
-  return token;
+  String lexeme = string_init(message);
+  return token_create(TOKEN_ERROR, lexeme, line_number(scanner), col_number(scanner));
 }
 
 /** @brief Scan for a string literal.
@@ -323,10 +321,7 @@ static Token identifier()
  */
 static TokenType identifier_type()
 {
-  char identifier[LEXEME_LEN];
-  int length = token_length(scanner);
-  memcpy(identifier, start_position(scanner), length);
-  identifier[length] = '\0';
+  String identifier = string_copy(start_position(scanner), token_length(scanner));
 
   int type = find_keyword(identifier);
   if(type != 0)

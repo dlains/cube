@@ -29,6 +29,12 @@
  */
 #define NUM_KEYWORDS 22
 
+/** @brief Maximum keyword length.
+ *
+ * No keyword is longer than this maximum.
+ */
+#define MAX_KEYWORD_LEN 7
+
 /** @brief A maximum value for the hash function to use.
  *
  * @def HASH_MAX Generate hash values between 0 and 7919.

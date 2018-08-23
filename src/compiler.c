@@ -6,9 +6,9 @@
  * @bug No known bugs.
  */
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include "common.h"
+#include "string.h"
 #include "compiler.h"
 #include "scanner.h"
 
