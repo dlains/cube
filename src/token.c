@@ -9,8 +9,8 @@
  * @author David J. Lains
  * @bug No known bugs
  */
-
 #include <stdio.h>
+#include "memory.h"
 #include "token.h"
 
 /** @brief Create a new token.
@@ -33,6 +33,20 @@ Token token_create(TokenType type, String lexeme, int line, int col)
   token.col    = col;
 
   return token;
+}
+
+/** @brief Free the tokens resources.
+ *
+ * Check to see if lexeme is not null. If not, free the memory.
+ *
+ * @param token The token to free.
+ */
+void token_free(Token token)
+{
+  if(token.lexeme != NULL)
+  {
+    FREE(char, token.lexeme);
+  }
 }
 
 /** @brief Translate a token enum id to a user friendly token name.

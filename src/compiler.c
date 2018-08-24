@@ -331,6 +331,7 @@ static ParseRule *get_rule(TokenType type)
  */
 static void advance(void)
 {
+  token_free(parser.previous);
   parser.previous = parser.current;
 
   for(;;)
