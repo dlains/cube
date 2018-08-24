@@ -36,4 +36,9 @@ void die(const char *message, const char *file, int line);
  */
 void parse_error(Token *token, const char *message);
 
+/**
+ * Simplify calling die.
+ */
+#define DIE(message) die((message), __FILE__, __LINE__)
+
 #endif // ERROR_H

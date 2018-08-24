@@ -16,7 +16,7 @@
  * Defines the source code to be parsed and interpreted.
  */
 struct source {
-  char *buffer;            /**< The rolling buffer to hold the source code. */
+  String buffer;           /**< The rolling buffer to hold the source code. */
   const char *start;       /**< The start of the current token being scanned. */
   const char *current;     /**< The current location in the buffer. */
   const char *file;        /**< The full path to the file associated with this buffer. NULL for non file buffers. */
@@ -42,8 +42,7 @@ static char *source_read_file(const char *file_path);
 Source source_create(const char *source)
 {
   Source s   = NEW(s);
-  s->buffer  = ALLOC(char, strlen(source));
-  memcpy(s->buffer, source, strlen(source));
+  s->buffer  = string_init(source);
   s->start   = s->buffer;
   s->current = s->buffer;
   s->file    = NULL;

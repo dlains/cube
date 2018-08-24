@@ -100,6 +100,14 @@ typedef struct
  */
 Token token_create(TokenType type, String lexeme, int line, int col);
 
+/** @brief Free the tokens resources.
+ *
+ * Check to see if lexeme is not null. If not, free the memory.
+ *
+ * @param token The token to free.
+ */
+void token_free(Token token);
+
 /** @brief Translate a token enum id to a user friendly token name.
  *
  * This function returns the token name for a given token id. If the token

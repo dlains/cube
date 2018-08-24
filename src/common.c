@@ -20,6 +20,9 @@
  */
 String string_init(const char *s)
 {
+  if(!s)
+    DIE("Invalid string pointer.");
+
   String result = ALLOC(char, strlen(s) + 1);
   strcpy(result, s);
 
@@ -38,6 +41,12 @@ String string_init(const char *s)
  */
 String string_copy(const char *s, int length)
 {
+  if(!s)
+    DIE("Invalid string pointer.");
+
+  if(length <= 0)
+    DIE("String length must be larger than zero.");
+
   String result = ALLOC(char, length + 1);
   strncpy(result, s, length);
   result[length] = '\0';
