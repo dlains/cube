@@ -3,9 +3,17 @@
 #
 CC            = gcc
 CFLAGS        = -Wall -Werror -Wextra
-CPPFLAGS      = -I/usr/local/Cellar/readline/7.0.3_1/include -Iinclude
-LDFLAGS       = -L/usr/local/Cellar/readline/7.0.3_1/lib
+CPPFLAGS      = -Iinclude
+LDFLAGS       =
 LDLIBS        = -lreadline
+
+#
+# Homebrew doesn't install Readline to the default location due to library conflicts.
+#
+ifeq ($(_system_type), Darwin)
+CPPFLAGS   += -I/usr/local/Cellar/readline/7.0.3_1/include
+LDFLAGS    += -L/usr/local/Cellar/readline/7.0.3_1/lib
+endif
 
 #
 # Project files
