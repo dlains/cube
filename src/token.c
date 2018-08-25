@@ -9,6 +9,7 @@
  * @author David J. Lains
  * @bug No known bugs
  */
+#include "config.h"
 #include <stdio.h>
 #include "memory.h"
 #include "token.h"

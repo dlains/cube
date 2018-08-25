@@ -1,3 +1,14 @@
+/** @file debug.c
+ *
+ * @brief Implementation of disassembly functions.
+ *
+ * Used by the -d / --dump flag to show the VM instructions for each statement or
+ * expression.
+ *
+ * @author David J. Lains (dlains)
+ * @bug No known bugs.
+ */
+#include "config.h"
 #include <stdio.h>
 #include "debug.h"
 #include "value.h"

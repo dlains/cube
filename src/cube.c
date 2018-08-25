@@ -9,6 +9,7 @@
  * @author David J. Lains (dlains)
  * @bug No known bugs.
  */
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "common.h"

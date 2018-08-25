@@ -8,6 +8,7 @@
  * @author David J. Lains (dlains)
  * @bug No known bugs.
  */
+#include "config.h"
 #include <stdio.h>
 #include <string.h>
 #include "memory.h"
@@ -43,6 +44,8 @@ bool values_equal(Value a, Value b)
       ObjectString* bString = AS_STRING(b);
       return aString->length == bString->length && memcmp(aString->chars, bString->chars, aString->length) == 0;
     }
+    default:
+      return false;
   }
 }
 
