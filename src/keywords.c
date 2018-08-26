@@ -5,6 +5,7 @@
  * @author David J. Lains (dlains)
  * @bug No known bugs.
  */
+#include "config.h"
 #include <stdlib.h>
 #include <string.h>
 #include "keywords.h"

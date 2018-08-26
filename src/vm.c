@@ -5,6 +5,7 @@
  * @author David J. Lains (dlains)
  * @bug No known bugs.
  */
+#include "config.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
