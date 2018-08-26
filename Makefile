@@ -5,7 +5,7 @@ CC            = gcc
 CFLAGS        = -Wall -Werror -Wextra
 CPPFLAGS      = -Iinclude
 LDFLAGS       =
-LDLIBS        = -lreadline
+LDLIBS        = -lm -lreadline
 
 #
 # Homebrew doesn't install Readline to the default location due to library conflicts.
@@ -15,7 +15,7 @@ CPPFLAGS     += -I/usr/local/Cellar/readline/7.0.3_1/include
 LDFLAGS      += -L/usr/local/Cellar/readline/7.0.3_1/lib
 else
 CPPFLAGS     += -I/usr/include
-LDFLAGS      += -L/usr/lib
+LDFLAGS      += -L/usr/lib/x86_64-linux-gnu/
 endif
 
 #
@@ -53,7 +53,7 @@ all: prep release
 debug: prep $(DEBUG_EXE)
 
 $(DEBUG_EXE): $(DEBUG_OBJS)
-	$(CC) $(CFLAGS) $(LDLIBS) $(LDFLAGS) $(DEBUG_FLAGS) -o $(DEBUG_EXE) $^
+	$(CC) $(CFLAGS) $(DEBUG_FLAGS) -o $(DEBUG_EXE) $^ $(LDFLAGS) $(LDLIBS)
 
 $(DEBUG_DIR)/%.o: %.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(DEBUG_FLAGS) -o $@ $<
@@ -64,7 +64,7 @@ $(DEBUG_DIR)/%.o: %.c
 release: $(RELEASE_EXE)
 
 $(RELEASE_EXE): $(RELEASE_OBJS)
-	$(CC) $(CFLAGS) $(LDLIBS) $(LDFLAGS) $(RELEASE_FLAGS) -o $(RELEASE_EXE) $^
+	$(CC) $(CFLAGS) $(RELEASE_FLAGS) -o $(RELEASE_EXE) $^ $(LDFLAGS) $(LDLIBS)
 
 $(RELEASE_DIR)/%.o: %.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(RELEASE_FLAGS) -o $@ $<
