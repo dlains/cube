@@ -11,8 +11,11 @@ LDLIBS        = -lreadline
 # Homebrew doesn't install Readline to the default location due to library conflicts.
 #
 ifeq ($(_system_type), Darwin)
-CPPFLAGS   += -I/usr/local/Cellar/readline/7.0.3_1/include
-LDFLAGS    += -L/usr/local/Cellar/readline/7.0.3_1/lib
+CPPFLAGS     += -I/usr/local/Cellar/readline/7.0.3_1/include
+LDFLAGS      += -L/usr/local/Cellar/readline/7.0.3_1/lib
+else
+CPPFLAGS     += -I/usr/include
+LDFLAGS      += -L/usr/lib
 endif
 
 #
