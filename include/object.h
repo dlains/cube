@@ -1,4 +1,6 @@
-/** @file object.h Define the Cube object type.
+/** @file object.h
+ *
+ * @brief Define the Cube object type.
  *
  * Definitions and helper macros for dealing with the Object type.
  *

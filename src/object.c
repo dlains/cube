@@ -1,6 +1,6 @@
 /** @file object.c
  *
- * @breif Implementation of the Object module.
+ * @brief Implementation of the Object module.
  *
  * @author David J. Lains (dlains)
  * @bug No known bugs.
