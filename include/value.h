@@ -14,6 +14,7 @@
 #include "common.h"
 
 typedef struct object Object;
+typedef struct object_boolean ObjectBoolean;
 typedef struct object_string ObjectString;
 
 /** @enum ValueType
@@ -21,7 +22,6 @@ typedef struct object_string ObjectString;
  * Keep track of the actual type for a Value.
  */
 typedef enum {
-  CUBE_BOOL,     /**< Boolean (true / false) */
   CUBE_NIL,      /**< Nil, no value */
   CUBE_INTEGER,  /**< Signed integers */
   CUBE_REAL,     /**< Signed floating point values */
@@ -35,7 +35,6 @@ typedef enum {
 typedef struct {
   ValueType type;   /**< The ValueType for this value. */
   union {
-    bool boolean;
     long integer;
     double real;
     Object *object;
@@ -45,9 +44,6 @@ typedef struct {
 //
 // Create Value helper macros.
 //
-
-/** Create a Value with type CUBE_BOOL */
-#define BOOL_VAL(value)      ((Value){ CUBE_BOOL,    { .boolean = value } })
 
 /** Create a Value with type CUBE_NIL */
 #define NIL_VAL              ((Value){ CUBE_NIL,     { .real = 0 } })
@@ -68,9 +64,6 @@ typedef struct {
 /** Extract a CUBE_OBJECT value from a Value. */
 #define AS_OBJECT(value)     ((value).as.object)
 
-/** Extract a CUBE_BOOL value from a Value. */
-#define AS_BOOL(value)       ((value).as.boolean)
-
 /** Extract a CUBE_INTEGER value from a Value. */
 #define AS_INTEGER(value)    ((value).as.integer)
 
@@ -83,9 +76,6 @@ typedef struct {
 
 /** Check if Value is a CUBE_OBJECT. */
 #define IS_OBJECT(value)     ((value).type == CUBE_OBJECT)
-
-/** Check if Value is a CUBE_BOOL. */
-#define IS_BOOL(value)       ((value).type == CUBE_BOOL)
 
 /** Check if Value is a CUBE_NIL. */
 #define IS_NIL(value)        ((value).type == CUBE_NIL)
