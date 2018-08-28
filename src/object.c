@@ -56,6 +56,46 @@ static Object *allocate_object(size_t size, ObjectType type)
   return object;
 }
 
+/** @brief Free the Object resources.
+ *
+ * Free any memory associated with the Object.
+ *
+ * @param object The Object to free.
+ */
+void free_object(Object *object)
+{
+  switch(object->type)
+  {
+    case OBJ_BOOLEAN:
+    {
+      FREE(ObjectBoolean, object);
+      break;
+    }
+    case OBJ_STRING:
+    {
+      ObjectString *string = (ObjectString*)object;
+      FREE_ARRAY(char, string->chars, string->length + 1);
+      FREE(ObjectString, object);
+      break;
+    }
+  }
+}
+
+/** @brief Create a boolean object.
+ *
+ * Take the bool value and turn it into a ObjectBoolean.
+ *
+ * @param value The bool value to convert.
+ * @return The newly created ObjectBoolean.
+ */
+ObjectBoolean *create_boolean(bool value)
+{
+  ObjectBoolean *boolean = ALLOCATE_OBJECT(ObjectBoolean, OBJ_BOOLEAN);
+  boolean->value         = value;
+
+  return boolean;
+}
+
 /** @brief Allocate an object of ObjectType string.
  *
  * Create a ObjectString object and set up the length and
@@ -72,26 +112,6 @@ static ObjectString *allocate_string(char *chars, int length)
   string->chars        = chars;
 
   return string;
-}
-
-/** @brief Free the Object resources.
- *
- * Free any memory associated with the Object.
- *
- * @param object The Object to free.
- */
-void free_object(Object *object)
-{
-  switch(object->type)
-  {
-    case OBJ_STRING:
-    {
-      ObjectString *string = (ObjectString*)object;
-      FREE_ARRAY(char, string->chars, string->length + 1);
-      FREE(ObjectString, object);
-      break;
-    }
-  }
 }
 
 /** @brief Take a string and turn it into a ObjectString.

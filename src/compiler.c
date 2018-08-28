@@ -441,13 +441,13 @@ static void literal()
   switch(parser.previous.type)
   {
     case TOKEN_FALSE:
-      emit_byte(OP_FALSE);
+      emit_constant(OBJECT_VAL(create_boolean(false)));
       break;
     case TOKEN_NIL:
       emit_byte(OP_NIL);
       break;
     case TOKEN_TRUE:
-      emit_byte(OP_TRUE);
+      emit_constant(OBJECT_VAL(create_boolean(true)));
       break;
     default:
       return;

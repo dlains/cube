@@ -295,16 +295,11 @@ static InterpretResult run()
         push(constant);
         break;
       }
-      case OP_FALSE:
-      {
-        push(BOOL_VAL(false));
-        break;
-      }
       case OP_EQUAL:
       {
         Value b = pop();
         Value a = pop();
-        push(BOOL_VAL(values_equal(a, b)));
+        push(OBJECT_VAL(create_boolean(values_equal(a, b))));
         break;
       }
       case OP_GREATER:
@@ -322,11 +317,6 @@ static InterpretResult run()
       case OP_NIL:
       {
         push(NIL_VAL);
-        break;
-      }
-      case OP_TRUE:
-      {
-        push(BOOL_VAL(true));
         break;
       }
       case OP_ADD:
@@ -385,7 +375,7 @@ static InterpretResult run()
       }
       case OP_NOT:
       {
-        push(BOOL_VAL(is_falsey(pop())));
+        push(OBJECT_VAL(create_boolean(is_falsey(pop()))));
         break;
       }
       case OP_NEGATE:
@@ -451,7 +441,7 @@ static void do_greater()
     long b = AS_INTEGER(pop());
     long a = AS_INTEGER(pop());
 
-    push(BOOL_VAL(a > b));
+    push(OBJECT_VAL(create_boolean(a > b)));
     return;
   }
 
@@ -460,7 +450,7 @@ static void do_greater()
     double b = AS_REAL(pop());
     double a = AS_REAL(pop());
 
-    push(BOOL_VAL(a > b));
+    push(OBJECT_VAL(create_boolean(a > b)));
     return;
   }
 
@@ -469,7 +459,7 @@ static void do_greater()
     double b = (double)AS_INTEGER(pop());
     double a = AS_REAL(pop());
 
-    push(BOOL_VAL(a > b));
+    push(OBJECT_VAL(create_boolean(a > b)));
     return;
   }
 
@@ -478,7 +468,7 @@ static void do_greater()
     double b = AS_REAL(pop());
     double a = (double)AS_INTEGER(pop());
 
-    push(BOOL_VAL(a > b));
+    push(OBJECT_VAL(create_boolean(a > b)));
     return;
   }
 }
@@ -495,7 +485,7 @@ static void do_less()
     long b = AS_INTEGER(pop());
     long a = AS_INTEGER(pop());
 
-    push(BOOL_VAL(a < b));
+    push(OBJECT_VAL(create_boolean(a < b)));
     return;
   }
 
@@ -504,7 +494,7 @@ static void do_less()
     double b = AS_REAL(pop());
     double a = AS_REAL(pop());
 
-    push(BOOL_VAL(a < b));
+    push(OBJECT_VAL(create_boolean(a < b)));
     return;
   }
 
@@ -513,7 +503,7 @@ static void do_less()
     double b = (double)AS_INTEGER(pop());
     double a = AS_REAL(pop());
 
-    push(BOOL_VAL(a < b));
+    push(OBJECT_VAL(create_boolean(a < b)));
     return;
   }
 
@@ -522,7 +512,7 @@ static void do_less()
     double b = AS_REAL(pop());
     double a = (double)AS_INTEGER(pop());
 
-    push(BOOL_VAL(a < b));
+    push(OBJECT_VAL(create_boolean(a < b)));
     return;
   }
 }
@@ -773,7 +763,6 @@ static void do_negate()
     case CUBE_REAL:
       push(REAL_VAL(-AS_REAL(v)));
       break;
-    case CUBE_BOOL:
     case CUBE_NIL:
     default:
       break;
@@ -789,7 +778,7 @@ static void do_negate()
  */
 static bool is_falsey(Value value)
 {
-  return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+  return IS_NIL(value) || (IS_BOOLEAN(value) && !AS_BOOLEAN(value));
 }
 
 /** @brief Concatenate two ObjectString objects.

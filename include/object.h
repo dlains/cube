@@ -13,11 +13,21 @@
 #include "common.h"
 #include "chunk.h"
 
+typedef struct object Object;
+typedef struct object_boolean ObjectBoolean;
+typedef struct object_string ObjectString;
+
 /** Retrieve the ObjectType from the given object. */
 #define OBJ_TYPE(value)       (AS_OBJECT(value)->type)
 
+/** Check if the given object is a Boolean object. */
+#define IS_BOOLEAN(value)     is_object_type(value, OBJ_BOOLEAN)
+
 /** Check if the given Value is an object with OBJ_STRING type. */
 #define IS_STRING(value)      is_object_type(value, OBJ_STRING)
+
+/** Get the Object as a ObjectBoolean pointer. */
+#define AS_BOOLEAN(value)     ((ObjectBoolean*)AS_OBJECT(value))
 
 /** Get the Value as a ObjectString pointer. */
 #define AS_STRING(value)      ((ObjectString*)AS_OBJECT(value))
@@ -27,6 +37,7 @@
 
 /** Enumerate the different kinds of Objects. */
 typedef enum {
+  OBJ_BOOLEAN,     /**< The Boolean ObjectType. */
   OBJ_STRING,      /**< The String ObjectType. */
 } ObjectType;
 
@@ -34,6 +45,12 @@ typedef enum {
 struct object {
   ObjectType type;          /**< This objects type. */
   struct object *next;      /**< The next object in the list. */
+};
+
+/** Define the object_boolean structure. */
+struct object_boolean {
+  Object object;            /**< The actual object pointer. */
+  bool value;               /**< The boolean value. */
 };
 
 /** Define the object_string structure. */
@@ -50,6 +67,15 @@ struct object_string {
  * @param object The Object to free.
  */
 void free_object(Object *object);
+
+/** @brief Create a boolean object.
+ *
+ * Take the bool value and turn it into a ObjectBoolean.
+ *
+ * @param value The bool value to convert.
+ * @return The newly created ObjectBoolean.
+ */
+ObjectBoolean *create_boolean(bool value);
 
 /** @brief Take a string and turn it into a ObjectString.
  *

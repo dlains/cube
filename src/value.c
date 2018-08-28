@@ -30,8 +30,6 @@ bool values_equal(Value a, Value b)
 
   switch(a.type)
   {
-    case CUBE_BOOL:
-      return AS_BOOL(a) == AS_BOOL(b);
     case CUBE_NIL:
       return true;
     case CUBE_INTEGER:
@@ -40,9 +38,26 @@ bool values_equal(Value a, Value b)
       return AS_REAL(a) == AS_REAL(b);
     case CUBE_OBJECT:
     {
-      ObjectString* aString = AS_STRING(a);
-      ObjectString* bString = AS_STRING(b);
-      return aString->length == bString->length && memcmp(aString->chars, bString->chars, aString->length) == 0;
+      if(OBJ_TYPE(a) != OBJ_TYPE(b))
+        return false;
+
+      switch(OBJ_TYPE(a))
+      {
+        case OBJ_BOOLEAN:
+        {
+          ObjectBoolean* aBool = AS_BOOLEAN(a);
+          ObjectBoolean* bBool = AS_BOOLEAN(b);
+          return aBool->value == bBool->value;
+        }
+        case OBJ_STRING:
+        {
+          ObjectString* aString = AS_STRING(a);
+          ObjectString* bString = AS_STRING(b);
+          return aString->length == bString->length && memcmp(aString->chars, bString->chars, aString->length) == 0;
+        }
+        default:
+          return false;
+      }
     }
     default:
       return false;
@@ -59,6 +74,12 @@ void print_object(Value value)
 {
   switch(OBJ_TYPE(value))
   {
+    case OBJ_BOOLEAN:
+    {
+      ObjectBoolean* b = AS_BOOLEAN(value);
+      printf("%s", b->value ? "true" : "false");
+      break;
+    }
     case OBJ_STRING:
       printf("\"%s\"", AS_CSTRING(value));
       break;
@@ -78,9 +99,6 @@ void print_value(Value value)
 {
   switch(value.type)
   {
-    case CUBE_BOOL:
-      printf(AS_BOOL(value) ? "true" : "false");
-      break;
     case CUBE_NIL:
       printf("nil");
       break;
