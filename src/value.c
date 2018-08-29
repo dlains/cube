@@ -30,8 +30,6 @@ bool values_equal(Value a, Value b)
 
   switch(a.type)
   {
-    case CUBE_NIL:
-      return true;
     case CUBE_INTEGER:
       return AS_INTEGER(a) == AS_INTEGER(b);
     case CUBE_REAL:
@@ -48,6 +46,11 @@ bool values_equal(Value a, Value b)
           ObjectBoolean* aBool = AS_BOOLEAN(a);
           ObjectBoolean* bBool = AS_BOOLEAN(b);
           return aBool->value == bBool->value;
+        }
+        case OBJ_NIL:
+        {
+          // Both object have already been establised to be nil, and nil always equals nil.
+          return true;
         }
         case OBJ_STRING:
         {
@@ -80,6 +83,9 @@ void print_object(Value value)
       printf("%s", b->value ? "true" : "false");
       break;
     }
+    case OBJ_NIL:
+      printf("nil");
+      break;
     case OBJ_STRING:
       printf("\"%s\"", AS_CSTRING(value));
       break;
@@ -99,9 +105,6 @@ void print_value(Value value)
 {
   switch(value.type)
   {
-    case CUBE_NIL:
-      printf("nil");
-      break;
     case CUBE_INTEGER:
       printf("%ld", AS_INTEGER(value));
       break;

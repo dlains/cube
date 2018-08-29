@@ -15,6 +15,7 @@
 
 typedef struct object Object;
 typedef struct object_boolean ObjectBoolean;
+typedef struct object_nil ObjectNil;
 typedef struct object_string ObjectString;
 
 /** Retrieve the ObjectType from the given object. */
@@ -23,11 +24,17 @@ typedef struct object_string ObjectString;
 /** Check if the given object is a Boolean object. */
 #define IS_BOOLEAN(value)     is_object_type(value, OBJ_BOOLEAN)
 
+/** Check if the given object is a Nil object. */
+#define IS_NIL(value)         is_object_type(value, OBJ_NIL)
+
 /** Check if the given Value is an object with OBJ_STRING type. */
 #define IS_STRING(value)      is_object_type(value, OBJ_STRING)
 
 /** Get the Object as a ObjectBoolean pointer. */
 #define AS_BOOLEAN(value)     ((ObjectBoolean*)AS_OBJECT(value))
+
+/** Get the Object as a ObjectNil pointer. */
+#define AS_NIL(value)         ((ObjectNil*)AS_OBJECT(value))
 
 /** Get the Value as a ObjectString pointer. */
 #define AS_STRING(value)      ((ObjectString*)AS_OBJECT(value))
@@ -38,6 +45,7 @@ typedef struct object_string ObjectString;
 /** Enumerate the different kinds of Objects. */
 typedef enum {
   OBJ_BOOLEAN,     /**< The Boolean ObjectType. */
+  OBJ_NIL,         /**< The Nil ObjectType. */
   OBJ_STRING,      /**< The String ObjectType. */
 } ObjectType;
 
@@ -51,6 +59,11 @@ struct object {
 struct object_boolean {
   Object object;            /**< The actual object pointer. */
   bool value;               /**< The boolean value. */
+};
+
+struct object_nil {
+  Object object;            /**< The actual object pointer. */
+  int value;                /**< Nil is represented as int = 0. */
 };
 
 /** Define the object_string structure. */
@@ -76,6 +89,14 @@ void free_object(Object *object);
  * @return The newly created ObjectBoolean.
  */
 ObjectBoolean *create_boolean(bool value);
+
+/** @brief Create a nil object.
+ *
+ * Create an ObjectNil constant.
+ *
+ * @return The newly created ObjectNil.
+ */
+ObjectNil *create_nil(void);
 
 /** @brief Take a string and turn it into a ObjectString.
  *
