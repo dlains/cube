@@ -19,7 +19,6 @@
  */
 typedef enum {
   OP_CONSTANT,
-  OP_NIL,
   OP_EQUAL,
   OP_GREATER,
   OP_LESS,

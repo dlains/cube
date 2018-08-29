@@ -71,6 +71,11 @@ void free_object(Object *object)
       FREE(ObjectBoolean, object);
       break;
     }
+    case OBJ_NIL:
+    {
+      FREE(ObjectNil, object);
+      break;
+    }
     case OBJ_STRING:
     {
       ObjectString *string = (ObjectString*)object;
@@ -94,6 +99,20 @@ ObjectBoolean *create_boolean(bool value)
   boolean->value         = value;
 
   return boolean;
+}
+
+/** @brief Create a nil object.
+ *
+ * Create an ObjectNil constant.
+ *
+ * @return The newly created ObjectNil.
+ */
+ObjectNil *create_nil(void)
+{
+  ObjectNil *nil = ALLOCATE_OBJECT(ObjectNil, OBJ_NIL);
+  nil->value     = 0;
+
+  return nil;
 }
 
 /** @brief Allocate an object of ObjectType string.

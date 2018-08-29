@@ -444,7 +444,7 @@ static void literal()
       emit_constant(OBJECT_VAL(create_boolean(false)));
       break;
     case TOKEN_NIL:
-      emit_byte(OP_NIL);
+      emit_constant(OBJECT_VAL(create_nil()));
       break;
     case TOKEN_TRUE:
       emit_constant(OBJECT_VAL(create_boolean(true)));

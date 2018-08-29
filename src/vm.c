@@ -314,11 +314,6 @@ static InterpretResult run()
         do_less();
         break;
       }
-      case OP_NIL:
-      {
-        push(NIL_VAL);
-        break;
-      }
       case OP_ADD:
       {
         if(IS_STRING(peek(0)) && IS_STRING(peek(1)))
@@ -763,7 +758,6 @@ static void do_negate()
     case CUBE_REAL:
       push(REAL_VAL(-AS_REAL(v)));
       break;
-    case CUBE_NIL:
     default:
       break;
   }

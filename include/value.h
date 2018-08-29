@@ -15,6 +15,7 @@
 
 typedef struct object Object;
 typedef struct object_boolean ObjectBoolean;
+typedef struct object_nil ObjectNil;
 typedef struct object_string ObjectString;
 
 /** @enum ValueType
@@ -22,7 +23,6 @@ typedef struct object_string ObjectString;
  * Keep track of the actual type for a Value.
  */
 typedef enum {
-  CUBE_NIL,      /**< Nil, no value */
   CUBE_INTEGER,  /**< Signed integers */
   CUBE_REAL,     /**< Signed floating point values */
   CUBE_OBJECT,   /**< Pointer to a larger type */
@@ -44,9 +44,6 @@ typedef struct {
 //
 // Create Value helper macros.
 //
-
-/** Create a Value with type CUBE_NIL */
-#define NIL_VAL              ((Value){ CUBE_NIL,     { .real = 0 } })
 
 /** Create a Value with type CUBE_INTEGER */
 #define INTEGER_VAL(value)   ((Value){ CUBE_INTEGER, { .integer = value } })
@@ -76,9 +73,6 @@ typedef struct {
 
 /** Check if Value is a CUBE_OBJECT. */
 #define IS_OBJECT(value)     ((value).type == CUBE_OBJECT)
-
-/** Check if Value is a CUBE_NIL. */
-#define IS_NIL(value)        ((value).type == CUBE_NIL)
 
 /** Check if Value is a CUBE_INTEGER. */
 #define IS_INTEGER(value)    ((value).type == CUBE_INTEGER)
