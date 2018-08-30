@@ -16,6 +16,7 @@
 typedef struct object Object;
 typedef struct object_boolean ObjectBoolean;
 typedef struct object_nil ObjectNil;
+typedef struct object_integer ObjectInteger;
 typedef struct object_string ObjectString;
 
 /** Retrieve the ObjectType from the given object. */
@@ -27,6 +28,9 @@ typedef struct object_string ObjectString;
 /** Check if the given object is a Nil object. */
 #define IS_NIL(value)         is_object_type(value, OBJ_NIL)
 
+/** Check if the given Value is an object with OBJ_INTEGER type. */
+#define IS_INTEGER(value)     is_object_type(value, OBJ_INTEGER)
+
 /** Check if the given Value is an object with OBJ_STRING type. */
 #define IS_STRING(value)      is_object_type(value, OBJ_STRING)
 
@@ -35,6 +39,9 @@ typedef struct object_string ObjectString;
 
 /** Get the Object as a ObjectNil pointer. */
 #define AS_NIL(value)         ((ObjectNil*)AS_OBJECT(value))
+
+/** Get the Value as a ObjectInteger pointer. */
+#define AS_INTEGER(value)     ((ObjectInteger*)AS_OBJECT(value))
 
 /** Get the Value as a ObjectString pointer. */
 #define AS_STRING(value)      ((ObjectString*)AS_OBJECT(value))
@@ -46,6 +53,7 @@ typedef struct object_string ObjectString;
 typedef enum {
   OBJ_BOOLEAN,     /**< The Boolean ObjectType. */
   OBJ_NIL,         /**< The Nil ObjectType. */
+  OBJ_INTEGER,     /**< The Integer ObjectType. */
   OBJ_STRING,      /**< The String ObjectType. */
 } ObjectType;
 
@@ -61,9 +69,16 @@ struct object_boolean {
   bool value;               /**< The boolean value. */
 };
 
+/** Define the object_nil structure. */
 struct object_nil {
   Object object;            /**< The actual object pointer. */
   int value;                /**< Nil is represented as int = 0. */
+};
+
+/** Define the object_integer structure. */
+struct object_integer {
+  Object object;            /**< The actual object pointer. */
+  long value;               /**< The long int value. */
 };
 
 /** Define the object_string structure. */
@@ -97,6 +112,15 @@ ObjectBoolean *create_boolean(bool value);
  * @return The newly created ObjectNil.
  */
 ObjectNil *create_nil(void);
+
+/** @brief Create an Integer object.
+ *
+ * Create a new ObjectInteger value.
+ *
+ * @param value The integer value to convert.
+ * @return The newly created ObjectInteger.
+ */
+ObjectInteger *create_integer(long value);
 
 /** @brief Take a string and turn it into a ObjectString.
  *

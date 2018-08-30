@@ -461,7 +461,7 @@ static void literal()
 static void integer()
 {
   long value = strtol(parser.previous.lexeme, NULL, 10);
-  emit_constant(INTEGER_VAL(value));
+  emit_constant(OBJECT_VAL(create_integer(value)));
 }
 
 /** @brief Parse an real number.
