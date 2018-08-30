@@ -16,6 +16,7 @@
 typedef struct object Object;
 typedef struct object_boolean ObjectBoolean;
 typedef struct object_nil ObjectNil;
+typedef struct object_integer ObjectInteger;
 typedef struct object_string ObjectString;
 
 /** @enum ValueType
@@ -23,7 +24,6 @@ typedef struct object_string ObjectString;
  * Keep track of the actual type for a Value.
  */
 typedef enum {
-  CUBE_INTEGER,  /**< Signed integers */
   CUBE_REAL,     /**< Signed floating point values */
   CUBE_OBJECT,   /**< Pointer to a larger type */
 } ValueType;
@@ -35,7 +35,6 @@ typedef enum {
 typedef struct {
   ValueType type;   /**< The ValueType for this value. */
   union {
-    long integer;
     double real;
     Object *object;
   } as;             /** The actual value stored in the correct type. */
@@ -44,9 +43,6 @@ typedef struct {
 //
 // Create Value helper macros.
 //
-
-/** Create a Value with type CUBE_INTEGER */
-#define INTEGER_VAL(value)   ((Value){ CUBE_INTEGER, { .integer = value } })
 
 /** Create a Value with type CUBE_REAL */
 #define REAL_VAL(value)      ((Value){ CUBE_REAL,    { .real = value } })
@@ -61,9 +57,6 @@ typedef struct {
 /** Extract a CUBE_OBJECT value from a Value. */
 #define AS_OBJECT(value)     ((value).as.object)
 
-/** Extract a CUBE_INTEGER value from a Value. */
-#define AS_INTEGER(value)    ((value).as.integer)
-
 /** Extract a CUBE_REAL value from a Value. */
 #define AS_REAL(value)       ((value).as.real)
 
@@ -73,9 +66,6 @@ typedef struct {
 
 /** Check if Value is a CUBE_OBJECT. */
 #define IS_OBJECT(value)     ((value).type == CUBE_OBJECT)
-
-/** Check if Value is a CUBE_INTEGER. */
-#define IS_INTEGER(value)    ((value).type == CUBE_INTEGER)
 
 /** Check if Value is a CUBE_REAL. */
 #define IS_REAL(value)       ((value).type == CUBE_REAL)

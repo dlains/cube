@@ -76,6 +76,11 @@ void free_object(Object *object)
       FREE(ObjectNil, object);
       break;
     }
+    case OBJ_INTEGER:
+    {
+      FREE(ObjectInteger, object);
+      break;
+    }
     case OBJ_STRING:
     {
       ObjectString *string = (ObjectString*)object;
@@ -113,6 +118,21 @@ ObjectNil *create_nil(void)
   nil->value     = 0;
 
   return nil;
+}
+
+/** @brief Create an Integer object.
+ *
+ * Create a new ObjectInteger value.
+ *
+ * @param value The integer value to convert.
+ * @return The newly created ObjectInteger.
+ */
+ObjectInteger *create_integer(long value)
+{
+  ObjectInteger *integer = ALLOCATE_OBJECT(ObjectInteger, OBJ_INTEGER);
+  integer->value         = value;
+
+  return integer;
 }
 
 /** @brief Allocate an object of ObjectType string.
