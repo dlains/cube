@@ -40,12 +40,20 @@ To be implemented.
 
 ### Prerequisites
 
-Building Cube has only been tested on macOS Sierra. It is very early in development.
+Building Cube has only been tested on macOS Sierra, High Sierra and Ubuntu 18.04. It is very early in development.
 
-The GNU Readline library provided by Homebrew is required for compilation.
+The GNU Readline library is used to make the REPL a bit more useful.
+
+On macOS use [Homebrew](https://brew.sh) to install Readline.
 
 ```bash
 brew install readline
+```
+
+On Ubuntu you can install Readline with the following command.
+
+```bash
+sudo apt-get install libreadline-dev
 ```
 
 ### Building
