@@ -433,8 +433,8 @@ static void do_greater()
 {
   if(IS_INTEGER(peek(0)) && IS_INTEGER(peek(1)))
   {
-    long b = AS_INTEGER(pop());
-    long a = AS_INTEGER(pop());
+    long b = AS_INTEGER(pop())->value;
+    long a = AS_INTEGER(pop())->value;
 
     push(OBJECT_VAL(create_boolean(a > b)));
     return;
@@ -442,8 +442,8 @@ static void do_greater()
 
   if(IS_REAL(peek(0)) && IS_REAL(peek(1)))
   {
-    double b = AS_REAL(pop());
-    double a = AS_REAL(pop());
+    double b = AS_REAL(pop())->value;
+    double a = AS_REAL(pop())->value;
 
     push(OBJECT_VAL(create_boolean(a > b)));
     return;
@@ -451,8 +451,8 @@ static void do_greater()
 
   if(IS_INTEGER(peek(0)) && IS_REAL(peek(1)))
   {
-    double b = (double)AS_INTEGER(pop());
-    double a = AS_REAL(pop());
+    double b = (double)AS_INTEGER(pop())->value;
+    double a = AS_REAL(pop())->value;
 
     push(OBJECT_VAL(create_boolean(a > b)));
     return;
@@ -460,8 +460,8 @@ static void do_greater()
 
   if(IS_REAL(peek(0)) && IS_INTEGER(peek(1)))
   {
-    double b = AS_REAL(pop());
-    double a = (double)AS_INTEGER(pop());
+    double b = AS_REAL(pop())->value;
+    double a = (double)AS_INTEGER(pop())->value;
 
     push(OBJECT_VAL(create_boolean(a > b)));
     return;
@@ -477,8 +477,8 @@ static void do_less()
 {
   if(IS_INTEGER(peek(0)) && IS_INTEGER(peek(1)))
   {
-    long b = AS_INTEGER(pop());
-    long a = AS_INTEGER(pop());
+    long b = AS_INTEGER(pop())->value;
+    long a = AS_INTEGER(pop())->value;
 
     push(OBJECT_VAL(create_boolean(a < b)));
     return;
@@ -486,8 +486,8 @@ static void do_less()
 
   if(IS_REAL(peek(0)) && IS_REAL(peek(1)))
   {
-    double b = AS_REAL(pop());
-    double a = AS_REAL(pop());
+    double b = AS_REAL(pop())->value;
+    double a = AS_REAL(pop())->value;
 
     push(OBJECT_VAL(create_boolean(a < b)));
     return;
@@ -495,8 +495,8 @@ static void do_less()
 
   if(IS_INTEGER(peek(0)) && IS_REAL(peek(1)))
   {
-    double b = (double)AS_INTEGER(pop());
-    double a = AS_REAL(pop());
+    double b = (double)AS_INTEGER(pop())->value;
+    double a = AS_REAL(pop())->value;
 
     push(OBJECT_VAL(create_boolean(a < b)));
     return;
@@ -504,8 +504,8 @@ static void do_less()
 
   if(IS_REAL(peek(0)) && IS_INTEGER(peek(1)))
   {
-    double b = AS_REAL(pop());
-    double a = (double)AS_INTEGER(pop());
+    double b = AS_REAL(pop())->value;
+    double a = (double)AS_INTEGER(pop())->value;
 
     push(OBJECT_VAL(create_boolean(a < b)));
     return;
@@ -521,37 +521,37 @@ static void do_addition()
 {
   if(IS_INTEGER(peek(0)) && IS_INTEGER(peek(1)))
   {
-    long b = AS_INTEGER(pop());
-    long a = AS_INTEGER(pop());
+    long b = AS_INTEGER(pop())->value;
+    long a = AS_INTEGER(pop())->value;
 
-    push(INTEGER_VAL(a + b));
+    push(OBJECT_VAL(create_integer(a + b)));
     return;
   }
 
   if(IS_REAL(peek(0)) && IS_REAL(peek(1)))
   {
-    double b = AS_REAL(pop());
-    double a = AS_REAL(pop());
+    double b = AS_REAL(pop())->value;
+    double a = AS_REAL(pop())->value;
 
-    push(REAL_VAL(a + b));
+    push(OBJECT_VAL(create_real(a + b)));
     return;
   }
 
   if(IS_INTEGER(peek(0)) && IS_REAL(peek(1)))
   {
-    double b = (double)AS_INTEGER(pop());
-    double a = AS_REAL(pop());
+    double b = (double)AS_INTEGER(pop())->value;
+    double a = AS_REAL(pop())->value;
 
-    push(REAL_VAL(a + b));
+    push(OBJECT_VAL(create_real(a + b)));
     return;
   }
 
   if(IS_REAL(peek(0)) && IS_INTEGER(peek(1)))
   {
-    double b = AS_REAL(pop());
-    double a = (double)AS_INTEGER(pop());
+    double b = AS_REAL(pop())->value;
+    double a = (double)AS_INTEGER(pop())->value;
 
-    push(REAL_VAL(a + b));
+    push(OBJECT_VAL(create_real(a + b)));
     return;
   }
 }
@@ -565,37 +565,37 @@ static void do_subtraction()
 {
   if(IS_INTEGER(peek(0)) && IS_INTEGER(peek(1)))
   {
-    long b = AS_INTEGER(pop());
-    long a = AS_INTEGER(pop());
+    long b = AS_INTEGER(pop())->value;
+    long a = AS_INTEGER(pop())->value;
 
-    push(INTEGER_VAL(a - b));
+    push(OBJECT_VAL(create_integer(a - b)));
     return;
   }
 
   if(IS_REAL(peek(0)) && IS_REAL(peek(1)))
   {
-    double b = AS_REAL(pop());
-    double a = AS_REAL(pop());
+    double b = AS_REAL(pop())->value;
+    double a = AS_REAL(pop())->value;
 
-    push(REAL_VAL(a - b));
+    push(OBJECT_VAL(create_real(a - b)));
     return;
   }
 
   if(IS_INTEGER(peek(0)) && IS_REAL(peek(1)))
   {
-    double b = (double)AS_INTEGER(pop());
-    double a = AS_REAL(pop());
+    double b = (double)AS_INTEGER(pop())->value;
+    double a = AS_REAL(pop())->value;
 
-    push(REAL_VAL(a - b));
+    push(OBJECT_VAL(create_real(a - b)));
     return;
   }
 
   if(IS_REAL(peek(0)) && IS_INTEGER(peek(1)))
   {
-    double b = AS_REAL(pop());
-    double a = (double)AS_INTEGER(pop());
+    double b = AS_REAL(pop())->value;
+    double a = (double)AS_INTEGER(pop())->value;
 
-    push(REAL_VAL(a - b));
+    push(OBJECT_VAL(create_real(a - b)));
     return;
   }
 }
@@ -609,37 +609,37 @@ static void do_multiplication()
 {
   if(IS_INTEGER(peek(0)) && IS_INTEGER(peek(1)))
   {
-    long b = AS_INTEGER(pop());
-    long a = AS_INTEGER(pop());
+    long b = AS_INTEGER(pop())->value;
+    long a = AS_INTEGER(pop())->value;
 
-    push(INTEGER_VAL(a * b));
+    push(OBJECT_VAL(create_integer(a * b)));
     return;
   }
 
   if(IS_REAL(peek(0)) && IS_REAL(peek(1)))
   {
-    double b = AS_REAL(pop());
-    double a = AS_REAL(pop());
+    double b = AS_REAL(pop())->value;
+    double a = AS_REAL(pop())->value;
 
-    push(REAL_VAL(a * b));
+    push(OBJECT_VAL(create_real(a * b)));
     return;
   }
 
   if(IS_INTEGER(peek(0)) && IS_REAL(peek(1)))
   {
-    double b = (double)AS_INTEGER(pop());
-    double a = AS_REAL(pop());
+    double b = (double)AS_INTEGER(pop())->value;
+    double a = AS_REAL(pop())->value;
 
-    push(REAL_VAL(a * b));
+    push(OBJECT_VAL(create_real(a * b)));
     return;
   }
 
   if(IS_REAL(peek(0)) && IS_INTEGER(peek(1)))
   {
-    double b = AS_REAL(pop());
-    double a = (double)AS_INTEGER(pop());
+    double b = AS_REAL(pop())->value;
+    double a = (double)AS_INTEGER(pop())->value;
 
-    push(REAL_VAL(a * b));
+    push(OBJECT_VAL(create_real(a * b)));
     return;
   }
 }
@@ -653,37 +653,37 @@ static void do_division()
 {
   if(IS_INTEGER(peek(0)) && IS_INTEGER(peek(1)))
   {
-    long b = AS_INTEGER(pop());
-    long a = AS_INTEGER(pop());
+    long b = AS_INTEGER(pop())->value;
+    long a = AS_INTEGER(pop())->value;
 
-    push(INTEGER_VAL(a / b));
+    push(OBJECT_VAL(create_integer(a / b)));
     return;
   }
 
   if(IS_REAL(peek(0)) && IS_REAL(peek(1)))
   {
-    double b = AS_REAL(pop());
-    double a = AS_REAL(pop());
+    double b = AS_REAL(pop())->value;
+    double a = AS_REAL(pop())->value;
 
-    push(REAL_VAL(a / b));
+    push(OBJECT_VAL(create_real(a / b)));
     return;
   }
 
   if(IS_INTEGER(peek(0)) && IS_REAL(peek(1)))
   {
-    double b = (double)AS_INTEGER(pop());
-    double a = AS_REAL(pop());
+    double b = (double)AS_INTEGER(pop())->value;
+    double a = AS_REAL(pop())->value;
 
-    push(REAL_VAL(a / b));
+    push(OBJECT_VAL(create_real(a / b)));
     return;
   }
 
   if(IS_REAL(peek(0)) && IS_INTEGER(peek(1)))
   {
-    double b = AS_REAL(pop());
-    double a = (double)AS_INTEGER(pop());
+    double b = AS_REAL(pop())->value;
+    double a = (double)AS_INTEGER(pop())->value;
 
-    push(REAL_VAL(a / b));
+    push(OBJECT_VAL(create_real(a / b)));
     return;
   }
 }
@@ -694,10 +694,10 @@ static void do_division()
  */
 static void do_modulo()
 {
-  long b = AS_INTEGER(pop());
-  long a = AS_INTEGER(pop());
+  long b = AS_INTEGER(pop())->value;
+  long a = AS_INTEGER(pop())->value;
 
-  push(INTEGER_VAL(a % b));
+  push(OBJECT_VAL(create_integer(a % b)));
 }
 
 /** @brief Perform the exponentiation operation.
@@ -708,37 +708,37 @@ static void do_power()
 {
   if(IS_INTEGER(peek(0)) && IS_INTEGER(peek(1)))
   {
-    double b = (double)AS_INTEGER(pop());
-    double a = (double)AS_INTEGER(pop());
+    double b = (double)AS_INTEGER(pop())->value;
+    double a = (double)AS_INTEGER(pop())->value;
 
-    push(REAL_VAL(pow(a, b)));
+    push(OBJECT_VAL(create_integer(pow(a, b))));
     return;
   }
 
   if(IS_REAL(peek(0)) && IS_REAL(peek(1)))
   {
-    double b = AS_REAL(pop());
-    double a = AS_REAL(pop());
+    double b = AS_REAL(pop())->value;
+    double a = AS_REAL(pop())->value;
 
-    push(REAL_VAL(pow(a, b)));
+    push(OBJECT_VAL(create_real(pow(a, b))));
     return;
   }
 
   if(IS_INTEGER(peek(0)) && IS_REAL(peek(1)))
   {
-    double b = (double)AS_INTEGER(pop());
-    double a = AS_REAL(pop());
+    double b = (double)AS_INTEGER(pop())->value;
+    double a = AS_REAL(pop())->value;
 
-    push(REAL_VAL(pow(a, b)));
+    push(OBJECT_VAL(create_real(pow(a, b))));
     return;
   }
 
   if(IS_REAL(peek(0)) && IS_INTEGER(peek(1)))
   {
-    double b = AS_REAL(pop());
-    double a = (double)AS_INTEGER(pop());
+    double b = AS_REAL(pop())->value;
+    double a = (double)AS_INTEGER(pop())->value;
 
-    push(REAL_VAL(pow(a, b)));
+    push(OBJECT_VAL(create_real(pow(a, b))));
     return;
   }
 }
@@ -750,13 +750,13 @@ static void do_power()
 static void do_negate()
 {
   Value v = pop();
-  switch(v.type)
+  switch(AS_OBJECT(v)->type)
   {
-    case CUBE_INTEGER:
-      push(INTEGER_VAL(-AS_INTEGER(v)));
+    case OBJ_INTEGER:
+      push(OBJECT_VAL(create_integer(-AS_INTEGER(v)->value)));
       break;
-    case CUBE_REAL:
-      push(REAL_VAL(-AS_REAL(v)));
+    case OBJ_REAL:
+      push(OBJECT_VAL(create_real(-AS_REAL(v)->value)));
       break;
     default:
       break;

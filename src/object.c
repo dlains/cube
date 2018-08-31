@@ -81,6 +81,11 @@ void free_object(Object *object)
       FREE(ObjectInteger, object);
       break;
     }
+    case OBJ_REAL:
+    {
+      FREE(ObjectReal, object);
+      break;
+    }
     case OBJ_STRING:
     {
       ObjectString *string = (ObjectString*)object;
@@ -133,6 +138,21 @@ ObjectInteger *create_integer(long value)
   integer->value         = value;
 
   return integer;
+}
+
+/** @brief Create a Real object.
+ *
+ * Create a new ObjectReal value.
+ *
+ * @param value The double value to convert.
+ * @return The newly crated ObjectReal.
+ */
+ObjectReal *create_real(double value)
+{
+  ObjectReal *real = ALLOCATE_OBJECT(ObjectReal, OBJ_REAL);
+  real->value      = value;
+
+  return real;
 }
 
 /** @brief Allocate an object of ObjectType string.

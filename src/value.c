@@ -30,8 +30,6 @@ bool values_equal(Value a, Value b)
 
   switch(a.type)
   {
-    case CUBE_REAL:
-      return AS_REAL(a) == AS_REAL(b);
     case CUBE_OBJECT:
     {
       if(OBJ_TYPE(a) != OBJ_TYPE(b))
@@ -55,6 +53,12 @@ bool values_equal(Value a, Value b)
           ObjectInteger* aInt = AS_INTEGER(a);
           ObjectInteger* bInt = AS_INTEGER(b);
           return aInt->value == bInt->value;
+        }
+        case OBJ_REAL:
+        {
+          ObjectReal* aReal = AS_REAL(a);
+          ObjectReal* bReal = AS_REAL(b);
+          return aReal->value == bReal->value;
         }
         case OBJ_STRING:
         {
@@ -96,6 +100,12 @@ void print_object(Value value)
       printf("%ld", i->value);
       break;
     }
+    case OBJ_REAL:
+    {
+      ObjectReal* r = AS_REAL(value);
+      printf("%g", r->value);
+      break;
+    }
     case OBJ_STRING:
       printf("\"%s\"", AS_CSTRING(value));
       break;
@@ -115,9 +125,6 @@ void print_value(Value value)
 {
   switch(value.type)
   {
-    case CUBE_REAL:
-      printf("%g", AS_REAL(value));
-      break;
     case CUBE_OBJECT:
       print_object(value);
       break;
