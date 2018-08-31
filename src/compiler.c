@@ -471,7 +471,7 @@ static void integer()
 static void real()
 {
   double value = strtod(parser.previous.lexeme, NULL);
-  emit_constant(REAL_VAL(value));
+  emit_constant(OBJECT_VAL(create_real(value)));
 }
 
 /** @brief Parse a string object.

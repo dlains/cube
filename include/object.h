@@ -17,6 +17,7 @@ typedef struct object Object;
 typedef struct object_boolean ObjectBoolean;
 typedef struct object_nil ObjectNil;
 typedef struct object_integer ObjectInteger;
+typedef struct object_real ObjectReal;
 typedef struct object_string ObjectString;
 
 /** Retrieve the ObjectType from the given object. */
@@ -31,6 +32,12 @@ typedef struct object_string ObjectString;
 /** Check if the given Value is an object with OBJ_INTEGER type. */
 #define IS_INTEGER(value)     is_object_type(value, OBJ_INTEGER)
 
+/** Check if the given object is a Real object. */
+#define IS_REAL(value)        is_object_type(value, OBJ_REAL)
+
+/** Check if the given object is a Real or Integer object. */
+#define IS_NUMBER(value)      (is_object_type(value, OBJ_INTEGER) || is_object_type(value, OBJ_REAL))
+
 /** Check if the given Value is an object with OBJ_STRING type. */
 #define IS_STRING(value)      is_object_type(value, OBJ_STRING)
 
@@ -43,6 +50,9 @@ typedef struct object_string ObjectString;
 /** Get the Value as a ObjectInteger pointer. */
 #define AS_INTEGER(value)     ((ObjectInteger*)AS_OBJECT(value))
 
+/** Get the Value as a ObjectReal pointer. */
+#define AS_REAL(value)        ((ObjectReal*)AS_OBJECT(value))
+
 /** Get the Value as a ObjectString pointer. */
 #define AS_STRING(value)      ((ObjectString*)AS_OBJECT(value))
 
@@ -54,6 +64,7 @@ typedef enum {
   OBJ_BOOLEAN,     /**< The Boolean ObjectType. */
   OBJ_NIL,         /**< The Nil ObjectType. */
   OBJ_INTEGER,     /**< The Integer ObjectType. */
+  OBJ_REAL,        /**< The Real ObjectType. */
   OBJ_STRING,      /**< The String ObjectType. */
 } ObjectType;
 
@@ -79,6 +90,12 @@ struct object_nil {
 struct object_integer {
   Object object;            /**< The actual object pointer. */
   long value;               /**< The long int value. */
+};
+
+/** Define the object_real structure. */
+struct object_real {
+  Object object;            /**< The actual object pointer. */
+  double value;             /**< The double floating point value. */
 };
 
 /** Define the object_string structure. */
@@ -121,6 +138,15 @@ ObjectNil *create_nil(void);
  * @return The newly created ObjectInteger.
  */
 ObjectInteger *create_integer(long value);
+
+/** @brief Create a Real object.
+ *
+ * Create a new ObjectReal value.
+ *
+ * @param value The double value to convert.
+ * @return The newly crated ObjectReal.
+ */
+ObjectReal *create_real(double value);
 
 /** @brief Take a string and turn it into a ObjectString.
  *
