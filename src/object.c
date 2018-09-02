@@ -202,3 +202,48 @@ ObjectString *copy_string(const char *chars, int length)
 
   return allocate_string(result, length);
 }
+
+/** @brief Initialize a new object array.
+ *
+ * Allocate space for the initial object array structure.
+ *
+ * @param array The ObjectArray structure to initialize.
+ */
+void init_object_array(ObjectArray *array)
+{
+  array->capacity = 0;
+  array->count = 0;
+  array->objects = NULL;
+}
+
+/** @brief Free the memory for the given ObjectArray.
+ *
+ * Release the memory used for the given ObjectArray.
+ *
+ * @param array The ObjectArray to free.
+ */
+void free_object_array(ObjectArray *array)
+{
+  FREE_ARRAY(Object, array->objects, array->capacity);
+  init_object_array(array);
+}
+
+/** @brief Write a new object to the array.
+ *
+ * Add a new object to the given array.
+ *
+ * @param array The ObjectArray to add the object to.
+ * @param value The object to add.
+ */
+void write_object_array(ObjectArray *array, Object *object)
+{
+  if(array->capacity < array->count + 1)
+  {
+    int old_size    = array->capacity;
+    array->capacity = GROW_CAPACITY(old_size);
+    array->objects  = GROW_ARRAY(array->objects, Object, old_size, array->capacity);
+  }
+
+  array->objects[array->count] = *object;
+  array->count++;
+}

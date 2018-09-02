@@ -181,4 +181,40 @@ static inline bool is_object_type(Value value, ObjectType type)
   return IS_OBJECT(value) && AS_OBJECT(value)->type == type;
 }
 
+/** @struct ObjectArray
+ *
+ * A dynamic array to store objects found in the
+ * source code.
+ */
+typedef struct {
+  int capacity;
+  int count;
+  Object *objects;
+} ObjectArray;
+
+/** @brief Initialize a new object array.
+ *
+ * Allocate space for the initial object array structure.
+ *
+ * @param array The ObjectArray structure to initialize.
+ */
+void init_object_array(ObjectArray *array);
+
+/** @brief Free the memory for the given ObjectArray.
+ *
+ * Release the memory used for the given ObjectArray.
+ *
+ * @param array The ObjectArray to free.
+ */
+void free_object_array(ObjectArray *array);
+
+/** @brief Write a new object to the array.
+ *
+ * Add a new object to the given array.
+ *
+ * @param array The ObjectArray to add the value to.
+ * @param value The object to add.
+ */
+void write_object_array(ObjectArray *array, Object *object);
+
 #endif // OBJECT_H
