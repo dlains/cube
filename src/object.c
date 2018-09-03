@@ -241,9 +241,9 @@ void write_object_array(ObjectArray *array, Object *object)
   {
     int old_size    = array->capacity;
     array->capacity = GROW_CAPACITY(old_size);
-    array->objects  = GROW_ARRAY(array->objects, Object, old_size, array->capacity);
+    array->objects  = GROW_ARRAY(array->objects, Object*, old_size, array->capacity);
   }
 
-  array->objects[array->count] = *object;
+  array->objects[array->count] = object;
   array->count++;
 }

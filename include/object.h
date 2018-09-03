@@ -189,7 +189,7 @@ static inline bool is_object_type(Value value, ObjectType type)
 typedef struct {
   int capacity;
   int count;
-  Object *objects;
+  Object **objects;
 } ObjectArray;
 
 /** @brief Initialize a new object array.
