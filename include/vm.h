@@ -27,7 +27,7 @@ typedef struct
   Byte *ip;                   /**< The instruction pointer. This is the next operation to perform. */
   Options options;            /**< The command line options. */
   Object *stack[STACK_MAX];   /**< The value stack to hold intermediate results during processing. */
-  Object *stack_top;          /**< Pointer to the top of the value stack. */
+  Object **stack_top;         /**< Pointer to the top of the object stack. */
   Object *objects;            /**< Linked list of objects. */
 } VM;
 
