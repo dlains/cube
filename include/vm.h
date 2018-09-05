@@ -12,7 +12,7 @@
 #define VM_H
 
 #include "chunk.h"
-#include "value.h"
+#include "object.h"
 #include "options.h"
 
 #define STACK_MAX 256
@@ -26,8 +26,8 @@ typedef struct
   Chunk *chunk;               /**< Pointer to the Chunk array of compiled code. */
   Byte *ip;                   /**< The instruction pointer. This is the next operation to perform. */
   Options options;            /**< The command line options. */
-  Value stack[STACK_MAX];     /**< The value stack to hold intermediate results during processing. */
-  Value *stack_top;           /**< Pointer to the top of the value stack. */
+  Object *stack[STACK_MAX];   /**< The value stack to hold intermediate results during processing. */
+  Object *stack_top;          /**< Pointer to the top of the value stack. */
   Object *objects;            /**< Linked list of objects. */
 } VM;
 
@@ -69,20 +69,20 @@ void vm_free();
  */
 InterpretResult interpret();
 
-/** @brief Push a value onto the stack.
+/** @brief Push an object onto the stack.
  *
- * Places a value at the top of the runtime stack.
+ * Places an object at the top of the runtime stack.
  *
- * @param value The value to put on the stack.
+ * @param object The object to put on the stack.
  */
-void push(Value value);
+void push(Object *object);
 
-/** @brief Remove a value from the stack.
+/** @brief Remove an object from the stack.
  *
- * Removes and returns the top value from the runtime stack.
+ * Removes and returns the top object from the runtime stack.
  *
- * @return The top Value from the stack.
+ * @return The top Object from the stack.
  */
-Value pop();
+Object *pop();
 
 #endif // VM_H

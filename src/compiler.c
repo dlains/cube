@@ -7,9 +7,10 @@
  */
 #include "config.h"
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include "common.h"
-#include "string.h"
+#include "object.h"
 #include "compiler.h"
 #include "scanner.h"
 
@@ -183,22 +184,22 @@ static void emit_bytes(Byte byte1, Byte byte2);
  */
 static void end_compiler();
 
-/** @brief Emit a number constant operation.
+/** @brief Emit an object constant operation.
  *
- * Add the byte codes to access a number constant to the Chunk arra.
+ * Add the byte codes to access an object to the Chunk array.
  *
- * @param value The number value to reference.
+ * @param object The object constant to reference. 
  */
-static void emit_constant(Value value);
+static void emit_constant(Object *object);
 
-/** @brief Make a constant.
+/** @brief Make a new object.
  *
- * Add a constant to the list of constants in the Chunk.
+ * Add an object to the list of constants in the Chunk.
  *
- * @param value The constant value to make.
- * @return The index to the constant in the Chunk.
+ * @param object The object to make.
+ * @return The index to the object in the Chunk.
  */
-static Byte make_constant(Value value);
+static Byte make_constant(Object *object);
 
 /** @brief Emit a return byte code.
  *
@@ -441,13 +442,13 @@ static void literal()
   switch(parser.previous.type)
   {
     case TOKEN_FALSE:
-      emit_constant(OBJECT_VAL(create_boolean(false)));
+      emit_constant(AS_OBJECT(create_boolean(false)));
       break;
     case TOKEN_NIL:
-      emit_constant(OBJECT_VAL(create_nil()));
+      emit_constant(AS_OBJECT(create_nil()));
       break;
     case TOKEN_TRUE:
-      emit_constant(OBJECT_VAL(create_boolean(true)));
+      emit_constant(AS_OBJECT(create_boolean(true)));
       break;
     default:
       return;
@@ -461,7 +462,7 @@ static void literal()
 static void integer()
 {
   long value = strtol(parser.previous.lexeme, NULL, 10);
-  emit_constant(OBJECT_VAL(create_integer(value)));
+  emit_constant(AS_OBJECT(create_integer(value)));
 }
 
 /** @brief Parse an real number.
@@ -471,7 +472,7 @@ static void integer()
 static void real()
 {
   double value = strtod(parser.previous.lexeme, NULL);
-  emit_constant(OBJECT_VAL(create_real(value)));
+  emit_constant(AS_OBJECT(create_real(value)));
 }
 
 /** @brief Parse a string object.
@@ -480,7 +481,7 @@ static void real()
  */
 static void string()
 {
-  emit_constant(OBJECT_VAL(copy_string(parser.previous.lexeme + 1, strlen(parser.previous.lexeme) - 2)));
+  emit_constant(AS_OBJECT(copy_string(parser.previous.lexeme + 1, strlen(parser.previous.lexeme) - 2)));
 }
 
 /** @brief Parse a grouped expression.
@@ -587,27 +588,27 @@ static void end_compiler()
   emit_return();
 }
 
-/** @brief Emit a number constant operation.
+/** @brief Emit an object constant operation.
  *
- * Add the byte codes to access a number constant to the Chunk arra.
+ * Add the byte codes to access an object to the Chunk array.
  *
- * @param value The number value to reference.
+ * @param object The object constant to reference. 
  */
-static void emit_constant(Value value)
+static void emit_constant(Object *object)
 {
-  emit_bytes(OP_CONSTANT, make_constant(value));
+  emit_bytes(OP_CONSTANT, make_constant(object));
 }
 
-/** @brief Make a constant.
+/** @brief Make a new object.
  *
- * Add a constant to the list of constants in the Chunk.
+ * Add an object to the list of constants in the Chunk.
  *
- * @param value The constant value to make.
- * @return The index to the constant in the Chunk.
+ * @param object The object to make.
+ * @return The index to the object in the Chunk.
  */
-static Byte make_constant(Value value)
+static Byte make_constant(Object *object)
 {
-  int index = add_constant(current_chunk(), value);
+  int index = add_constant(current_chunk(), object);
   if(index > UINT8_MAX)
   {
     error(&parser.previous, "Too many constants in one chunk.");

@@ -12,7 +12,7 @@
 #define CHUNK_H
 
 #include "common.h"
-#include "value.h"
+#include "object.h"
 
 /** @enum OpCode
  * An enumeration of the operation codes supported by Cube.
@@ -43,7 +43,7 @@ typedef struct {
   int capacity;
   Byte *code;
   int *lines;
-  ValueArray constants;
+  ObjectArray constants;
 } Chunk;
 
 /** @brief Initialize a new Chunk dynamic array.
@@ -73,13 +73,13 @@ void free_chunk(Chunk *chunk);
  */
 void write_chunk(Chunk *chunk, Byte byte, int line);
 
-/** @brief Add a new constant value to the Value array.
+/** @brief Add a new Object to the ObjectArray.
  *
- * Adds a constant value to the Value array maintained in the Chunk array.
+ * Adds an object to the ObjectArray maintained in the Chunk array.
  *
- * @param chunk The Chunk array to add the value to.
- * @param value The new constant value to store.
+ * @param chunk The Chunk array to add the object to.
+ * @param object The new object to store.
  */
-int add_constant(Chunk *chunk, Value value);
+int add_constant(Chunk *chunk, Object *object);
 
 #endif // CHUNK_H

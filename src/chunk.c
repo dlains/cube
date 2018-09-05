@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include "chunk.h"
 #include "memory.h"
-#include "value.h"
+#include "object.h"
 
 /** @brief Initialize a new Chunk dynamic array.
  *
@@ -23,7 +23,7 @@ void init_chunk(Chunk *chunk)
   chunk->capacity = 0;
   chunk->code = NULL;
   chunk->lines = NULL;
-  init_value_array(&chunk->constants);
+  init_object_array(&chunk->constants);
 }
 
 /** @brief Free a Chunk dynamic array.
@@ -36,7 +36,7 @@ void free_chunk(Chunk *chunk)
 {
   FREE_ARRAY(Byte, chunk->code, chunk->capacity);
   FREE_ARRAY(int, chunk->lines, chunk->capacity);
-  free_value_array(&chunk->constants);
+  free_object_array(&chunk->constants);
   init_chunk(chunk);
 }
 
@@ -64,15 +64,15 @@ void write_chunk(Chunk *chunk, Byte byte, int line)
   chunk->count++;
 }
 
-/** @brief Add a new constant value to the Value array.
+/** @brief Add a new Object to the ObjectArray.
  *
- * Adds a constant value to the Value array maintained in the Chunk array.
+ * Adds an object to the ObjectArray maintained in the Chunk array.
  *
- * @param chunk The Chunk array to add the value to.
- * @param value The new constant value to store.
+ * @param chunk The Chunk array to add the object to.
+ * @param object The new object to store.
  */
-int add_constant(Chunk *chunk, Value value)
+int add_constant(Chunk *chunk, Object *object)
 {
-  write_value_array(&chunk->constants, value);
+  write_object_array(&chunk->constants, object);
   return chunk->constants.count - 1;
 }
