@@ -201,7 +201,7 @@ InterpretResult interpret()
  */
 void push(Object *object)
 {
-  vm.stack_top = object;
+  *vm.stack_top = object;
   vm.stack_top++;
 }
 
@@ -214,7 +214,7 @@ void push(Object *object)
 Object *pop()
 {
   vm.stack_top--;
-  return vm.stack_top;
+  return *vm.stack_top;
 }
 
 /** @brief Peek at an object in the stack.
@@ -227,7 +227,7 @@ Object *pop()
  */
 static Object *peek(int distance)
 {
-  return &vm.stack_top[-1 - distance];
+  return vm.stack_top[-1 - distance];
 }
 
 /** @brief Release the linked list of objects from the VM.
@@ -399,7 +399,7 @@ static InterpretResult run()
  */
 static void reset_stack()
 {
-  vm.stack_top = vm.stack[0];
+  vm.stack_top = vm.stack;
 }
 
 /** @brief Display a runtime error message to stderr.
