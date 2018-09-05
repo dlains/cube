@@ -11,7 +11,7 @@
 #include "config.h"
 #include <stdio.h>
 #include "debug.h"
-#include "value.h"
+#include "object.h"
 
 // Function declarations.
 static int simple_instruction(const char *name, int offset);
@@ -122,7 +122,7 @@ static int constant_instruction(const char *name, Chunk *chunk, int offset)
 {
   uint8_t constant = chunk->code[offset + 1];
   printf("%-16s %4d '", name, constant);
-  print_value(chunk->constants.values[constant]);
+  print_object(chunk->constants.objects[constant]);
   printf("'\n");
   return offset + 2;
 }

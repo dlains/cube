@@ -6,11 +6,11 @@
  * @bug No known bugs.
  */
 #include "config.h"
+#include <stdio.h>
 #include <string.h>
 
 #include "memory.h"
 #include "object.h"
-#include "value.h"
 #include "vm.h"
 
 /** @brief Allocate an object of ObjectType type.
@@ -201,6 +201,95 @@ ObjectString *copy_string(const char *chars, int length)
   result[length] = '\0';
 
   return allocate_string(result, length);
+}
+
+/** @brief Check if Objects are equivalent.
+ *
+ * Check if the passed in objects are equivalent.
+ *
+ * @param a The first Object to check.
+ * @param b The second Object to check.
+ * @return True if the underlying objects are equivalent, false otherwise.
+ */
+bool objects_equal(Object *a, Object *b)
+{
+  if(OBJ_TYPE(a) != OBJ_TYPE(b))
+    return false;
+
+  switch(OBJ_TYPE(a))
+  {
+    case OBJ_BOOLEAN:
+    {
+      ObjectBoolean* aBool = AS_BOOLEAN(a);
+      ObjectBoolean* bBool = AS_BOOLEAN(b);
+      return aBool->value == bBool->value;
+    }
+    case OBJ_NIL:
+    {
+      // Both object have already been establised to be nil, and nil always equals nil.
+      return true;
+    }
+    case OBJ_INTEGER:
+    {
+      ObjectInteger* aInt = AS_INTEGER(a);
+      ObjectInteger* bInt = AS_INTEGER(b);
+      return aInt->value == bInt->value;
+    }
+    case OBJ_REAL:
+    {
+      ObjectReal* aReal = AS_REAL(a);
+      ObjectReal* bReal = AS_REAL(b);
+      return aReal->value == bReal->value;
+    }
+    case OBJ_STRING:
+    {
+      ObjectString* aString = AS_STRING(a);
+      ObjectString* bString = AS_STRING(b);
+      return aString->length == bString->length && memcmp(aString->chars, bString->chars, aString->length) == 0;
+    }
+    default:
+      return false;
+  }
+}
+
+/** @brief Print the object value to stdout.
+ *
+ * Print the given object to stdout.
+ *
+ * @param value The object value to print.
+ */
+void print_object(Object *object)
+{
+  switch(OBJ_TYPE(object))
+  {
+    case OBJ_BOOLEAN:
+    {
+      ObjectBoolean* b = AS_BOOLEAN(object);
+      printf("%s", b->value ? "true" : "false");
+      break;
+    }
+    case OBJ_NIL:
+      printf("nil");
+      break;
+    case OBJ_INTEGER:
+    {
+      ObjectInteger* i = AS_INTEGER(object);
+      printf("%ld", i->value);
+      break;
+    }
+    case OBJ_REAL:
+    {
+      ObjectReal* r = AS_REAL(object);
+      printf("%g", r->value);
+      break;
+    }
+    case OBJ_STRING:
+      printf("\"%s\"", AS_CSTRING(object));
+      break;
+    default:
+      printf("Unknown object type passed to print_object.");
+      break;
+  }
 }
 
 /** @brief Initialize a new object array.

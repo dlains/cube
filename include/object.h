@@ -11,7 +11,6 @@
 #define OBJECT_H
 
 #include "common.h"
-#include "chunk.h"
 
 typedef struct object Object;
 typedef struct object_boolean ObjectBoolean;
@@ -21,43 +20,46 @@ typedef struct object_real ObjectReal;
 typedef struct object_string ObjectString;
 
 /** Retrieve the ObjectType from the given object. */
-#define OBJ_TYPE(value)       (AS_OBJECT(value)->type)
+#define OBJ_TYPE(object)      (object)->type
+
+/** Cast the concrete object to a bare object. */
+#define AS_OBJECT(object)     ((Object*)object)
 
 /** Check if the given object is a Boolean object. */
-#define IS_BOOLEAN(value)     is_object_type(value, OBJ_BOOLEAN)
+#define IS_BOOLEAN(object)    ((object)->type == OBJ_BOOLEAN)
 
 /** Check if the given object is a Nil object. */
-#define IS_NIL(value)         is_object_type(value, OBJ_NIL)
+#define IS_NIL(object)        ((object)->type == OBJ_NIL)
 
 /** Check if the given Value is an object with OBJ_INTEGER type. */
-#define IS_INTEGER(value)     is_object_type(value, OBJ_INTEGER)
+#define IS_INTEGER(object)    ((object)->type == OBJ_INTEGER)
 
 /** Check if the given object is a Real object. */
-#define IS_REAL(value)        is_object_type(value, OBJ_REAL)
+#define IS_REAL(object)       ((object)->type == OBJ_REAL)
 
 /** Check if the given object is a Real or Integer object. */
-#define IS_NUMBER(value)      (is_object_type(value, OBJ_INTEGER) || is_object_type(value, OBJ_REAL))
+#define IS_NUMBER(object)     (((object)->type == OBJ_INTEGER) || ((object)->type == OBJ_REAL))
 
 /** Check if the given Value is an object with OBJ_STRING type. */
-#define IS_STRING(value)      is_object_type(value, OBJ_STRING)
+#define IS_STRING(object)     ((object)->type == OBJ_STRING)
 
 /** Get the Object as a ObjectBoolean pointer. */
-#define AS_BOOLEAN(value)     ((ObjectBoolean*)AS_OBJECT(value))
+#define AS_BOOLEAN(value)     ((ObjectBoolean*)value)
 
 /** Get the Object as a ObjectNil pointer. */
-#define AS_NIL(value)         ((ObjectNil*)AS_OBJECT(value))
+#define AS_NIL(value)         ((ObjectNil*)value)
 
 /** Get the Value as a ObjectInteger pointer. */
-#define AS_INTEGER(value)     ((ObjectInteger*)AS_OBJECT(value))
+#define AS_INTEGER(value)     ((ObjectInteger*)value)
 
 /** Get the Value as a ObjectReal pointer. */
-#define AS_REAL(value)        ((ObjectReal*)AS_OBJECT(value))
+#define AS_REAL(value)        ((ObjectReal*)value)
 
 /** Get the Value as a ObjectString pointer. */
-#define AS_STRING(value)      ((ObjectString*)AS_OBJECT(value))
+#define AS_STRING(value)      ((ObjectString*)value)
 
 /** Get the Value as a raw C String pointer. */
-#define AS_CSTRING(value)     (((ObjectString*)AS_OBJECT(value))->chars)
+#define AS_CSTRING(value)     (((ObjectString*)value)->chars)
 
 /** Enumerate the different kinds of Objects. */
 typedef enum {
@@ -168,18 +170,23 @@ ObjectString *take_string(char *chars, int length);
  */
 ObjectString *copy_string(const char *chars, int length);
 
-/** @brief Check if the Value is an object with an particular object type.
+/** @brief Check if Objects are equivalent.
  *
- * Do not use this function directly. Instead use the IS_* macros.
+ * Check if the passed in objects are equivalent.
  *
- * @param value The Value to check against.
- * @param type The ObjectType to check for.
- * @return True if the Value is an object and has the specified ObjectType, false otherwise.
+ * @param a The first Object to check.
+ * @param b The second Object to check.
+ * @return True if the underlying Objects are equivalent, false otherwise.
  */
-static inline bool is_object_type(Value value, ObjectType type)
-{
-  return IS_OBJECT(value) && AS_OBJECT(value)->type == type;
-}
+bool objects_equal(Object *a, Object *b);
+
+/** @brief Print the object value to stdout.
+ *
+ * Print the given object to stdout.
+ *
+ * @param value The object value to print.
+ */
+void print_object(Object *object);
 
 /** @struct ObjectArray
  *

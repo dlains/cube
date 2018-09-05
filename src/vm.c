@@ -104,14 +104,14 @@ static void do_power();
  */
 static void do_negate();
 
-/** @brief Check if the value is false.
+/** @brief Check if the object is false.
  *
  * False is defined as NIL or `false`. Everything else is true.
  *
- * @param value The value to check for false-ness.
+ * @param object The object to check for false-ness.
  * @return True if the value is false, otherwise false.
  */
-static bool is_falsey(Value value);
+static bool is_falsey(Object *object);
 
 /** @brief Concatenate two ObjectString objects.
  *
@@ -119,15 +119,15 @@ static bool is_falsey(Value value);
  */
 static void do_concatenate();
 
-/** @brief Peek at a value in the stack.
+/** @brief Peek at an object in the stack.
  *
- * Returns but does not remove a value at distance offset
+ * Returns but does not remove an object at distance offset
  * from the top of the stack.
  *
  * @param distance The distance from the top of the stack to look at.
- * @return The value found in the stack.
+ * @return The object found in the stack.
  */
-static Value peek(int distance);
+static Object *peek(int distance);
 
 /** @brief Release the linked list of objects from the VM.
  *
@@ -193,41 +193,41 @@ InterpretResult interpret()
   return result;
 }
 
-/** @brief Push a value onto the stack.
+/** @brief Push an object onto the stack.
  *
- * Places a value at the top of the runtime stack.
+ * Places an object at the top of the runtime stack.
  *
- * @param value The value to put on the stack.
+ * @param object The object to put on the stack.
  */
-void push(Value value)
+void push(Object *object)
 {
-  *vm.stack_top = value;
+  vm.stack_top = object;
   vm.stack_top++;
 }
 
-/** @brief Remove a value from the stack.
+/** @brief Remove an object from the stack.
  *
- * Removes and returns the top value from the runtime stack.
+ * Removes and returns the top object from the runtime stack.
  *
- * @return The top Value from the stack.
+ * @return The top Object from the stack.
  */
-Value pop()
+Object *pop()
 {
   vm.stack_top--;
-  return *vm.stack_top;
+  return vm.stack_top;
 }
 
-/** @brief Peek at a value in the stack.
+/** @brief Peek at an object in the stack.
  *
- * Returns but does not remove a value at distance offset
+ * Returns but does not remove an object at distance offset
  * from the top of the stack.
  *
  * @param distance The distance from the top of the stack to look at.
- * @return The value found in the stack.
+ * @return The object found in the stack.
  */
-static Value peek(int distance)
+static Object *peek(int distance)
 {
-  return vm.stack_top[-1 - distance];
+  return &vm.stack_top[-1 - distance];
 }
 
 /** @brief Release the linked list of objects from the VM.
@@ -282,7 +282,7 @@ static void free_objects()
 static InterpretResult run()
 {
 #define READ_BYTE() (*vm.ip++)
-#define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
+#define READ_CONSTANT() (vm.chunk->constants.objects[READ_BYTE()])
 
   for(;;)
   {
@@ -291,15 +291,15 @@ static InterpretResult run()
     {
       case OP_CONSTANT:
       {
-        Value constant = READ_CONSTANT();
+        Object *constant = READ_CONSTANT();
         push(constant);
         break;
       }
       case OP_EQUAL:
       {
-        Value b = pop();
-        Value a = pop();
-        push(OBJECT_VAL(create_boolean(values_equal(a, b))));
+        Object *b = pop();
+        Object *a = pop();
+        push(AS_OBJECT(create_boolean(objects_equal(a, b))));
         break;
       }
       case OP_GREATER:
@@ -370,7 +370,7 @@ static InterpretResult run()
       }
       case OP_NOT:
       {
-        push(OBJECT_VAL(create_boolean(is_falsey(pop()))));
+        push(AS_OBJECT(create_boolean(is_falsey(pop()))));
         break;
       }
       case OP_NEGATE:
@@ -382,7 +382,7 @@ static InterpretResult run()
       case OP_RETURN:
       {
         printf("-> ");
-        print_value(pop());
+        print_object(pop());
         printf("\n");
         return INTERPRET_OK;
       }
@@ -399,7 +399,7 @@ static InterpretResult run()
  */
 static void reset_stack()
 {
-  vm.stack_top = vm.stack;
+  vm.stack_top = vm.stack[0];
 }
 
 /** @brief Display a runtime error message to stderr.
@@ -436,7 +436,7 @@ static void do_greater()
     long b = AS_INTEGER(pop())->value;
     long a = AS_INTEGER(pop())->value;
 
-    push(OBJECT_VAL(create_boolean(a > b)));
+    push(AS_OBJECT(create_boolean(a > b)));
     return;
   }
 
@@ -445,7 +445,7 @@ static void do_greater()
     double b = AS_REAL(pop())->value;
     double a = AS_REAL(pop())->value;
 
-    push(OBJECT_VAL(create_boolean(a > b)));
+    push(AS_OBJECT(create_boolean(a > b)));
     return;
   }
 
@@ -454,7 +454,7 @@ static void do_greater()
     double b = (double)AS_INTEGER(pop())->value;
     double a = AS_REAL(pop())->value;
 
-    push(OBJECT_VAL(create_boolean(a > b)));
+    push(AS_OBJECT(create_boolean(a > b)));
     return;
   }
 
@@ -463,7 +463,7 @@ static void do_greater()
     double b = AS_REAL(pop())->value;
     double a = (double)AS_INTEGER(pop())->value;
 
-    push(OBJECT_VAL(create_boolean(a > b)));
+    push(AS_OBJECT(create_boolean(a > b)));
     return;
   }
 }
@@ -480,7 +480,7 @@ static void do_less()
     long b = AS_INTEGER(pop())->value;
     long a = AS_INTEGER(pop())->value;
 
-    push(OBJECT_VAL(create_boolean(a < b)));
+    push(AS_OBJECT(create_boolean(a < b)));
     return;
   }
 
@@ -489,7 +489,7 @@ static void do_less()
     double b = AS_REAL(pop())->value;
     double a = AS_REAL(pop())->value;
 
-    push(OBJECT_VAL(create_boolean(a < b)));
+    push(AS_OBJECT(create_boolean(a < b)));
     return;
   }
 
@@ -498,7 +498,7 @@ static void do_less()
     double b = (double)AS_INTEGER(pop())->value;
     double a = AS_REAL(pop())->value;
 
-    push(OBJECT_VAL(create_boolean(a < b)));
+    push(AS_OBJECT(create_boolean(a < b)));
     return;
   }
 
@@ -507,7 +507,7 @@ static void do_less()
     double b = AS_REAL(pop())->value;
     double a = (double)AS_INTEGER(pop())->value;
 
-    push(OBJECT_VAL(create_boolean(a < b)));
+    push(AS_OBJECT(create_boolean(a < b)));
     return;
   }
 }
@@ -524,7 +524,7 @@ static void do_addition()
     long b = AS_INTEGER(pop())->value;
     long a = AS_INTEGER(pop())->value;
 
-    push(OBJECT_VAL(create_integer(a + b)));
+    push(AS_OBJECT(create_integer(a + b)));
     return;
   }
 
@@ -533,7 +533,7 @@ static void do_addition()
     double b = AS_REAL(pop())->value;
     double a = AS_REAL(pop())->value;
 
-    push(OBJECT_VAL(create_real(a + b)));
+    push(AS_OBJECT(create_real(a + b)));
     return;
   }
 
@@ -542,7 +542,7 @@ static void do_addition()
     double b = (double)AS_INTEGER(pop())->value;
     double a = AS_REAL(pop())->value;
 
-    push(OBJECT_VAL(create_real(a + b)));
+    push(AS_OBJECT(create_real(a + b)));
     return;
   }
 
@@ -551,7 +551,7 @@ static void do_addition()
     double b = AS_REAL(pop())->value;
     double a = (double)AS_INTEGER(pop())->value;
 
-    push(OBJECT_VAL(create_real(a + b)));
+    push(AS_OBJECT(create_real(a + b)));
     return;
   }
 }
@@ -568,7 +568,7 @@ static void do_subtraction()
     long b = AS_INTEGER(pop())->value;
     long a = AS_INTEGER(pop())->value;
 
-    push(OBJECT_VAL(create_integer(a - b)));
+    push(AS_OBJECT(create_integer(a - b)));
     return;
   }
 
@@ -577,7 +577,7 @@ static void do_subtraction()
     double b = AS_REAL(pop())->value;
     double a = AS_REAL(pop())->value;
 
-    push(OBJECT_VAL(create_real(a - b)));
+    push(AS_OBJECT(create_real(a - b)));
     return;
   }
 
@@ -586,7 +586,7 @@ static void do_subtraction()
     double b = (double)AS_INTEGER(pop())->value;
     double a = AS_REAL(pop())->value;
 
-    push(OBJECT_VAL(create_real(a - b)));
+    push(AS_OBJECT(create_real(a - b)));
     return;
   }
 
@@ -595,7 +595,7 @@ static void do_subtraction()
     double b = AS_REAL(pop())->value;
     double a = (double)AS_INTEGER(pop())->value;
 
-    push(OBJECT_VAL(create_real(a - b)));
+    push(AS_OBJECT(create_real(a - b)));
     return;
   }
 }
@@ -612,7 +612,7 @@ static void do_multiplication()
     long b = AS_INTEGER(pop())->value;
     long a = AS_INTEGER(pop())->value;
 
-    push(OBJECT_VAL(create_integer(a * b)));
+    push(AS_OBJECT(create_integer(a * b)));
     return;
   }
 
@@ -621,7 +621,7 @@ static void do_multiplication()
     double b = AS_REAL(pop())->value;
     double a = AS_REAL(pop())->value;
 
-    push(OBJECT_VAL(create_real(a * b)));
+    push(AS_OBJECT(create_real(a * b)));
     return;
   }
 
@@ -630,7 +630,7 @@ static void do_multiplication()
     double b = (double)AS_INTEGER(pop())->value;
     double a = AS_REAL(pop())->value;
 
-    push(OBJECT_VAL(create_real(a * b)));
+    push(AS_OBJECT(create_real(a * b)));
     return;
   }
 
@@ -639,7 +639,7 @@ static void do_multiplication()
     double b = AS_REAL(pop())->value;
     double a = (double)AS_INTEGER(pop())->value;
 
-    push(OBJECT_VAL(create_real(a * b)));
+    push(AS_OBJECT(create_real(a * b)));
     return;
   }
 }
@@ -656,7 +656,7 @@ static void do_division()
     long b = AS_INTEGER(pop())->value;
     long a = AS_INTEGER(pop())->value;
 
-    push(OBJECT_VAL(create_integer(a / b)));
+    push(AS_OBJECT(create_integer(a / b)));
     return;
   }
 
@@ -665,7 +665,7 @@ static void do_division()
     double b = AS_REAL(pop())->value;
     double a = AS_REAL(pop())->value;
 
-    push(OBJECT_VAL(create_real(a / b)));
+    push(AS_OBJECT(create_real(a / b)));
     return;
   }
 
@@ -674,7 +674,7 @@ static void do_division()
     double b = (double)AS_INTEGER(pop())->value;
     double a = AS_REAL(pop())->value;
 
-    push(OBJECT_VAL(create_real(a / b)));
+    push(AS_OBJECT(create_real(a / b)));
     return;
   }
 
@@ -683,7 +683,7 @@ static void do_division()
     double b = AS_REAL(pop())->value;
     double a = (double)AS_INTEGER(pop())->value;
 
-    push(OBJECT_VAL(create_real(a / b)));
+    push(AS_OBJECT(create_real(a / b)));
     return;
   }
 }
@@ -697,7 +697,7 @@ static void do_modulo()
   long b = AS_INTEGER(pop())->value;
   long a = AS_INTEGER(pop())->value;
 
-  push(OBJECT_VAL(create_integer(a % b)));
+  push(AS_OBJECT(create_integer(a % b)));
 }
 
 /** @brief Perform the exponentiation operation.
@@ -711,7 +711,7 @@ static void do_power()
     double b = (double)AS_INTEGER(pop())->value;
     double a = (double)AS_INTEGER(pop())->value;
 
-    push(OBJECT_VAL(create_integer(pow(a, b))));
+    push(AS_OBJECT(create_integer(pow(a, b))));
     return;
   }
 
@@ -720,7 +720,7 @@ static void do_power()
     double b = AS_REAL(pop())->value;
     double a = AS_REAL(pop())->value;
 
-    push(OBJECT_VAL(create_real(pow(a, b))));
+    push(AS_OBJECT(create_real(pow(a, b))));
     return;
   }
 
@@ -729,7 +729,7 @@ static void do_power()
     double b = (double)AS_INTEGER(pop())->value;
     double a = AS_REAL(pop())->value;
 
-    push(OBJECT_VAL(create_real(pow(a, b))));
+    push(AS_OBJECT(create_real(pow(a, b))));
     return;
   }
 
@@ -738,7 +738,7 @@ static void do_power()
     double b = AS_REAL(pop())->value;
     double a = (double)AS_INTEGER(pop())->value;
 
-    push(OBJECT_VAL(create_real(pow(a, b))));
+    push(AS_OBJECT(create_real(pow(a, b))));
     return;
   }
 }
@@ -749,30 +749,30 @@ static void do_power()
  */
 static void do_negate()
 {
-  Value v = pop();
-  switch(AS_OBJECT(v)->type)
+  Object *v = pop();
+  switch(v->type)
   {
     case OBJ_INTEGER:
-      push(OBJECT_VAL(create_integer(-AS_INTEGER(v)->value)));
+      push(AS_OBJECT(create_integer(-AS_INTEGER(v)->value)));
       break;
     case OBJ_REAL:
-      push(OBJECT_VAL(create_real(-AS_REAL(v)->value)));
+      push(AS_OBJECT(create_real(-AS_REAL(v)->value)));
       break;
     default:
       break;
   }
 }
 
-/** @brief Check if the value is false.
+/** @brief Check if the object is false.
  *
  * False is defined as NIL or `false`. Everything else is true.
  *
- * @param value The value to check for false-ness.
- * @return True if the value is false, otherwise false.
+ * @param object The object to check for false-ness.
+ * @return True if the object is false, otherwise false.
  */
-static bool is_falsey(Value value)
+static bool is_falsey(Object *object)
 {
-  return IS_NIL(value) || (IS_BOOLEAN(value) && !AS_BOOLEAN(value));
+  return IS_NIL(object) || (IS_BOOLEAN(object) && !AS_BOOLEAN(object));
 }
 
 /** @brief Concatenate two ObjectString objects.
@@ -791,5 +791,5 @@ static void do_concatenate()
   chars[length] = '\0';
 
   ObjectString *result = take_string(chars, length);
-  push(OBJECT_VAL(result));
+  push(AS_OBJECT(result));
 }
