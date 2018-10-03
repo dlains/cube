@@ -188,6 +188,16 @@ bool objects_equal(Object *a, Object *b);
  */
 void print_object(Object *object);
 
+/** @brief Calculate a hash value for the object
+ *
+ * Determine the type of object and calculate a hash value for it.
+ *
+ * @param object The object to generate the hash for.
+ * @param table_size The current hash table size.
+ * @return The object's hash
+ */
+int object_hash(Object *object, int table_size);
+
 /** @struct ObjectArray
  *
  * A dynamic array to store objects found in the
