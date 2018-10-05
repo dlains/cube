@@ -337,7 +337,7 @@ int object_hash(Object *object, int table_size)
     }
     case OBJ_STRING:
     {
-      ObjectString *s = AS_CSTRING(object);
+      char *s = AS_CSTRING(object);
       return string_hash(s, table_size);
     }
   }
@@ -356,8 +356,8 @@ int object_hash(Object *object, int table_size)
 int string_hash(const char *string, int table_size)
 {
   int hash, a = 31415, b = 27183;
-  for(hash = 0; *s; s++, a = a * b % (table_size - 1))
-    hash = (a * hash + *s) % table_size;
+  for(hash = 0; *string; string++, a = a * b % (table_size - 1))
+    hash = (a * hash + *string) % table_size;
 
   return hash;
 }
