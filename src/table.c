@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "common.h"
 #include "memory.h"
 #include "object.h"
 #include "table.h"
@@ -43,6 +44,8 @@ static void table_resize(Table table);
  */
 void table_init(Table table)
 {
+  assert(table != NULL);
+
   table->count    = 0;
   table->capacity = 0;
   table->entries  = NULL;
@@ -58,6 +61,8 @@ void table_init(Table table)
  */
 void table_free(Table table)
 {
+  assert(table != NULL);
+
   for(int i = 0; i < table->capacity; i++)
   {
     for(Entry e = table->entries[i]; e != NULL; e = e->next)
@@ -80,6 +85,9 @@ void table_free(Table table)
  */
 void table_init_scope(Table table, Table parent)
 {
+  assert(table != NULL);
+  assert(parent != NULL);
+
   table_init(table);
   table->parent = parent;
 }
@@ -94,6 +102,8 @@ void table_init_scope(Table table, Table parent)
  */
 Table table_free_scope(Table table)
 {
+  assert(table != NULL);
+
   Table parent = table->parent;
   table_free(table);
   return parent;
@@ -110,6 +120,9 @@ Table table_free_scope(Table table)
  */
 static Entry table_find_entry(Table table, Object *key)
 {
+  assert(table != NULL);
+  assert(key != NULL);
+
   int hash = object_hash(key, table->capacity);
 
   for(Entry e = table->entries[hash]; e != NULL; e = e->next)
@@ -130,6 +143,8 @@ static Entry table_find_entry(Table table, Object *key)
  */
 static void table_resize(Table table)
 {
+  assert(table != NULL);
+
   int orig_capacity = table->capacity;
   table->capacity = GROW_CAPACITY(table->capacity);
   Entry *entries = ALLOC(Entry, table->capacity);
@@ -169,6 +184,9 @@ static void table_resize(Table table)
  */
 Object *table_search(Table table, Object *key)
 {
+  assert(table != NULL);
+  assert(key != NULL);
+
   if(table->entries == NULL)
   {
     if(table->parent)
@@ -198,6 +216,10 @@ Object *table_search(Table table, Object *key)
  */
 void table_insert(Table table, Object *key, Object *value)
 {
+  assert(table != NULL);
+  assert(key != NULL);
+  assert(value != NULL);
+
   if(table->count + 1 > table->capacity * TABLE_MAX_LOAD)
   {
     table_resize(table);
@@ -234,9 +256,39 @@ void table_insert(Table table, Object *key, Object *value)
  * @param table The symbol table to delete the Entry from.
  * @param key The Object key to find the Entry with.
  */
-//void table_delete(Table table, Object *key)
-//{
-//}
+void table_delete(Table table, Object *key)
+{
+  assert(table != NULL);
+  assert(key != NULL);
+
+  if(table->count == 0)
+    return;
+
+  Entry entry = table_find_entry(table, key);
+  if(entry == NULL)
+    return;
+
+  int hash = object_hash(key, table->capacity);
+  Entry head = table->entries[hash];
+  if(objects_equal(key, head->key))
+  {
+    table->entries[hash] = head->next;
+    table->count--;
+    return;
+  }
+
+  while(head->next != NULL)
+  {
+    if(objects_equal(key, head->next->key))
+    {
+      head->next = head->next->next;
+      table->count--;
+      return;
+    }
+    head = head->next;
+  }
+  return;
+}
 
 /** @brief Merge two symbol tables into a single table.
  *
@@ -245,6 +297,17 @@ void table_insert(Table table, Object *key, Object *value)
  * @param from The symbol table to move entries from.
  * @param to The symbol table to move entries to.
  */
-//void table_merge(Table from, Table to)
-//{
-//}
+void table_merge(Table from, Table to)
+{
+  assert(from != NULL);
+  assert(to != NULL);
+
+  for(int i = 0; i < from->capacity; i++)
+  {
+    for(Entry e = from->entries[i]; e != NULL; e = e->next)
+    {
+      table_insert(to, e->key, e->value);
+    }
+  }
+  table_free(from);
+}
