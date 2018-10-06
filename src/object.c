@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "common.h"
 #include "memory.h"
 #include "object.h"
 #include "vm.h"
@@ -32,7 +33,19 @@ static Object *allocate_object(size_t size, ObjectType type);
  * @param length The length of the C String.
  * @return The newly created ObjectString object.
  */
-static ObjectString *allocate_string(char *chars, int length);
+static ObjectString *allocate_string(String chars, int length);
+
+/** @brief Generate a hash value for a string.
+ *
+ * Three kinds of objects generate a hash with a C string,
+ * OBJ_STRING, OBJ_BOOLEAN, and OBJ_NIL. This function handles
+ * all three cases.
+ *
+ * @param string The C string to hash
+ * @param table_size The current hash table size.
+ * @return The hash of the string.
+ */
+int string_hash(const char *string, int table_size);
 
 /** Helper macro for creating Objects. */
 #define ALLOCATE_OBJECT(type, object_type)\
@@ -88,7 +101,7 @@ void free_object(Object *object)
     }
     case OBJ_STRING:
     {
-      ObjectString *string = (ObjectString*)object;
+      ObjectString *string = AS_STRING(object);
       FREE_ARRAY(char, string->chars, string->length + 1);
       FREE(ObjectString, object);
       break;
@@ -170,6 +183,8 @@ static ObjectString *allocate_string(char *chars, int length)
   string->length       = length;
   string->chars        = chars;
 
+  table_insert(vm.strings, AS_OBJECT(string), AS_OBJECT(string));
+
   return string;
 }
 
@@ -183,6 +198,10 @@ static ObjectString *allocate_string(char *chars, int length)
  */
 ObjectString *take_string(char *chars, int length)
 {
+  Object *interned = table_search_string(vm.strings, chars, length);
+  if(interned != NULL)
+    return AS_STRING(interned);
+
   return allocate_string(chars, length);
 }
 
@@ -196,6 +215,10 @@ ObjectString *take_string(char *chars, int length)
  */
 ObjectString *copy_string(const char *chars, int length)
 {
+  Object *interned = table_search_string(vm.strings, chars, length);
+  if(interned != NULL)
+    return AS_STRING(interned);
+
   char *result = ALLOC(char, length + 1);
   memcpy(result, chars, length);
   result[length] = '\0';
@@ -290,6 +313,64 @@ void print_object(Object *object)
       printf("Unknown object type passed to print_object.");
       break;
   }
+}
+
+/** @brief Calculate a hash value for the object
+ *
+ * Determine the type of object and calculate a hash value for it.
+ *
+ * @param object The object to generate the hash for.
+ * @param table_size The current hash table size.
+ * @return The object's hash
+ */
+int object_hash(Object *object, int table_size)
+{
+  switch(OBJ_TYPE(object))
+  {
+    case OBJ_BOOLEAN:
+    {
+      ObjectBoolean *b = AS_BOOLEAN(object);
+      return string_hash(b->value ? "true" : "false", table_size);
+    }
+    case OBJ_NIL:
+    {
+      return string_hash("nil", table_size);
+    }
+    case OBJ_INTEGER:
+    {
+      ObjectInteger *i = AS_INTEGER(object);
+      return ((16161 * (unsigned)i->value) % table_size);
+    }
+    case OBJ_REAL:
+    {
+      ObjectReal *r = AS_REAL(object);
+      return ((int)(.616161 * (float)r->value) % table_size);
+    }
+    case OBJ_STRING:
+    {
+      char *s = AS_CSTRING(object);
+      return string_hash(s, table_size);
+    }
+  }
+}
+
+/** @brief Generate a hash value for a string.
+ *
+ * Three kinds of objects generate a hash with a C string,
+ * OBJ_STRING, OBJ_BOOLEAN, and OBJ_NIL. This function handles
+ * all three cases.
+ *
+ * @param string The C string to hash
+ * @param table_size The current hash table size.
+ * @return The hash of the string.
+ */
+int string_hash(const char *string, int table_size)
+{
+  int hash, a = 31415, b = 27183;
+  for(hash = 0; *string; string++, a = a * b % (table_size - 1))
+    hash = (a * hash + *string) % table_size;
+
+  return hash;
 }
 
 /** @brief Initialize a new object array.

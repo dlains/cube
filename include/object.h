@@ -188,6 +188,28 @@ bool objects_equal(Object *a, Object *b);
  */
 void print_object(Object *object);
 
+/** @brief Calculate a hash value for the object
+ *
+ * Determine the type of object and calculate a hash value for it.
+ *
+ * @param object The object to generate the hash for.
+ * @param table_size The current hash table size.
+ * @return The object's hash
+ */
+int object_hash(Object *object, int table_size);
+
+/** @brief Generate a hash value for a string.
+ *
+ * Three kinds of objects generate a hash with a C string,
+ * OBJ_STRING, OBJ_BOOLEAN, and OBJ_NIL. This function handles
+ * all three cases.
+ *
+ * @param string The C string to hash
+ * @param table_size The current hash table size.
+ * @return The hash of the string.
+ */
+int string_hash(const char *string, int table_size);
+
 /** @struct ObjectArray
  *
  * A dynamic array to store objects found in the

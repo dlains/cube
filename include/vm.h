@@ -13,6 +13,7 @@
 
 #include "chunk.h"
 #include "object.h"
+#include "table.h"
 #include "options.h"
 
 #define STACK_MAX 256
@@ -26,8 +27,9 @@ typedef struct
   Chunk *chunk;               /**< Pointer to the Chunk array of compiled code. */
   Byte *ip;                   /**< The instruction pointer. This is the next operation to perform. */
   Options options;            /**< The command line options. */
-  Object *stack[STACK_MAX];   /**< The value stack to hold intermediate results during processing. */
+  Object *stack[STACK_MAX];   /**< The object stack to hold intermediate results during processing. */
   Object **stack_top;         /**< Pointer to the top of the object stack. */
+  Table strings;              /**< Interned strings. */
   Object *objects;            /**< Linked list of objects. */
 } VM;
 
