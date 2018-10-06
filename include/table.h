@@ -88,6 +88,17 @@ Table table_free_scope(Table table);
  */
 Object *table_search(Table table, Object *key);
 
+/** @brief Search the symbol table for a C string.
+ *
+ * Search the symbol table for a C string entry.
+ *
+ * @param table The symbol table to search in.
+ * @param string The C String to search for.
+ * @param length The length of the C String..
+ * @return The Object value found for the key, or null if the key is not in the symbol table.
+ */
+Object *table_search_string(Table table, const char *string, int length);
+
 /** @brief Add a new entry to the symbol table.
  *
  * Create a new Entry with the given key and value and insert it

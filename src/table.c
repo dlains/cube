@@ -5,6 +5,7 @@
  * @author David J. Lains (dlains)
  * @bug No known bugs.
  */
+#include "config.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -203,6 +204,36 @@ Object *table_search(Table table, Object *key)
     return table_search(table->parent, key);
   else
     return NULL;
+}
+
+/** @brief Search the symbol table for a C string.
+ *
+ * Search the symbol table for a C string entry.
+ *
+ * @param table The symbol table to search in.
+ * @param string The C String to search for.
+ * @param length The length of the C String..
+ * @return The Object value found for the key, or null if the key is not in the symbol table.
+ */
+Object *table_search_string(Table table, const char *string, int length)
+{
+  assert(table != NULL);
+  assert(string != NULL);
+  assert(length > 0);
+
+  if(table->entries == NULL)
+    return NULL;
+
+  int hash = string_hash(string, table->capacity);
+
+  for(Entry e = table->entries[hash]; e != NULL; e = e->next)
+  {
+    ObjectString *s = AS_STRING(e->key);
+    if(s->length == length && memcmp(s->chars, string, length) == 0)
+      return e->value;
+  }
+
+  return NULL;
 }
 
 /** @brief Add a new entry to the symbol table.

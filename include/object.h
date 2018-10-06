@@ -198,6 +198,18 @@ void print_object(Object *object);
  */
 int object_hash(Object *object, int table_size);
 
+/** @brief Generate a hash value for a string.
+ *
+ * Three kinds of objects generate a hash with a C string,
+ * OBJ_STRING, OBJ_BOOLEAN, and OBJ_NIL. This function handles
+ * all three cases.
+ *
+ * @param string The C string to hash
+ * @param table_size The current hash table size.
+ * @return The hash of the string.
+ */
+int string_hash(const char *string, int table_size);
+
 /** @struct ObjectArray
  *
  * A dynamic array to store objects found in the

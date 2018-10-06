@@ -145,6 +145,8 @@ static void free_objects();
 void vm_init(Options options)
 {
   vm.options = options;
+  vm.strings = ALLOC(struct table, 1);
+  table_init(vm.strings);
   vm.objects = NULL;
   reset_stack();
 }
@@ -155,6 +157,7 @@ void vm_init(Options options)
  */
 void vm_free()
 {
+  table_free(vm.strings);
   free_objects();
 }
 

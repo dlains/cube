@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "common.h"
 #include "memory.h"
 #include "object.h"
 #include "vm.h"
@@ -32,7 +33,7 @@ static Object *allocate_object(size_t size, ObjectType type);
  * @param length The length of the C String.
  * @return The newly created ObjectString object.
  */
-static ObjectString *allocate_string(char *chars, int length);
+static ObjectString *allocate_string(String chars, int length);
 
 /** @brief Generate a hash value for a string.
  *
@@ -100,7 +101,7 @@ void free_object(Object *object)
     }
     case OBJ_STRING:
     {
-      ObjectString *string = (ObjectString*)object;
+      ObjectString *string = AS_STRING(object);
       FREE_ARRAY(char, string->chars, string->length + 1);
       FREE(ObjectString, object);
       break;
@@ -182,6 +183,8 @@ static ObjectString *allocate_string(char *chars, int length)
   string->length       = length;
   string->chars        = chars;
 
+  table_insert(vm.strings, AS_OBJECT(string), AS_OBJECT(string));
+
   return string;
 }
 
@@ -195,6 +198,10 @@ static ObjectString *allocate_string(char *chars, int length)
  */
 ObjectString *take_string(char *chars, int length)
 {
+  Object *interned = table_search_string(vm.strings, chars, length);
+  if(interned != NULL)
+    return AS_STRING(interned);
+
   return allocate_string(chars, length);
 }
 
@@ -208,6 +215,10 @@ ObjectString *take_string(char *chars, int length)
  */
 ObjectString *copy_string(const char *chars, int length)
 {
+  Object *interned = table_search_string(vm.strings, chars, length);
+  if(interned != NULL)
+    return AS_STRING(interned);
+
   char *result = ALLOC(char, length + 1);
   memcpy(result, chars, length);
   result[length] = '\0';
