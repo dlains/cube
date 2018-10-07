@@ -188,7 +188,7 @@ static void end_compiler();
  *
  * Add the byte codes to access an object to the Chunk array.
  *
- * @param object The object constant to reference. 
+ * @param object The object constant to reference.
  */
 static void emit_constant(Object *object);
 
@@ -481,7 +481,7 @@ static void real()
  */
 static void string()
 {
-  emit_constant(AS_OBJECT(copy_string(parser.previous.lexeme + 1, strlen(parser.previous.lexeme) - 2)));
+  emit_constant(AS_OBJECT(copy_string(parser.previous.lexeme, strlen(parser.previous.lexeme))));
 }
 
 /** @brief Parse a grouped expression.
@@ -592,7 +592,7 @@ static void end_compiler()
  *
  * Add the byte codes to access an object to the Chunk array.
  *
- * @param object The object constant to reference. 
+ * @param object The object constant to reference.
  */
 static void emit_constant(Object *object)
 {

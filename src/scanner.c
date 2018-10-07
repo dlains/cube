@@ -201,11 +201,15 @@ static Token make_token(TokenType type)
   switch(type)
   {
     case TOKEN_IDENTIFIER:
-    case TOKEN_STRING:
     case TOKEN_INTEGER:
     case TOKEN_REAL:
     {
       String lexeme = string_copy(start_position(scanner), token_length(scanner));
+      return token_create(type, lexeme, line_number(scanner), col_number(scanner));
+    }
+    case TOKEN_STRING:
+    {
+      String lexeme = string_copy(start_position(scanner) + 1, token_length(scanner) - 2);
       return token_create(type, lexeme, line_number(scanner), col_number(scanner));
     }
     default:
