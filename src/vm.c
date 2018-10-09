@@ -289,6 +289,7 @@ static InterpretResult run()
 {
 #define READ_BYTE() (*vm.ip++)
 #define READ_CONSTANT() (vm.chunk->constants.objects[READ_BYTE()])
+#define READ_STRING() AS_STRING(READ_CONSTANT())
 
   for(;;)
   {
@@ -299,6 +300,36 @@ static InterpretResult run()
       {
         Object *constant = READ_CONSTANT();
         push(constant);
+        break;
+      }
+      case OP_POP:
+      {
+        pop();
+        break;
+      }
+      case OP_GET_GLOBAL:
+      {
+        ObjectString *name = READ_STRING();
+        Object *value = table_search(vm.globals, AS_OBJECT(name));
+        if(value == NULL)
+        {
+          runtime_error("Undefined variable '%s'.", name->chars);
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        push(value);
+        break;
+      }
+      case OP_DEFINE_GLOBAL:
+      {
+        ObjectString *name = READ_STRING();
+        table_insert(vm.globals, AS_OBJECT(name), peek(0));
+        pop();
+        break;
+      }
+      case OP_SET_GLOBAL:
+      {
+        ObjectString *name = READ_STRING();
+        table_insert(vm.globals, AS_OBJECT(name), peek(0));
         break;
       }
       case OP_EQUAL:
@@ -385,11 +416,15 @@ static InterpretResult run()
         do_negate();
         break;
       }
-      case OP_RETURN:
+      case OP_PRINT:
       {
         printf("-> ");
         print_object(pop());
         printf("\n");
+        break;
+      }
+      case OP_RETURN:
+      {
         return INTERPRET_OK;
       }
     }
@@ -397,6 +432,7 @@ static InterpretResult run()
 
 #undef READ_BYTE
 #undef READ_CONSTANT
+#undef READ_STRING
 }
 
 /** @brief Reset the stack.

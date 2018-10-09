@@ -45,7 +45,7 @@ Keyword keywords[] = {
   { TOKEN_TRUE,   749,  "true"   },
   { TOKEN_UNLESS, 7846, "unless" },
   { TOKEN_UNTIL,  1255, "until"  },
-  { TOKEN_VAR     5443, "var"    },
+  { TOKEN_VAR,    5443, "var"    },
   { TOKEN_WHILE,  6530, "while"  },
 };
 

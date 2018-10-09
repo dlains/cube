@@ -353,7 +353,7 @@ bool compile(Chunk *chunk)
   {
     do {
       declaration();
-    } while(!match(TOKEN_EOF));
+    } while(!check(TOKEN_EOF));
   }
 
   end_compiler();
@@ -534,6 +534,9 @@ static bool match(TokenType type)
  */
 static void binary(bool can_assign)
 {
+  // Prevent unused parameter error. Not all ParseFn functions actually use the parameter.
+  (void)can_assign;
+
   TokenType type = parser.previous.type;
 
   // Compile the right operand.
@@ -592,6 +595,9 @@ static void binary(bool can_assign)
  */
 static void literal(bool can_assign)
 {
+  // Prevent unused parameter error. Not all ParseFn functions actually use the parameter.
+  (void)can_assign;
+
   switch(parser.previous.type)
   {
     case TOKEN_FALSE:
@@ -616,6 +622,9 @@ static void literal(bool can_assign)
  */
 static void integer(bool can_assign)
 {
+  // Prevent unused parameter error. Not all ParseFn functions actually use the parameter.
+  (void)can_assign;
+
   long value = strtol(parser.previous.lexeme, NULL, 10);
   emit_constant(AS_OBJECT(create_integer(value)));
 }
@@ -628,6 +637,9 @@ static void integer(bool can_assign)
  */
 static void real(bool can_assign)
 {
+  // Prevent unused parameter error. Not all ParseFn functions actually use the parameter.
+  (void)can_assign;
+
   double value = strtod(parser.previous.lexeme, NULL);
   emit_constant(AS_OBJECT(create_real(value)));
 }
@@ -640,6 +652,9 @@ static void real(bool can_assign)
  */
 static void string(bool can_assign)
 {
+  // Prevent unused parameter error. Not all ParseFn functions actually use the parameter.
+  (void)can_assign;
+
   emit_constant(AS_OBJECT(copy_string(parser.previous.lexeme, strlen(parser.previous.lexeme))));
 }
 
@@ -651,6 +666,9 @@ static void string(bool can_assign)
  */
 static void grouping(bool can_assign)
 {
+  // Prevent unused parameter error. Not all ParseFn functions actually use the parameter.
+  (void)can_assign;
+
   expression();
   consume(TOKEN_RIGHT_PAREN, "Expect ')' after grouped expression.");
 }
@@ -663,6 +681,9 @@ static void grouping(bool can_assign)
  */
 static void unary(bool can_assign)
 {
+  // Prevent unused parameter error. Not all ParseFn functions actually use the parameter.
+  (void)can_assign;
+
   TokenType type = parser.previous.type;
 
   parse_precedence(PREC_UNARY);
