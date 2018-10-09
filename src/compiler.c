@@ -55,7 +55,7 @@ typedef enum {
  * The ParseRule structure holds function pointers of type
  * ParseFn to use for parsing the token input stream.
  */
-typedef void (*ParseFn)();
+typedef void (*ParseFn)(bool can_assign);
 
 /** @struct ParseRule
  *
@@ -98,47 +98,116 @@ static void advance(void);
  */
 static void consume(TokenType type, const char *message);
 
+/** @brief Check the token type.
+ *
+ * Check to see if the current token type matches the supplied token type.
+ *
+ * @param type The TokenType to check for.
+ * @return True if the parsers current token type matches the type, false otherwise.
+ */
+static bool check(TokenType type);
+
+/** @brief Match and advance the parser if the TokenType matches.
+ *
+ * Check the parsers current token type against the supplied token type. If they
+ * match advance to the next token.
+ *
+ * @param type The TokenType to check against.
+ * @return True if the token types match, false otherwise.
+ */
+static bool match(TokenType type);
+
 /** @brief Parse a binary expression.
  *
  * Parse binary expressions and write the byte code to the Chunk array.
  */
-static void binary();
+static void binary(bool can_assign);
 
 /** @brief Parse a literal value such as `true` or `false`.
  *
  * Look for literal values and convert them to the correct OpCode.
+ *
+ * @param can_assign
  */
-static void literal();
+static void literal(bool can_assign);
 
 /** @brief Parse a number as an integer.
  *
  * Parse an integer constant from the source code.
+ *
+ * @param can_assign
  */
-static void integer();
+static void integer(bool can_assign);
 
 /** @brief Parse a number as a real.
  *
  * Parse a real constant from the source code.
+ *
+ * @param can_assign
  */
-static void real();
+static void real(bool can_assign);
 
 /** @brief Parse a string object.
  *
  * Parse a string literal into a ObjectString.
+ *
+ * @param can_assign
  */
-static void string();
+static void string(bool can_assign);
 
 /** @brief Parge a grouped expression.
  *
  * Parse an expression inside parentheses.
+ *
+ * @param can_assign
  */
-static void grouping();
+static void grouping(bool can_assign);
 
 /** @brief Parse a unary negation expression.
  *
  * Parse a prefix negation expression.
+ *
+ * @param can_assign
  */
-static void unary();
+static void unary(bool can_assign);
+
+/** @brief Parse a statement.
+ *
+ * Parse a high level statement.
+ */
+static void statement();
+
+/** @brief Parse a declaration.
+ *
+ * Parse a variable declaration.
+ */
+static void declaration();
+
+/** @brief Parse a variable.
+ *
+ * Parse a variable.
+ *
+ * @param can_assign
+ */
+static void variable(bool can_assign);
+
+/** @brief Parse a variable declaration.
+ *
+ * Parse a variable declaration.
+ */
+static void var_declaration();
+
+/** @brief Parse an expression statement.
+ *
+ * Parse an expression statement.
+ */
+static void expression_statement();
+
+/** @brief Parse a print statement.
+ *
+ * Parse a print statement.
+ */
+static void print_statement();
 
 /** @brief Set the precedence level for parsing.
  *
@@ -147,6 +216,42 @@ static void unary();
  * @param precedence The Precedence level to set.
  */
 static void parse_precedence(Precedence precedence);
+
+/** @brief Parse a variable.
+ *
+ * Parse a variable and create an identifier.
+ *
+ * @param error_message The error message to display if the parse fails.
+ * @return The index of the constant for the identifier.
+ */
+static Byte parse_variable(const char *error_message);
+
+/** @brief Define a variable.
+ *
+ * Define a global variable and emit the necessary op codes.
+ *
+ * @param global The constant index to the global identifier.
+ */
+static void define_variable(Byte global);
+
+/** @brief Compile a reference to a variable.
+ *
+ * Compile a reference to a variable.
+ *
+ * @param name The variable name.
+ * @param can_assign
+ */
+static void named_variable(Token name, bool can_assign);
+
+/** @brief Create a constant for the identifier token.
+ *
+ * Create a constant for the identifier and return the index
+ * to the constant.
+ *
+ * @param token The identifier token to turn into a constant.
+ * @return The constant index for the identifier.
+ */
+static Byte identifier_constant(Token *token);
 
 /*
  * Compiler Functions
@@ -221,6 +326,13 @@ static void emit_return();
  */
 static void error(Token *token, const char *message);
 
+/** @brief Synchronize the compiler after an error.
+ *
+ * Clears out the parser panic mode and moves to the next
+ * viable expression or statement.
+ */
+static void synchronize();
+
 /** @brief Compile the source code available in the scanner.
  *
  * Compile the source code available in the scanner.
@@ -236,7 +348,13 @@ bool compile(Chunk *chunk)
   parser.panic_mode = false;
 
   advance();
-  expression();
+
+  if(!match(TOKEN_EOF))
+  {
+    do {
+      declaration();
+    } while(!match(TOKEN_EOF));
+  }
 
   end_compiler();
   return !parser.had_error;
@@ -284,7 +402,7 @@ ParseRule rules[] = {
   { NULL,     binary,  PREC_COMPARISON }, // TOKEN_GREATER_EQUAL
   { NULL,     binary,  PREC_COMPARISON }, // TOKEN_LESS
   { NULL,     binary,  PREC_COMPARISON }, // TOKEN_LESS_EQUAL
-  { NULL,     NULL,    PREC_NONE },       // TOKEN_IDENTIFIER
+  { variable, NULL,    PREC_NONE },       // TOKEN_IDENTIFIER
   { string,   NULL,    PREC_NONE },       // TOKEN_STRING
   { integer,  NULL,    PREC_NONE },       // TOKEN_INTEGER
   { real,     NULL,    PREC_NONE },       // TOKEN_REAL
@@ -303,12 +421,14 @@ ParseRule rules[] = {
   { literal,  NULL,    PREC_NONE },       // TOKEN_NIL
   { NULL,     NULL,    PREC_NONE },       // TOKEN_RESCUE
   { NULL,     NULL,    PREC_NONE },       // TOKEN_RETURN
+  { NULL,     NULL,    PREC_NONE },       // TOKEN_PRINT
   { NULL,     NULL,    PREC_NONE },       // TOKEN_SUPER
   { NULL,     NULL,    PREC_NONE },       // TOKEN_SWITCH
   { NULL,     NULL,    PREC_NONE },       // TOKEN_THIS
   { literal,  NULL,    PREC_NONE },       // TOKEN_TRUE
   { NULL,     NULL,    PREC_NONE },       // TOKEN_UNLESS
   { NULL,     NULL,    PREC_NONE },       // TOKEN_UNTIL
+  { NULL,     NULL,    PREC_NONE },       // TOKEN_VAR
   { NULL,     NULL,    PREC_NONE },       // TOKEN_WHILE
   { NULL,     NULL,    PREC_NONE },       // TOKEN_ERROR
   { NULL,     NULL,    PREC_NONE },       // TOKEN_EOF
@@ -377,11 +497,42 @@ static void consume(TokenType type, const char *message)
   error(&parser.current, message);
 }
 
+/** @brief Check the token type.
+ *
+ * Check to see if the current token type matches the supplied token type.
+ *
+ * @param type The TokenType to check for.
+ * @return True if the parsers current token type matches the type, false otherwise.
+ */
+static bool check(TokenType type)
+{
+  return parser.current.type == type;
+}
+
+/** @brief Match and advance the parser if the TokenType matches.
+ *
+ * Check the parsers current token type against the supplied token type. If they
+ * match advance to the next token.
+ *
+ * @param type The TokenType to check against.
+ * @return True if the token types match, false otherwise.
+ */
+static bool match(TokenType type)
+{
+  if(!check(type))
+    return false;
+
+  advance();
+  return true;
+}
+
 /** @brief Parse a binary expression.
  *
  * Parse binary expressions and write the byte code to the Chunk array.
+ *
+ * @param can_assign Can the result be assigned to a variable.
  */
-static void binary()
+static void binary(bool can_assign)
 {
   TokenType type = parser.previous.type;
 
@@ -436,8 +587,10 @@ static void binary()
 /** @brief Parse a literal value such as `true` or `false`.
  *
  * Look for literal values and convert them to the correct OpCode.
+ *
+ * @param can_assign
  */
-static void literal()
+static void literal(bool can_assign)
 {
   switch(parser.previous.type)
   {
@@ -458,8 +611,10 @@ static void literal()
 /** @brief Parse an integer number.
  *
  * Parse an integer constant from the source code.
+ *
+ * @param can_assign
  */
-static void integer()
+static void integer(bool can_assign)
 {
   long value = strtol(parser.previous.lexeme, NULL, 10);
   emit_constant(AS_OBJECT(create_integer(value)));
@@ -468,8 +623,10 @@ static void integer()
 /** @brief Parse an real number.
  *
  * Parse a real constant from the source code.
+ *
+ * @param can_assign
  */
-static void real()
+static void real(bool can_assign)
 {
   double value = strtod(parser.previous.lexeme, NULL);
   emit_constant(AS_OBJECT(create_real(value)));
@@ -478,8 +635,10 @@ static void real()
 /** @brief Parse a string object.
  *
  * Parse a string literal into a ObjectString.
+ *
+ * @param can_assign
  */
-static void string()
+static void string(bool can_assign)
 {
   emit_constant(AS_OBJECT(copy_string(parser.previous.lexeme, strlen(parser.previous.lexeme))));
 }
@@ -487,8 +646,10 @@ static void string()
 /** @brief Parse a grouped expression.
  *
  * Parse an expression inside parentheses.
+ *
+ * @param can_assign
  */
-static void grouping()
+static void grouping(bool can_assign)
 {
   expression();
   consume(TOKEN_RIGHT_PAREN, "Expect ')' after grouped expression.");
@@ -497,8 +658,10 @@ static void grouping()
 /** @brief Parse a unary negation expression.
  *
  * Parse a prefix negation expression.
+ *
+ * @param can_assign
  */
-static void unary()
+static void unary(bool can_assign)
 {
   TokenType type = parser.previous.type;
 
@@ -517,6 +680,98 @@ static void unary()
   }
 }
 
+/** @brief Parse a statement.
+ *
+ * Parse a high level statement.
+ */
+static void statement()
+{
+  if(match(TOKEN_PRINT))
+  {
+    print_statement();
+  }
+  else
+  {
+    expression_statement();
+  }
+}
+
+/** @brief Parse a declaration.
+ *
+ * Parse a variable declaration.
+ */
+static void declaration()
+{
+  if(match(TOKEN_VAR))
+  {
+    var_declaration();
+  }
+  else
+  {
+    statement();
+  }
+
+  if(parser.panic_mode)
+    synchronize();
+}
+
+/** @brief Parse a variable.
+ *
+ * Parse a variable.
+ *
+ * @param can_assign
+ */
+static void variable(bool can_assign)
+{
+  named_variable(parser.previous, can_assign);
+}
+
+/** @brief Parse a variable declaration.
+ *
+ * Parse a variable declaration.
+ */
+static void var_declaration()
+{
+  Byte global = parse_variable("Expect variable name.");
+
+  if(match(TOKEN_EQUAL))
+  {
+    // Compile the initializer.
+    expression();
+  }
+  else
+  {
+    // Default to nil.
+    emit_byte(OP_NIL);
+  }
+
+  consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+
+  define_variable(global);
+}
+
+/** @brief Parse an expression statement.
+ *
+ * Parse an expression statement.
+ */
+static void expression_statement()
+{
+  expression();
+  emit_byte(OP_POP);
+  consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
+}
+
+/** @brief Parse a print statement.
+ *
+ * Parse a print statement.
+ */
+static void print_statement()
+{
+  expression();
+  consume(TOKEN_SEMICOLON, "Expect ';' after value.");
+  emit_byte(OP_PRINT);
+}
+
 /** @brief Set the precedence level for parsing.
  *
  * Set the current precedence level to the given precedence.
@@ -533,14 +788,82 @@ static void parse_precedence(Precedence precedence)
     return;
   }
 
-  prefix_rule();
+  bool can_assign = precedence <= PREC_ASSIGNMENT;
+  prefix_rule(can_assign);
 
   while(precedence <= get_rule(parser.current.type)->precedence)
   {
     advance();
     ParseFn infix_rule = get_rule(parser.previous.type)->infix;
-    infix_rule();
+    infix_rule(can_assign);
   }
+
+  if(can_assign && match(TOKEN_EQUAL))
+  {
+    // If we get here, we didn't parse the '=' even though we
+    // could have, so the LHS must not be a valid lvalue.
+    error(&parser.previous, "Invalid assignment target.");
+    expression();
+  }
+}
+
+/** @brief Parse a variable.
+ *
+ * Parse a variable and create an identifier.
+ *
+ * @param error_message The error message to display if the parse fails.
+ * @return The index of the constant for the identifier.
+ */
+static Byte parse_variable(const char *error_message)
+{
+  consume(TOKEN_IDENTIFIER, error_message);
+  return identifier_constant(&parser.previous);
+}
+
+/** @brief Define a variable.
+ *
+ * Define a global variable and emit the necessary op codes.
+ *
+ * @param global The constant index to the global identifier.
+ */
+static void define_variable(Byte global)
+{
+  emit_bytes(OP_DEFINE_GLOBAL, global);
+}
+
+/** @brief Compile a reference to a variable.
+ *
+ * Compile a reference to a variable.
+ *
+ * @param name The variable name.
+ * @param can_assign
+ */
+static void named_variable(Token name, bool can_assign)
+{
+  Byte arg = identifier_constant(&name);
+
+  if(can_assign && match(TOKEN_EQUAL))
+  {
+    expression();
+    emit_bytes(OP_SET_GLOBAL, arg);
+  }
+  else
+  {
+    emit_bytes(OP_GET_GLOBAL, arg);
+  }
+}
+
+/** @brief Create a constant for the identifier token.
+ *
+ * Create a constant for the identifier and return the index
+ * to the constant.
+ *
+ * @param token The identifier token to turn into a constant.
+ * @return The constant index for the identifier.
+ */
+static Byte identifier_constant(Token *token)
+{
+  return make_constant(AS_OBJECT(take_string(token->lexeme, strlen(token->lexeme))));
 }
 
 /** @brief Get the currently compiling Chunk.
@@ -643,4 +966,35 @@ static void error(Token *token, const char *message)
   parser.had_error  = true;
 
   parse_error(token, message);
+}
+
+/** @brief Synchronize the compiler after an error.
+ *
+ * Clears out the parser panic mode and moves to the next
+ * viable expression or statement.
+ */
+static void synchronize()
+{
+  parser.panic_mode = false;
+
+  while(parser.current.type != TOKEN_EOF)
+  {
+    if(parser.previous.type == TOKEN_SEMICOLON)
+      return;
+
+    switch(parser.current.type)
+    {
+      case TOKEN_CLASS:
+      case TOKEN_DEF:
+      case TOKEN_IF:
+      case TOKEN_WHILE:
+      case TOKEN_RETURN:
+        return;
+      default:
+        // Do nothing
+        ;
+    }
+
+    advance();
+  }
 }

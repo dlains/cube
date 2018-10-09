@@ -146,6 +146,8 @@ const char *token_name(TokenType type)
       return "TOKEN_NEXT";
     case TOKEN_NIL:
       return "TOKEN_NIL";
+    case TOKEN_PRINT:
+      return "TOKEN_PRINT";
     case TOKEN_RESCUE:
       return "TOKEN_RESCUE";
     case TOKEN_RETURN:
@@ -162,6 +164,8 @@ const char *token_name(TokenType type)
       return "TOKEN_UNLESS";
     case TOKEN_UNTIL:
       return "TOKEN_UNTIL";
+    case TOKEN_VAR:
+      return "TOKEN_VAR";
     case TOKEN_WHILE:
       return "TOKEN_WHILE";
     case TOKEN_ERROR:

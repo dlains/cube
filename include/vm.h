@@ -29,6 +29,7 @@ typedef struct
   Options options;            /**< The command line options. */
   Object *stack[STACK_MAX];   /**< The object stack to hold intermediate results during processing. */
   Object **stack_top;         /**< Pointer to the top of the object stack. */
+  Table globals;              /**< Global variables. */
   Table strings;              /**< Interned strings. */
   Object *objects;            /**< Linked list of objects. */
 } VM;

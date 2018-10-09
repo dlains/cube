@@ -36,6 +36,7 @@ Keyword keywords[] = {
   { TOKEN_IF,     6130, "if"     },
   { TOKEN_NEXT,   1643, "next"   },
   { TOKEN_NIL,    4493, "nil"    },
+  { TOKEN_PRINT,  7156, "print"  },
   { TOKEN_RESCUE, 7137, "rescue" },
   { TOKEN_RETURN, 2618, "return" },
   { TOKEN_SUPER,  4786, "super"  },
@@ -44,6 +45,7 @@ Keyword keywords[] = {
   { TOKEN_TRUE,   749,  "true"   },
   { TOKEN_UNLESS, 7846, "unless" },
   { TOKEN_UNTIL,  1255, "until"  },
+  { TOKEN_VAR     5443, "var"    },
   { TOKEN_WHILE,  6530, "while"  },
 };
 
@@ -120,16 +122,3 @@ static int verify_keyword(const char *word, int index)
     return keywords[index].token_type;
   return 0;
 }
-
-// Use along with the first test in 'test/test_keywords.c' to show all keyword
-// hash values if new keywords are added. Uncomment this function and the test.
-// Run the test and update keyword_hashes appropriately.
-/*
-void show_keyword_hashes(void)
-{
-  for(int i = 0; i < NUM_KEYWORDS; i++)
-  {
-    printf("Keyword: %s, value: %d\n", keywords[i], hash(keywords[i]));
-  }
-}
-*/

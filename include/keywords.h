@@ -27,7 +27,7 @@
  *
  * @def NUM_KEYWORDS is the number of Cube keywords.
  */
-#define NUM_KEYWORDS 22
+#define NUM_KEYWORDS 24
 
 /** @brief Maximum keyword length.
  *
