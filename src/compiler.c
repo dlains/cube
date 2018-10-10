@@ -884,7 +884,7 @@ static void named_variable(Token name, bool can_assign)
  */
 static Byte identifier_constant(Token *token)
 {
-  return make_constant(AS_OBJECT(take_string(token->lexeme, strlen(token->lexeme))));
+  return make_constant(AS_OBJECT(copy_string(token->lexeme, strlen(token->lexeme))));
 }
 
 /** @brief Get the currently compiling Chunk.

@@ -17,7 +17,7 @@
  *   2. old_size == 0 and new_size > 0 - allocate new memory.
  *   3. old_size > 0 and new_size > old_size - grow to new size.
  *   4. old_size > 0 and new_size < old_size - reduce to new size.
- * 
+ *
  * If the allocation fails an error message is displayed and the program
  * exits.
  *

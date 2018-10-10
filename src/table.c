@@ -150,6 +150,10 @@ static void table_resize(Table table)
   table->capacity = GROW_CAPACITY(table->capacity);
   Entry *entries = ALLOC(Entry, table->capacity);
 
+  // Zero out the new entries.
+  for(int i = 0; i < table->capacity; i++)
+    entries[i] = NULL;
+
   // Re-hash the existing entries.
   table->count = 0;
   for(int i = 0; i < orig_capacity; i++)
@@ -159,7 +163,7 @@ static void table_resize(Table table)
       int hash = object_hash(e->key, table->capacity);
       if(entries[hash])
       {
-        e->next = entries[hash]->next;
+        e->next = entries[hash];
         entries[hash] = e;
       }
       else
@@ -258,25 +262,31 @@ void table_insert(Table table, Object *key, Object *value)
 
   Entry entry = table_find_entry(table, key);
   if(entry)
-    return;
-
-  int hash = object_hash(key, table->capacity);
-
-  Entry new_entry = NEW(entry);
-  new_entry->key = key;
-  new_entry->value = value;
-
-  if(table->entries[hash])
   {
-    new_entry->next = table->entries[hash]->next;
-    table->entries[hash] = new_entry;
+    // Update an existing table entry.
+    entry->value = value;
   }
   else
   {
-    table->entries[hash] = new_entry;
-  }
+    // Create a new table entry.
+    int hash = object_hash(key, table->capacity);
 
-  table->count++;
+    Entry new_entry = NEW(entry);
+    new_entry->key = key;
+    new_entry->value = value;
+
+    if(table->entries[hash])
+    {
+      new_entry->next = table->entries[hash];
+      table->entries[hash] = new_entry;
+    }
+    else
+    {
+      table->entries[hash] = new_entry;
+    }
+
+    table->count++;
+  }
 }
 
 /** @brief Remove an Entry from the symbol table.
