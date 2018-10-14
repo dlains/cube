@@ -4,7 +4,7 @@ Cube is a dynamically typed, class based object oriented scripting language with
 
 ## Examples
 
-Only simple expressions are being parsed at the moment. There is a built in REPL
+Only simple declarations and expressions are being parsed at the moment. There is a built in REPL
 which can be accessed by running the `cube` executable without a script file name.
 
 The typical operator precedence rules apply. The currently working precedence levels are
@@ -24,6 +24,16 @@ The precedence levels can be overridden with parentheses.
 -> 2200
 > 2 + 20 * 100
 -> 2002
+```
+
+Global variables can de declared and used in expressions.
+
+```
+> var some;
+> some = 10;
+> var more = 100;
+> print some + more;
+-> 110
 ```
 
 Use Ctrl-C to exit the REPL.
