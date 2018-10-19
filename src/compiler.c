@@ -68,6 +68,85 @@ typedef struct {
   Precedence precedence; /**< The precedence of this parse rule. */
 } ParseRule;
 
+/** @struct Local
+ *
+ * Data for a single local variable.
+ */
+typedef struct {
+  Token name;            /**< The local variable name. */
+  int depth;             /**< The scope depth this variable is in. */
+} Local;
+
+/** @struct Compiler
+ *
+ * Data that the compiler needs to store in order for the VM to be
+ * able to access it later.
+ */
+typedef struct Compiler {
+  Local locals[LOCALS_MAX]; /**< Array of Local structs to hold the local variables. */
+  int local_count;          /**< The current count of local variables. */
+  int scope_depth;          /**< The current scope depth. Zero is the global scope. */
+} Compiler;
+
+Compiler *current = NULL;   /** Global Compiler struct to hold data for the VM to use. */
+
+/** @brief Initialize the compiler data.
+ *
+ * Set the Compiler data structure fields to their initial values.
+ *
+ * @param compiler The pointer to the Compiler structure to initialize.
+ */
+static void init_compiler(Compiler *compiler);
+
+/** @brief Begin a new environment scope.
+ *
+ * Increase the scope depth in the compiler because we have entered a block.
+ */
+static void begin_scope(void);
+
+/** @brief End the current environment scope.
+ *
+ * Decrease the scope depth in the compiler because we have exited a block.
+ */
+static void end_scope(void);
+
+/** @brief Check if two identifiers are equivalent.
+ *
+ * Check if the two tokens are the same identifier.
+ *
+ * @param a The first Token to check.
+ * @param b The second Token to check.
+ * @return True if the tokens are equal, false otherwise.
+ */
+static bool identifiers_equal(Token *a, Token *b);
+
+/** @brief Find the specified local variable.
+ *
+ * Look through the local variables stored in the compiler and return the index
+ * of the variable in the locals array if found.
+ *
+ * @param compiler A pointer to the compiler data struct.
+ * @param name The name of the local variable to find.
+ * @param in_function Is the current parsing step inside a function.
+ * @return The index of the found local variable or -1 if it was not found.
+ */
+static int resolve_local(Compiler *compiler, Token *name, bool in_function);
+
+/** @brief Add a local variable to the comiler data.
+ *
+ * Add a local variable to the locals array.
+ *
+ * @param name The Token containing the variable identifier.
+ */
+static void add_local(Token name);
+
+/** @brief Declare a new local variable.
+ *
+ * Declare a new local variable as long as we are not at the global scope
+ * and the identifier does not already exist.
+ */
+static void declare_variable(void);
+
 /*
  * Parsing Functions
  */
@@ -358,6 +437,135 @@ bool compile(Chunk *chunk)
 
   end_compiler();
   return !parser.had_error;
+}
+
+/** @brief Initialize the compiler data.
+ *
+ * Set the Compiler data structure fields to their initial values.
+ *
+ * @param compiler The pointer to the Compiler structure to initialize.
+ */
+static void init_compiler(Compiler *compiler)
+{
+  compiler->local_count = 0;
+  compiler->scope_depth = 0;
+
+  current = compiler;
+}
+
+/** @brief Begin a new environment scope.
+ *
+ * Increase the scope depth in the compiler because we have entered a block.
+ */
+static void begin_scope(void)
+{
+  current->scope_depth++;
+}
+
+/** @brief End the current environment scope.
+ *
+ * Decrease the scope depth in the compiler because we have exited a block.
+ */
+static void end_scope(void)
+{
+  current->scope_depth--;
+
+  // Remove local variables from the stack.
+  while(current->local_count > 0 && current->locals[current->local_count - 1].depth > current->scope_depth)
+  {
+    emit_byte(OP_POP);
+    current->local_count--;
+  }
+}
+
+/** @brief Check if two identifiers are equivalent.
+ *
+ * Check if the two tokens are the same identifier.
+ *
+ * @param a The first Token to check.
+ * @param b The second Token to check.
+ * @return True if the tokens are equal, false otherwise.
+ */
+static bool identifiers_equal(Token *a, Token *b)
+{
+  if(a->type != b->type)
+    return false;
+
+  return strcmp(a->lexeme, b->lexeme) == 0;
+}
+
+/** @brief Find the specified local variable.
+ *
+ * Look through the local variables stored in the compiler and return the index
+ * of the variable in the locals array if found.
+ *
+ * @param compiler A pointer to the compiler data struct.
+ * @param name The name of the local variable to find.
+ * @param in_function Is the current parsing step inside a function.
+ * @return The index of the found local variable or -1 if it was not found.
+ */
+static int resolve_local(Compiler *compiler, Token *name, bool in_function)
+{
+  for(int i = compiler->local_count - 1; i >= 0; i--)
+  {
+    Local *local = &compiler->locals[i];
+    if(identifiers_equal(name, &local->name))
+    {
+      if(!in_function && local->depth == -1)
+      {
+        error("Connot read local variable in its own initializer.");
+      }
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+/** @brief Add a local variable to the comiler data.
+ *
+ * Add a local variable to the locals array.
+ *
+ * @param name The Token containing the variable identifier.
+ */
+static void add_local(Token name)
+{
+  if(current->local_count == LOCALS_MAX)
+  {
+    error("Too many local variables in function.");
+    return;
+  }
+
+  Local *local = &current->locals[current->local_count];
+  local->name = name;
+  local->depth = -1;
+
+  current->local_count++;
+}
+
+/** @brief Declare a new local variable.
+ *
+ * Declare a new local variable as long as we are not at the global scope
+ * and the identifier does not already exist.
+ */
+static void declare_variable(void)
+{
+  if(current->scope_depth == 0)
+    return;
+
+  Token *name = &parser.previous;
+  for(int i = current->local_count - 1; i >= 0; i--)
+  {
+    Local *local = &current->locals[i];
+    if(local->depth != -1 && local->depth < current->scope_depth)
+      break;
+    if(identifiers_equal(name, &local->name))
+    {
+      error("Variable with this name already declared in this scope.");
+    }
+  }
+
+  add_local(*name);
 }
 
 /** @brief Parse an expression.
@@ -838,7 +1046,13 @@ static void parse_precedence(Precedence precedence)
 static Byte parse_variable(const char *error_message)
 {
   consume(TOKEN_IDENTIFIER, error_message);
-  return identifier_constant(&parser.previous);
+
+  if(current->scope_depth == 0)
+    return identifier_constant(&parser.previous);
+
+  declare_variable();
+
+  return 0;
 }
 
 /** @brief Define a variable.
@@ -849,7 +1063,10 @@ static Byte parse_variable(const char *error_message)
  */
 static void define_variable(Byte global)
 {
-  emit_bytes(OP_DEFINE_GLOBAL, global);
+  if(current->scope_depth == 0)
+    emit_bytes(OP_DEFINE_GLOBAL, global);
+  else
+    current->locals[current->local_count - 1].depth = current->scope_depth;
 }
 
 /** @brief Compile a reference to a variable.
@@ -861,16 +1078,28 @@ static void define_variable(Byte global)
  */
 static void named_variable(Token name, bool can_assign)
 {
-  Byte arg = identifier_constant(&name);
+  Byte get_op, set_op;
+  int arg = resolve_local(current, &name, false);
+  if(arg != -1)
+  {
+    get_op = OP_GET_LOCAL;
+    set_op = OP_SET_LOCAL;
+  }
+  else
+  {
+    arg = identifier_constant(&name);
+    get_op = OP_GET_GLOBAL;
+    set_op = OP_SET_GLOBAL;
+  }
 
   if(can_assign && match(TOKEN_EQUAL))
   {
     expression();
-    emit_bytes(OP_SET_GLOBAL, arg);
+    emit_bytes(set_op, arg);
   }
   else
   {
-    emit_bytes(OP_GET_GLOBAL, arg);
+    emit_bytes(get_op, arg);
   }
 }
 

@@ -21,6 +21,9 @@ typedef uint8_t Byte;
 /** Make it easier to work with C Strings. */
 typedef char* String;
 
+/** The maximum number of local variables allowed in a block. */
+#define LOCALS_MAX UINT8_MAX + 1
+
 /** @brief Create a new String.
  *
  * Allocate new memory for the C String and copy over
