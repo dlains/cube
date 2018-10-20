@@ -262,6 +262,12 @@ static void statement();
  */
 static void declaration();
 
+/** @brief Parse a block.
+ *
+ * Parse a do...end or a {..} block.
+ */
+static void block();
+
 /** @brief Parse a variable.
  *
  * Parse a variable.
@@ -421,6 +427,9 @@ static void synchronize();
  */
 bool compile(Chunk *chunk)
 {
+  Compiler main_compiler;
+  init_compiler(&main_compiler);
+
   compiling_chunk = chunk;
 
   parser.had_error = false;
@@ -513,7 +522,7 @@ static int resolve_local(Compiler *compiler, Token *name, bool in_function)
     {
       if(!in_function && local->depth == -1)
       {
-        error("Connot read local variable in its own initializer.");
+        error(name, "Connot read local variable in its own initializer.");
       }
       return i;
     }
@@ -532,7 +541,7 @@ static void add_local(Token name)
 {
   if(current->local_count == LOCALS_MAX)
   {
-    error("Too many local variables in function.");
+    error(&name, "Too many local variables in function.");
     return;
   }
 
@@ -561,7 +570,7 @@ static void declare_variable(void)
       break;
     if(identifiers_equal(name, &local->name))
     {
-      error("Variable with this name already declared in this scope.");
+      error(name, "Variable with this name already declared in this scope.");
     }
   }
 
@@ -919,6 +928,12 @@ static void statement()
   {
     print_statement();
   }
+  else if(match(TOKEN_DO))
+  {
+    begin_scope();
+    block();
+    end_scope();
+  }
   else
   {
     expression_statement();
@@ -942,6 +957,20 @@ static void declaration()
 
   if(parser.panic_mode)
     synchronize();
+}
+
+/** @brief Parse a block.
+ *
+ * Parse a do...end or a {..} block.
+ */
+static void block()
+{
+  while(!check(TOKEN_END) && !check(TOKEN_EOF))
+  {
+    declaration();
+  }
+
+  consume(TOKEN_END, "Expect 'end' after do block.");
 }
 
 /** @brief Parse a variable.
