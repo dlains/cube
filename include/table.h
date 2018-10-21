@@ -57,27 +57,6 @@ void table_init(Table table);
  */
 void table_free(Table table);
 
-/** @brief Create a new nested scope.
- *
- * Assign the current symbol table as the parent and
- * create a new symbol table to store information in the
- * current scope.
- *
- * @param table The new symbol table for the new scope.
- * @param parent The parent symbol table.
- */
-void table_init_scope(Table table, Table parent);
-
-/** @brief Free a symbol table scope.
- *
- * Remove a nested symbol table and return the previous
- * parent symbol table.
- *
- * @param table The symbol table to free the scope for.
- * @return The parent symbol table which will now be the current table.
- */
-Table table_free_scope(Table table);
-
 /** @brief Search the symbol table.
  *
  * Search the symbol table for an entry matching the given key.
