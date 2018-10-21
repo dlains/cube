@@ -15,6 +15,7 @@
 
 // Function declarations.
 static int simple_instruction(const char *name, int offset);
+static int byte_instruction(const char *name, Chunk *chunk, int offset);
 static int constant_instruction(const char *name, Chunk *chunk, int offset);
 
 /** @brief Disassemble the entire Chunk array of code.
@@ -66,6 +67,10 @@ int disassemble_instruction(Chunk *chunk, int offset)
       return simple_instruction("OP_NIL", offset);
     case OP_POP:
       return simple_instruction("OP_POP", offset);
+    case OP_GET_LOCAL:
+      return byte_instruction("OP_GET_LOCAL", chunk, offset);
+    case OP_SET_LOCAL:
+      return byte_instruction("OP_SET_LOCAL", chunk, offset);
     case OP_GET_GLOBAL:
       return constant_instruction("OP_GET_GLOBAL", chunk, offset);
     case OP_DEFINE_GLOBAL:
@@ -110,13 +115,29 @@ int disassemble_instruction(Chunk *chunk, int offset)
  * offset for a singe bytecode instruction.
  *
  * @param name The bytecode instruction name.
- * @param offset The currect offset into the Chunk array.
+ * @param offset The current offset into the Chunk array.
  * @return The new offset for the next bytecode instruction.
  */
 static int simple_instruction(const char *name, int offset)
 {
   printf("%s\n", name);
   return offset + 1;
+}
+
+/** @brief Output a byte instruction.
+ *
+ * Print the byte instruction.
+ *
+ * @param name The bytecode instruction name.
+ * @param chunk The Chunk array gives access to the Objectarray of objects.
+ * @param offset The current offset into the Chunk array.
+ * @return The new offset for the next bytecode instruction.
+ */
+static int byte_instruction(const char *name, Chunk *chunk, int offset)
+{
+  Byte slot = chunk->code[offset + 1];
+  printf("%-16s %4d\n", name, slot);
+  return offset + 2;
 }
 
 /** @brief Output a constant bytecode instruction.
