@@ -102,6 +102,15 @@ typedef struct
  */
 Token token_create(TokenType type, String lexeme, int line, int col);
 
+/** @brief Duplicate a token.
+ *
+ * Deep copy the source token to a new token.
+ *
+ * @param source The source token to copy.
+ * @return The newly created duplicate token.
+ */
+Token token_duplicate(Token source);
+
 /** @brief Free the tokens resources.
  *
  * Check to see if lexeme is not null. If not, free the memory.

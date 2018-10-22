@@ -483,6 +483,7 @@ static void end_scope(void)
   while(current->local_count > 0 && current->locals[current->local_count - 1].depth > current->scope_depth)
   {
     emit_byte(OP_POP);
+    token_free(current->locals[current->local_count - 1].name);
     current->local_count--;
   }
 }
@@ -518,6 +519,7 @@ static int resolve_local(Compiler *compiler, Token *name, bool in_function)
   for(int i = compiler->local_count - 1; i >= 0; i--)
   {
     Local *local = &compiler->locals[i];
+    printf("Local variable %d is %s.\n", i, local->name.lexeme);
     if(identifiers_equal(name, &local->name))
     {
       if(!in_function && local->depth == -1)
@@ -546,8 +548,10 @@ static void add_local(Token name)
   }
 
   Local *local = &current->locals[current->local_count];
-  local->name = name;
+  local->name = token_duplicate(name);
   local->depth = -1;
+
+  printf("Added local variable: %s.\n", local->name.lexeme);
 
   current->local_count++;
 }
@@ -562,19 +566,19 @@ static void declare_variable(void)
   if(current->scope_depth == 0)
     return;
 
-  Token *name = &parser.previous;
+  Token name = parser.previous;
   for(int i = current->local_count - 1; i >= 0; i--)
   {
     Local *local = &current->locals[i];
     if(local->depth != -1 && local->depth < current->scope_depth)
       break;
-    if(identifiers_equal(name, &local->name))
+    if(identifiers_equal(&name, &local->name))
     {
-      error(name, "Variable with this name already declared in this scope.");
+      error(&name, "Variable with this name already declared in this scope.");
     }
   }
 
-  add_local(*name);
+  add_local(name);
 }
 
 /** @brief Parse an expression.
