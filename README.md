@@ -36,7 +36,17 @@ Global variables can de declared and used in expressions.
 -> 110
 ```
 
-Use Ctrl-C to exit the REPL.
+Simple blocks and local variables can now be used. (The REPL can not currently handle multiple line constructs, so the entire `do ... end` loop must be on a single line.)
+
+```
+> var i = 10;
+> do var i = 100; print i; end
+-> 100
+> print i;
+-> 10
+```
+
+Use Ctrl-C or enter 'exit' to leave the REPL.
 
 ### Functions
 
