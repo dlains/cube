@@ -33,6 +33,7 @@ void *reallocate(void *previous, size_t old_size, size_t new_size, const char *f
   if(new_size == 0)
   {
     free(previous);
+    previous = NULL;
     return NULL;
   }
 

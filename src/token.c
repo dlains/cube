@@ -11,6 +11,8 @@
  */
 #include "config.h"
 #include <stdio.h>
+#include <string.h>
+#include "common.h"
 #include "memory.h"
 #include "token.h"
 
@@ -32,6 +34,27 @@ Token token_create(TokenType type, String lexeme, int line, int col)
   token.lexeme = lexeme;
   token.line   = line;
   token.col    = col;
+
+  return token;
+}
+
+/** @brief Duplicate a token.
+ *
+ * Deep copy the source token to a new token.
+ *
+ * @param source The source token to copy.
+ * @return The newly created duplicate token.
+ */
+Token token_duplicate(Token source)
+{
+  Token token;
+
+  token.type   = source.type;
+  token.line   = source.line;
+  token.col    = source.col;
+
+  if(source.lexeme != NULL)
+    token.lexeme = string_copy(source.lexeme, strlen(source.lexeme));
 
   return token;
 }
