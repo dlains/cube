@@ -108,7 +108,16 @@ static int repl()
     line = readline("> ");
 
     if(line && *line)
+    {
+      if(strcmp(line, "exit") == 0)
+      {
+        // Exit from the REPL.
+        return result;
+      }
+
+      // Not exiting, add the line to history.
       add_history(line);
+    }
 
     add_source_line(line);
     result = interpret();
