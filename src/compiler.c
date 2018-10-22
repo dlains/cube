@@ -519,7 +519,6 @@ static int resolve_local(Compiler *compiler, Token *name, bool in_function)
   for(int i = compiler->local_count - 1; i >= 0; i--)
   {
     Local *local = &compiler->locals[i];
-    printf("Local variable %d is %s.\n", i, local->name.lexeme);
     if(identifiers_equal(name, &local->name))
     {
       if(!in_function && local->depth == -1)
@@ -550,8 +549,6 @@ static void add_local(Token name)
   Local *local = &current->locals[current->local_count];
   local->name = token_duplicate(name);
   local->depth = -1;
-
-  printf("Added local variable: %s.\n", local->name.lexeme);
 
   current->local_count++;
 }
