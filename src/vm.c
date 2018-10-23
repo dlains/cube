@@ -847,7 +847,7 @@ static void do_negate()
  */
 static bool is_falsey(Object *object)
 {
-  return IS_NIL(object) || (IS_BOOLEAN(object) && !AS_BOOLEAN(object));
+  return IS_NIL(object) || (IS_BOOLEAN(object) && !AS_BOOLEAN(object)->value);
 }
 
 /** @brief Concatenate two ObjectString objects.
