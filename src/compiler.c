@@ -196,6 +196,18 @@ static bool check(TokenType type);
  */
 static bool match(TokenType type);
 
+/** @brief Parse an and expression.
+ *
+ * Parse the and expression and emit a JUMP if necessary.
+ */
+static void and_(bool can_assign);
+
+/** @brief Parse an or expression.
+ *
+ * Parse the or expression and emit a JUMP if necessary.
+ */
+static void or_(bool can_assign);
+
 /** @brief Parse a binary expression.
  *
  * Parse binary expressions and write the byte code to the Chunk array.
@@ -262,11 +274,17 @@ static void statement();
  */
 static void declaration();
 
+/** @brief Parse a brace block.
+ *
+ * Parse a { ... } block.
+ */
+static void brace_block();
+
 /** @brief Parse a block.
  *
  * Parse a do...end or a {..} block.
  */
-static void block();
+static void do_block();
 
 /** @brief Parse a variable.
  *
@@ -287,6 +305,18 @@ static void var_declaration();
  * Parse an expression statement.
  */
 static void expression_statement();
+
+/** @brief Parse an if statement.
+ *
+ * Parse and create the operations for an if statement.
+ */
+static void if_statement();
+
+/** @brief Parse a while statement.
+ *
+ * Parse and create the operations for a while statement.
+ */
+static void while_statement();
 
 /** @brief Parse a print statement.
  *
@@ -366,6 +396,35 @@ static void emit_byte(Byte byte);
  * @param byte2 The second byte code to add.
  */
 static void emit_bytes(Byte byte1, Byte byte2);
+
+/** @brief Create a loop operation.
+ *
+ * Loops jump backwards in the Chunk array of operation codes.
+ * The offset to loop to is stored as two consecutive byte values.
+ *
+ * @param loop_start The offset of the start of the loop.
+ */
+static void emit_loop(int loop_start);
+
+/** @brief Create a jump operation.
+ *
+ * Adds the instruction followed by a placeholder for the
+ * jump offset. The placeholder can be patched by calling
+ * jump_patch.
+ *
+ * @param instruction The bytecode corresponding to one of the Jump instructions.
+ * @return The offset of the jump placeholder.
+ */
+static int emit_jump(Byte instruction);
+
+/** @brief Patch a jump offset.
+ *
+ * Replace the placeholder for a previous JUMP instruction with the
+ * correct offset.
+ *
+ * @param offset The offset to patch into the jump instruction.
+ */
+static void patch_jump(int offset);
 
 /** @brief End compilation and emit a return operation.
  *
@@ -610,8 +669,8 @@ ParseRule rules[] = {
   { NULL,     NULL,    PREC_NONE },       // TOKEN_SEMICOLON
   { NULL,     binary,  PREC_FACTOR },     // TOKEN_SLASH
   { NULL,     binary,  PREC_FACTOR },     // TOKEN_STAR
-  { NULL,     NULL,    PREC_AND },        // TOKEN_AND
-  { NULL,     NULL,    PREC_OR },         // TOKEN_OR
+  { NULL,     and_,    PREC_AND },        // TOKEN_AND
+  { NULL,     or_,     PREC_OR },         // TOKEN_OR
   { unary,    NULL,    PREC_NONE },       // TOKEN_BANG
   { NULL,     binary,  PREC_EQUALITY },   // TOKEN_BANG_EQUAL
   { NULL,     NULL,    PREC_NONE },       // TOKEN_EQUAL
@@ -742,6 +801,47 @@ static bool match(TokenType type)
 
   advance();
   return true;
+}
+
+/** @brief Parse an and expression.
+ *
+ * Parse the and expression and emit a JUMP if necessary.
+ */
+static void and_(bool can_assign)
+{
+  // Prevent unused parameter error. Not all ParseFn functions actually use the parameter.
+  (void)can_assign;
+
+  // Short circuit if the left operand is false.
+  int end_jump = emit_jump(OP_JUMP_IF_FALSE);
+
+  emit_byte(OP_POP);
+  parse_precedence(PREC_AND);
+
+  patch_jump(end_jump);
+}
+
+/** @brief Parse an or expression.
+ *
+ * Parse the or expression and emit a JUMP if necessary.
+ */
+static void or_(bool can_assign)
+{
+  // Prevent unused parameter error. Not all ParseFn functions actually use the parameter.
+  (void)can_assign;
+
+  // If the operand is true we want to keep it, so when it's false
+  // jump to the code to evaluate the right operand.
+  int else_jump = emit_jump(OP_JUMP_IF_FALSE);
+
+  // If we get here, the operand is true, so jump to the end to keep it.
+  int end_jump = emit_jump(OP_JUMP);
+
+  patch_jump(else_jump);
+  emit_byte(OP_POP);
+
+  parse_precedence(PREC_OR);
+  patch_jump(end_jump);
 }
 
 /** @brief Parse a binary expression.
@@ -925,14 +1025,28 @@ static void unary(bool can_assign)
  */
 static void statement()
 {
-  if(match(TOKEN_PRINT))
+  if(match(TOKEN_IF))
+  {
+    if_statement();
+  }
+  else if(match(TOKEN_PRINT))
   {
     print_statement();
+  }
+  else if(match(TOKEN_WHILE))
+  {
+    while_statement();
+  }
+  else if(match(TOKEN_LEFT_BRACE))
+  {
+    begin_scope();
+    brace_block();
+    end_scope();
   }
   else if(match(TOKEN_DO))
   {
     begin_scope();
-    block();
+    do_block();
     end_scope();
   }
   else
@@ -960,11 +1074,25 @@ static void declaration()
     synchronize();
 }
 
-/** @brief Parse a block.
+/** @brief Parse a brace block.
  *
- * Parse a do...end or a {..} block.
+ * Parse a { ... } block.
  */
-static void block()
+static void brace_block()
+{
+  while(!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF))
+  {
+    declaration();
+  }
+
+  consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
+}
+
+/** @brief Parse a do block.
+ *
+ * Parse a do...end block.
+ */
+static void do_block()
 {
   while(!check(TOKEN_END) && !check(TOKEN_EOF))
   {
@@ -1018,6 +1146,62 @@ static void expression_statement()
   expression();
   emit_byte(OP_POP);
   consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
+}
+
+/** @brief Parse an if statement.
+ *
+ * Parse and create the operations for an if statement.
+ */
+static void if_statement()
+{
+  consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
+  expression();
+  consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+
+  // Jump to the else branch of the condition is false.
+  int else_jump = emit_jump(OP_JUMP_IF_FALSE);
+
+  // Compile the then branch.
+  emit_byte(OP_POP);
+  statement();
+
+  // Jump over the else branch when the if branch is taken.
+  int end_jump = emit_jump(OP_JUMP);
+
+  // Compile the else branch.
+  patch_jump(else_jump);
+  emit_byte(OP_POP);
+
+  if(match(TOKEN_ELSE))
+    statement();
+
+  patch_jump(end_jump);
+}
+
+/** @brief Parse a while statement.
+ *
+ * Parse and create the operations for a while statement.
+ */
+static void while_statement()
+{
+  int loop_start = current_chunk()->count;
+
+  consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
+  expression();
+  consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+
+  // Jump out of the loop if the condition is false.
+  int exit_jump = emit_jump(OP_JUMP_IF_FALSE);
+
+  // Compile the body.
+  emit_byte(OP_POP);
+  statement();
+
+  // Loop back to start.
+  emit_loop(loop_start);
+
+  patch_jump(exit_jump);
+  emit_byte(OP_POP);
 }
 
 /** @brief Parse a print statement.
@@ -1179,6 +1363,62 @@ static void emit_bytes(Byte byte1, Byte byte2)
 {
   emit_byte(byte1);
   emit_byte(byte2);
+}
+
+/** @brief Create a loop operation.
+ *
+ * Loops jump backwards in the Chunk array of operation codes.
+ * The offset to loop to is stored as two consecutive byte values.
+ *
+ * @param loop_start The offset of the start of the loop.
+ */
+static void emit_loop(int loop_start)
+{
+  emit_byte(OP_LOOP);
+
+  int offset = current_chunk()->count - loop_start + 2;
+  if(offset > UINT16_MAX)
+    error(&parser.current, "Loop body too large");
+
+  emit_byte((offset >> 8) & 0xff);
+  emit_byte(offset & 0xff);
+}
+
+/** @brief Create a jump operation.
+ *
+ * Adds the instruction followed by a placeholder for the
+ * jump offset. The placeholder can be patched by calling
+ * jump_patch.
+ *
+ * @param instruction The bytecode corresponding to one of the Jump instructions.
+ * @return The offset of the jump placeholder.
+ */
+static int emit_jump(Byte instruction)
+{
+  emit_byte(instruction);
+  emit_byte(0xff);
+  emit_byte(0xff);
+
+  return current_chunk()->count - 2;
+}
+
+/** @brief Patch a jump offset.
+ *
+ * Replace the placeholder for a previous JUMP instruction with the
+ * correct offset.
+ *
+ * @param offset The offset to patch into the jump instruction.
+ */
+static void patch_jump(int offset)
+{
+  // Subtract 2 to adjust for the bytecode for the jump offset itself.
+  int jump = current_chunk()->count - offset - 2;
+
+  if(jump > UINT16_MAX)
+    error(&parser.current, "Too much code to jump over.");
+
+  current_chunk()->code[offset] = (jump >> 8) & 0xff;
+  current_chunk()->code[offset + 1] = jump & 0xff;
 }
 
 /** @brief End compilation and emit a return operation.
