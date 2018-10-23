@@ -17,6 +17,7 @@
 static int simple_instruction(const char *name, int offset);
 static int byte_instruction(const char *name, Chunk *chunk, int offset);
 static int constant_instruction(const char *name, Chunk *chunk, int offset);
+static int jump_instruction(const char *name, int sign, Chunk *chunk, int offset);
 
 /** @brief Disassemble the entire Chunk array of code.
  *
@@ -101,6 +102,12 @@ int disassemble_instruction(Chunk *chunk, int offset)
       return simple_instruction("OP_NEGATE", offset);
     case OP_PRINT:
       return simple_instruction("OP_PRINT", offset);
+    case OP_JUMP:
+      return jump_instruction("OP_JUMP", 1, chunk, offset);
+    case OP_JUMP_IF_FALSE:
+      return jump_instruction("OP_JUMP_IF_FALSE", 1, chunk, offset);
+    case OP_LOOP:
+      return jump_instruction("OP_LOOP", -1, chunk, offset);
     case OP_RETURN:
       return simple_instruction("OP_RETURN", offset);
     default:
@@ -158,4 +165,22 @@ static int constant_instruction(const char *name, Chunk *chunk, int offset)
   print_object(chunk->constants.objects[constant]);
   printf("'\n");
   return offset + 2;
+}
+
+/** @brief Output a jump instruction.
+ *
+ * The Jump and Loop instructions have a 16 bit offset.
+ *
+ * @param name The bytecode instruction name.
+ * @param sign The sign of the instruction.
+ * @param chunk The Chuck array gives access to the code.
+ * @param offset The current offset into the Chunk array for this instruction.
+ * @return The new offset for the next bytecode instruction.
+ */
+static int jump_instruction(const char *name, int sign, Chunk *chunk, int offset)
+{
+  uint16_t jump = (uint16_t)(chunk->code[offset + 1] << 8);
+  jump |= chunk->code[offset + 2];
+  printf("%-16s %4d -> %d\n", name, offset, offset + 3 + sign * jump);
+  return offset + 3;
 }
