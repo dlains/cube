@@ -135,6 +135,20 @@ const char *token_name(TokenType type)
       return "TOKEN_LESS";
     case TOKEN_LESS_EQUAL:
       return "TOKEN_LESS_EQUAL";
+    case TOKEN_PLUS_EQUAL:
+      return "TOKEN_PLUS_EQUAL";
+    case TOKEN_MINUS_EQUAL:
+      return "TOKEN_MINUS_EQUAL";
+    case TOKEN_SLASH_EQUAL:
+      return "TOKEN_SLASH_EQUAL";
+    case TOKEN_STAR_EQUAL:
+      return "TOKEN_STAR_EQUAL";
+    case TOKEN_PERCENT_EQUAL:
+      return "TOKEN_PERCENT_EQUAL";
+    case TOKEN_AND_EQUAL:
+      return "TOKEN_AND_EQUAL";
+    case TOKEN_OR_EQUAL:
+      return "TOKEN_OR_EQUAL";
     case TOKEN_IDENTIFIER:
       return "TOKEN_IDENTIFIER";
     case TOKEN_STRING:

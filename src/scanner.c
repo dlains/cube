@@ -151,7 +151,7 @@ Token next_token()
     case ']':
       return make_token(TOKEN_RIGHT_BRACKET);
     case '%':
-      return make_token(TOKEN_PERCENT);
+      return make_token(match(scanner, '=') ? TOKEN_PERCENT_EQUAL : TOKEN_PERCENT);
     case ',':
       return make_token(TOKEN_COMMA);
     case '^':
@@ -159,19 +159,19 @@ Token next_token()
     case '.':
       return make_token(TOKEN_DOT);
     case '-':
-      return make_token(TOKEN_MINUS);
+      return make_token(match(scanner, '=') ? TOKEN_MINUS_EQUAL : TOKEN_MINUS);
     case '+':
-      return make_token(TOKEN_PLUS);
+      return make_token(match(scanner, '=') ? TOKEN_PLUS_EQUAL : TOKEN_PLUS);
     case ';':
       return make_token(TOKEN_SEMICOLON);
     case '/':
-      return make_token(TOKEN_SLASH);
+      return make_token(match(scanner, '=') ? TOKEN_SLASH_EQUAL : TOKEN_SLASH);
     case '*':
-      return make_token(TOKEN_STAR);
+      return make_token(match(scanner, '=') ? TOKEN_STAR_EQUAL : TOKEN_STAR);
     case '&':
-      return make_token(TOKEN_AND);
+      return make_token(match(scanner, '=') ? TOKEN_AND_EQUAL : TOKEN_AND);
     case '|':
-      return make_token(TOKEN_OR);
+      return make_token(match(scanner, '=') ? TOKEN_OR_EQUAL : TOKEN_OR);
     case '!':
       return make_token(match(scanner, '=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
     case '=':
@@ -209,6 +209,7 @@ static Token make_token(TokenType type)
     }
     case TOKEN_STRING:
     {
+      // For strings strip off the quote (") characters and store just the text of the string.
       String lexeme = string_copy(start_position(scanner) + 1, token_length(scanner) - 2);
       return token_create(type, lexeme, line_number(scanner), col_number(scanner));
     }
