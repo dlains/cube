@@ -679,6 +679,13 @@ ParseRule rules[] = {
   { NULL,     binary,  PREC_COMPARISON }, // TOKEN_GREATER_EQUAL
   { NULL,     binary,  PREC_COMPARISON }, // TOKEN_LESS
   { NULL,     binary,  PREC_COMPARISON }, // TOKEN_LESS_EQUAL
+  { NULL,     binary,  PREC_ASSIGNMENT }, // TOKEN_PLUS_EQUAL
+  { NULL,     binary,  PREC_ASSIGNMENT }, // TOKEN_MINUS_EQUAL
+  { NULL,     binary,  PREC_ASSIGNMENT }, // TOKEN_SLASH_EQUAL
+  { NULL,     binary,  PREC_ASSIGNMENT }, // TOKEN_STAR_EQUAL
+  { NULL,     binary,  PREC_ASSIGNMENT }, // TOKEN_PRECENT_EQUAL
+  { NULL,     and_,    PREC_ASSIGNMENT }, // TOKEN_AND_EQUAL
+  { NULL,     or_,     PREC_ASSIGNMENT }, // TOKEN_OR_EQUAL
   { variable, NULL,    PREC_NONE },       // TOKEN_IDENTIFIER
   { string,   NULL,    PREC_NONE },       // TOKEN_STRING
   { integer,  NULL,    PREC_NONE },       // TOKEN_INTEGER
@@ -696,9 +703,9 @@ ParseRule rules[] = {
   { NULL,     NULL,    PREC_NONE },       // TOKEN_IF
   { NULL,     NULL,    PREC_NONE },       // TOKEN_NEXT
   { literal,  NULL,    PREC_NONE },       // TOKEN_NIL
+  { NULL,     NULL,    PREC_NONE },       // TOKEN_PRINT
   { NULL,     NULL,    PREC_NONE },       // TOKEN_RESCUE
   { NULL,     NULL,    PREC_NONE },       // TOKEN_RETURN
-  { NULL,     NULL,    PREC_NONE },       // TOKEN_PRINT
   { NULL,     NULL,    PREC_NONE },       // TOKEN_SUPER
   { NULL,     NULL,    PREC_NONE },       // TOKEN_SWITCH
   { NULL,     NULL,    PREC_NONE },       // TOKEN_THIS
@@ -883,18 +890,23 @@ static void binary(bool can_assign)
       emit_bytes(OP_GREATER, OP_NOT);
       break;
     case TOKEN_PLUS:
+    case TOKEN_PLUS_EQUAL:
       emit_byte(OP_ADD);
       break;
     case TOKEN_MINUS:
+    case TOKEN_MINUS_EQUAL:
       emit_byte(OP_SUBTRACT);
       break;
     case TOKEN_STAR:
+    case TOKEN_STAR_EQUAL:
       emit_byte(OP_MULTIPLY);
       break;
     case TOKEN_SLASH:
+    case TOKEN_SLASH_EQUAL:
       emit_byte(OP_DIVIDE);
       break;
     case TOKEN_PERCENT:
+    case TOKEN_PERCENT_EQUAL:
       emit_byte(OP_MODULUS);
       break;
     case TOKEN_CARET:
@@ -1306,10 +1318,13 @@ static void named_variable(Token name, bool can_assign)
     set_op = OP_SET_GLOBAL;
   }
 
-  if(can_assign && match(TOKEN_EQUAL))
+  if(can_assign )
   {
-    expression();
-    emit_bytes(set_op, arg);
+    if(match(TOKEN_EQUAL) || match(TOKEN_PLUS_EQUAL) || match(TOKEN_MINUS_EQUAL) || match(TOKEN_SLASH_EQUAL) || match(TOKEN_STAR_EQUAL) || match(TOKEN_PERCENT_EQUAL) || match(TOKEN_AND_EQUAL) || match(TOKEN_OR_EQUAL))
+    {
+      expression();
+      emit_bytes(set_op, arg);
+    }
   }
   else
   {
